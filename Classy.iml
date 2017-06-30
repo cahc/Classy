@@ -13,14 +13,14 @@
     <orderEntry type="library" name="com.koloboke:koloboke-impl-common-jdk8:1.0.0" level="project" />
     <orderEntry type="library" name="com.koloboke:koloboke-api-jdk8:1.0.0" level="project" />
     <orderEntry type="library" name="com.koloboke:koloboke-impl-jdk8:1.0.0" level="project" />
-    <orderEntry type="library" name="jlangdetect-0.5-SNAPSHOT-javadoc" level="project" />
     <orderEntry type="library" name="com.googlecode.cqengine:cqengine:2.9.0" level="project" />
-    <orderEntry type="library" name="JSAT-0.0.7-SNAPSHOT" level="project" />
     <orderEntry type="library" name="de.ruedigermoeller:fst:2.43" level="project" />
     <orderEntry type="library" name="commons-cli:commons-cli:1.3.1" level="project" />
-    <orderEntry type="library" name="jsp-api" level="project" />
-    <orderEntry type="library" name="guava-21.0-javadoc" level="project" />
-    <orderEntry type="library" name="guava-21.0" level="project" />
     <orderEntry type="library" name="net.openhft:zero-allocation-hashing:0.8" level="project" />
+    <orderEntry type="library" name="JSAT-0.0.7-SNAPSHOT1" level="project" />
+    <orderEntry type="library" name="language-detector-0.61" level="project" />
+    <orderEntry type="library" name="jlangdetect-0.5-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="jlangdetect-extra-0.5-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="servlet-api" level="project" />
   </component>
 </module>
