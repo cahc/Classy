@@ -1,0 +1,27 @@
+<component name="libraryTable">
+  <library name="com.googlecode.cqengine:cqengine:2.9.0" type="repository">
+    <properties maven-id="com.googlecode.cqengine:cqengine:2.9.0" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/cqengine-2.9.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/concurrent-trees-2.6.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/javassist-3.18.2-GA.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/sqlite-jdbc-3.8.11.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/kryo-3.0.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/reflectasm-1.10.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/asm-5.0.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/minlog-1.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/objenesis-2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/kryo-serializers-0.37.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/protobuf-java-2.6.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/antlr4-runtime-4.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/typetools-0.4.7.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/cqengine-stream-support-1.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/cqengine-2.9.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/cqengine-2.9.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
