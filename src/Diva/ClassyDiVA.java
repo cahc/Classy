@@ -29,6 +29,8 @@ public class ClassyDiVA {
     public static void main(String[] arg) throws IOException, XMLStreamException, MyOwnException, ClassNotFoundException {
 
 
+        //TODO include number in output
+
         if(arg.length != 1) {System.out.println("Supply mods input file.."); System.exit(0); }
 
 
