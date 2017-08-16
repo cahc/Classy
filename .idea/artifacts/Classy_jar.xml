@@ -3,9 +3,11 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Classy_jar</output-path>
     <root id="archive" name="Classy.jar">
       <element id="module-output" name="Classy" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/liblinear-1.95.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/koloboke-impl-jdk8-1.0.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/koloboke-impl-common-jdk8-1.0.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/kryo-4.0.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/reflectasm-1.11.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/asm-5.0.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/minlog-1.3.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/objenesis-2.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/koloboke-api-jdk8-1.0.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/annotations-3.0.1u2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/jcip-annotations-1.0.jar" path-in-jar="/" />
@@ -14,6 +16,10 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/auto-service-1.0-rc1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/guava-16.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/asm-4.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/fst-2.43.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jackson-core-2.5.3.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/javassist-3.19.0-GA.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/objenesis-2.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/cqengine-2.9.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/concurrent-trees-2.6.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/javassist-3.18.2-GA.jar" path-in-jar="/" />
@@ -21,19 +27,21 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/kryo-3.0.3.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/reflectasm-1.10.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/asm-5.0.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/minlog-1.3.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/objenesis-2.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/kryo-serializers-0.37.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/protobuf-java-2.6.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/antlr4-runtime-4.5.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/typetools-0.4.7.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/cqengine-stream-support-1.1.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jlangdetect-extra-0.5-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/liblinear-1.95.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="F:/apache-tomcat-8.5.16/lib/servlet-api.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-cli-1.3.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../JSAT-0.7-SNAPSHOT/JSAT/target/JSAT-0.0.7-SNAPSHOT.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../jlangdetect-0.5-SNAPSHOT/jars/jlangdetect-0.5-SNAPSHOT.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../jlangdetect-0.5-SNAPSHOT/jars/jlangdetect-europarl-0.5-SNAPSHOT.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../jlangdetect-0.5-SNAPSHOT/jars/jlangdetect-extra-0.5-SNAPSHOT.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../jlangdetect-0.5-SNAPSHOT/jars/slf4j-api-1.7.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/koloboke-impl-jdk8-1.0.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/koloboke-impl-common-jdk8-1.0.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/language-detector-0.61.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jlangdetect-0.5-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/zero-allocation-hashing-0.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/annotations-12.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/mapdb-3.0.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/kotlin-stdlib-1.0.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/kotlin-runtime-1.0.2.jar" path-in-jar="/" />
@@ -43,15 +51,7 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/guava-19.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/lz4-1.3.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/elsa-3.0.0-M5.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/fst-2.43.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jackson-core-2.5.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/javassist-3.19.0-GA.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/kryo-4.0.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/reflectasm-1.11.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/asm-5.0.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/lib/objenesis-2.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../apache-tomcat-8.0.29/lib/jsp-api.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../apache-tomcat-8.0.29/lib/servlet-api.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/JSAT-0.0.7-SNAPSHOT.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
