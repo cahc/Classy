@@ -371,7 +371,7 @@ public class CmdParser {
             ///////////////////////////////////////////////////////
 
 
-            double[] gridSearch = new double[10];
+            double[] gridSearch = new double[12];
 
             gridSearch[0] = Math.pow(2,0.5);
             gridSearch[1] = Math.pow(2, 1);
@@ -383,8 +383,8 @@ public class CmdParser {
             gridSearch[7] = 10;
             gridSearch[8] = Math.pow(2,4);
             gridSearch[9] = Math.pow(2,4.5);
-
-
+            gridSearch[10] = Math.pow(2,5);
+            gridSearch[11] = 1;
 
             for (int j = 0; j < gridSearch.length; j++) {
 
@@ -392,7 +392,7 @@ public class CmdParser {
 
                 baseClassifier.setUseBias(true);
                 baseClassifier.setC( gridSearch[j] ); //todo crossvalidate larger values reduce the amount of regularization, and smaller values increase the regularization
-                baseClassifier.setMaxIterations(200); //todo check convergance
+                baseClassifier.setMaxIterations(250); //todo check convergance
 
                 OneVSAll metaClassifyer = new OneVSAll(baseClassifier, true);
 
@@ -464,7 +464,7 @@ public class CmdParser {
             LogisticRegressionDCD baseClassifier = new LogisticRegressionDCD();
             baseClassifier.setUseBias(true);
             baseClassifier.setC( reg ); //todo crossvalidate larger values reduce the amount of regularization, and smaller values increase the regularization
-            baseClassifier.setMaxIterations(200); //todo check convergance
+            baseClassifier.setMaxIterations(250); //todo check convergance
 
             OneVSAll metaClassifyer = new OneVSAll(baseClassifier, true);
 

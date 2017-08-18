@@ -66,6 +66,7 @@ public class ClassyDiVA {
 
             HashMap<Integer,Double> level2ToProb = new HashMap<>();
             HashMap<Integer,Double> level1ToProb = new HashMap<>();
+            HashMap<Integer,Double> level3ToProb = new HashMap<>();
 
             if(r.isContainsEnglish()) {
 
@@ -101,6 +102,7 @@ public class ClassyDiVA {
                         double prob = probabilities.get(i);
                         Integer level2Code = HsvCodeToName.firstThreeDigitsOrNull(  hsv.getCode() );
                         Integer level1Code = HsvCodeToName.firstOneDigitOrNull( hsv.getCode()  );
+                        Integer level3Code = HsvCodeToName.firstFiveDigitsOrNull( hsv.getCode() );
 
                         Double problevel1 = level1ToProb.get(level1Code);
 
@@ -109,6 +111,11 @@ public class ClassyDiVA {
                         Double problevel2 = level2ToProb.get(level2Code);
 
                         if(problevel2 != null) { level2ToProb.put(level2Code, problevel2+ prob); } else {level2ToProb.put(level2Code, prob); }
+
+
+                        //dosent make any sense..
+                        Double problevel3 = level3ToProb.get(level3Code);
+                        if(problevel3 != null) { level3ToProb.put(level3Code, problevel3+ prob); } else {level3ToProb.put(level3Code, prob); }
 
 
                     }
@@ -174,6 +181,7 @@ public class ClassyDiVA {
 
             Collections.sort(classProbPairsLevel1, Comparator.reverseOrder());
 
+
             List<ClassProbPair> classProbPairsLevel2 = new ArrayList<>(5);
 
 
@@ -189,6 +197,29 @@ public class ClassyDiVA {
 
             Collections.sort(classProbPairsLevel2, Comparator.reverseOrder());
 
+
+
+            List<ClassProbPair> classProbPairsLevel3 = new ArrayList<>(5);
+
+
+            for(Map.Entry<Integer,Double> entry : level3ToProb.entrySet() ) {
+
+                Integer code = entry.getKey();
+                Double prob = entry.getValue();
+
+                classProbPairsLevel3.add(  new ClassProbPair( code, prob )  );
+
+
+            }
+
+            Collections.sort(classProbPairsLevel3, Comparator.reverseOrder());
+
+
+
+
+
+
+
             if(classProbPairsLevel1.size() > 0) {
 
                 ClassificationCategory bestGuessLevel1 = HsvCodeToName.getCategoryInfo(classProbPairsLevel1.get(0).getClassCode());
@@ -198,9 +229,19 @@ public class ClassyDiVA {
                 ClassificationCategory bestGuessLevel2 = HsvCodeToName.getCategoryInfo(classProbPairsLevel2.get(0).getClassCode());
                 Double confidence2 = classProbPairsLevel2.get(0).getProbability();
 
+                if(r.isContainsEnglish()) {
+
+                    ClassificationCategory bestGuessLevel3 = HsvCodeToName.getCategoryInfo(classProbPairsLevel3.get(0).getClassCode());
+                    Double confidence3 = classProbPairsLevel3.get(0).getProbability();
 
 
-                writer.write(r.getURI()   + "\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 +  "\t" + bestGuessLevel2.getEng_description() + "\t" + confidence2 ); ;
+                    writer.write(r.getURI() + "\t" + "eng_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel3.getEng_description() + "\t" + confidence3);
+
+
+                } else {
+
+                    writer.write(r.getURI() + "\t" + "swe_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel2.getEng_description() + "\t" + confidence2);
+                }
                 writer.newLine();
 
                 classed++;
