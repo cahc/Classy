@@ -6,6 +6,7 @@ import com.google.common.collect.MinMaxPriorityQueue;
 import com.koloboke.collect.map.hash.HashObjIntMap;
 import com.koloboke.collect.map.hash.HashObjIntMaps;
 import jsat.linear.IndexValue;
+import jsat.linear.SparseMatrix;
 import jsat.linear.SparseVector;
 import jsat.text.wordweighting.OkapiBM25;
 
@@ -229,8 +230,37 @@ public class DivaRecordsToVectors {
        }
 
 
-        System.out.println("done");
+        System.out.println("Constructing similarity matrix");
 
+        SparseMatrix sparseSimilarityMatrix = new SparseMatrix(topKsets.size(),topKsets.size(),10);
+
+        for(int i=0; i< topKsets.size(); i++) {
+
+            MinMaxPriorityQueue<VectorAndSim> similarVectors = topKsets.get(i);
+
+            Iterator<VectorAndSim> iterator = similarVectors.iterator();
+
+            while(iterator.hasNext()) {
+
+                VectorAndSim vec = iterator.next();
+
+                sparseSimilarityMatrix.set(i, vec.getVectorID(),vec.getSim() );
+
+                //make symetric
+
+                sparseSimilarityMatrix.set(vec.getVectorID(), i , vec.getSim() );
+
+
+            }
+
+
+        }
+
+
+        System.out.println(sparseSimilarityMatrix.rows() + " " + sparseSimilarityMatrix.cols() + " " + sparseSimilarityMatrix.isSparce() + " " + sparseSimilarityMatrix.nnz());
+
+
+        System.out.println(sparseSimilarityMatrix.getRowView(0));
 
         //List<Double> hej = sparseVectors.parallelStream().map(  (SparseVector v) -> DivaRecordsToVectors.apa(v,sparseVectors)    ).collect(Collectors.toList() );
 
