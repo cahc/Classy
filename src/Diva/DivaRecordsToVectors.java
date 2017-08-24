@@ -179,6 +179,55 @@ public class DivaRecordsToVectors {
 
     }
 
+    public static SparseMatrix getTopKSecondOrder(SparseMatrix similarityMatrixOriginal, int K, double minSim) {
+
+        SparseMatrix similarityMatrix = similarityMatrixOriginal.clone();
+
+        for(int i=0; i<similarityMatrix.rows(); i++) similarityMatrix.getRowView(i).normalize();
+
+        for(int i=0; i< similarityMatrix.rows(); i++) similarityMatrix.set(i,i,1.0D);
+
+        SparseMatrix secondOrderMatrix = new SparseMatrix(similarityMatrix.rows()+10,similarityMatrix.cols()+10);
+
+        for(int i=0; i<similarityMatrix.rows(); i++) {
+
+            MinMaxPriorityQueue<VectorAndSim> minMaxPriorityQueue = MinMaxPriorityQueue.maximumSize(K).create();
+
+            SparseVector aVector = (SparseVector)similarityMatrix.getRowView(i);
+            for(int j=0; j<similarityMatrix.rows(); j++) {
+
+                if(j==i) continue;
+
+                SparseVector otherVector = (SparseVector)similarityMatrix.getRowView(j);
+
+                double sim = aVector.dot(otherVector);
+                if(sim < minSim) continue;
+
+                minMaxPriorityQueue.add(  new VectorAndSim(new VectorWithID(otherVector,j),sim)  );
+
+
+            }
+
+
+            for(VectorAndSim vectorAndSim : minMaxPriorityQueue) {
+
+
+                secondOrderMatrix.set(i,vectorAndSim.getVectorID(),vectorAndSim.getSim());
+
+
+            }
+
+
+
+        }
+
+
+
+        //reset
+
+        return secondOrderMatrix;
+    }
+
 
     public static Set<VectorAndSim> getSimilarThreshold(VectorWithID v, List<VectorWithID> vectorSet, double threshold) {
 
@@ -500,7 +549,7 @@ public class DivaRecordsToVectors {
 
         now = System.currentTimeMillis();
 
-        List<Set<VectorAndSim>> topEpsSets =  vectorWithIDS.parallelStream().map( (VectorWithID vector) -> getSimilarThreshold(vector,vectorWithIDS,0.1)   ).collect(Collectors.toList());
+        List<Set<VectorAndSim>> topEpsSets =  vectorWithIDS.parallelStream().map( (VectorWithID vector) -> getSimilarThreshold(vector,vectorWithIDS,0.05)   ).collect(Collectors.toList());
 
         System.out.println("TopEps calculations in : " + (System.currentTimeMillis() - now)/1000.0 );
 
@@ -552,6 +601,15 @@ public class DivaRecordsToVectors {
         System.out.println("Top10:" +" " + sparseSimilarityMatrix2.rows() + " " + sparseSimilarityMatrix2.cols() + " " + sparseSimilarityMatrix2.isSparce() + " " + sparseSimilarityMatrix2.nnz());
 
 
+        System.out.println("Second order..");
+
+
+       SparseMatrix secondOrderSim = getTopKSecondOrder(sparseSimilarityMatrix,15,0.05);
+
+       writeToPajek(secondOrderSim,"pajekSecondOrder.txt");
+        writeToNetwork(sparseSimilarityMatrix2,"networkSecondOrder.txt");
+
+
         writeToPajek(sparseSimilarityMatrix2,"pajek.net");
 
         writeToNetwork(sparseSimilarityMatrix2,"network.txt");
@@ -574,7 +632,7 @@ public class DivaRecordsToVectors {
         //CLUSTERING
 
         int modularityFunction = 1;
-        double resolution = 1;
+        double resolution = 0.1;
         double resolution2;
 
         Network network = ModularityOptimizer.convertSparseMatrix(sparseSimilarityMatrix2,modularityFunction);
@@ -663,25 +721,32 @@ public class DivaRecordsToVectors {
 
         System.out.println("calculating silhouettes");
         Silhouette silhouette = new Silhouette(sparseSimilarityMatrix2, clustering.cluster);
+
         List<Integer> indices = new ArrayList<>();
 
-       // System.out.println("sil for i=0 : " +  silhouette.getSilhouette(0));
+        for(int k=0; k<sparseSimilarityMatrix2.rows(); k++) {
 
-        /*
-        for(int m=0; m<sparseSimilarityMatrix2.rows(); m++) {
+           indices.add(k);
 
-            indices.add(m);
+
         }
 
         List<Double> sils = indices.parallelStream().map( silhouette::getSilhouette ).collect( Collectors.toList() );
 
-        int numerator = 0;
+
+        double numerator = 0;
 
         for(int x=0; x<sils.size(); x++) numerator+=sils.get(x);
 
+
+        System.out.println("Sil 5370 (should be good): " + silhouette.getSilhouette(5370));
+        System.out.println("Sil 5265 (should be worse); " + silhouette.getSilhouette(5265));
+        System.out.println("Sil 1; " + silhouette.getSilhouette(1));
+
+
         System.out.println("Average sil: " +  numerator/sils.size());
 
-*/
+
 
         System.out.println("Network: " + network.getNNodes() + " " +network.getTotalEdgeWeight() );
 

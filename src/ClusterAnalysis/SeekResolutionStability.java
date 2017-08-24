@@ -32,8 +32,20 @@ public class SeekResolutionStability {
     }
 
 
+    public static long getN(Clustering clustering) {
+
+        int[] nodesPerCluster = clustering.getNNodesPerCluster();
+
+        long N = 0;
+
+        for(int i=0; i<nodesPerCluster.length; i++) N += Math.pow(nodesPerCluster[i],2);
+
+        return N;
+    }
+
     public static void main(String[] arg) throws IOException {
 
+        int modularityFunction = 2;
 
         Network network = ModularityOptimizer.readInputFile(arg[0], 1);
 
@@ -41,24 +53,25 @@ public class SeekResolutionStability {
         System.out.format("Number of nodes: %d%n", network.getNNodes());
         System.out.format("Number of edges: %d%n", network.getNEdges());
 
-        List<Double> testResulutionParas = SeekResolutionStability.getSequenceOfResParameters(0.1,2.5,0.005);
+        List<Double> testResulutionParas = SeekResolutionStability.getSequenceOfResParameters(0.0,0.0001,0.00000001);
 
         List<Integer> nrClusters = new ArrayList<>();
         List<Double> objectiveValue = new ArrayList<>();
+
 
         for(int k=0; k<testResulutionParas.size(); k++) {
 
             double resolution =  testResulutionParas.get(k);
 
-            double resolution2 = ((true) ? (resolution / (2 * network.getTotalEdgeWeight() + network.totalEdgeWeightSelfLinks)) : resolution);
+            double resolution2 = ((modularityFunction == 1) ? (resolution / (2 * network.getTotalEdgeWeight() + network.totalEdgeWeightSelfLinks)) : resolution);
 
 
             long beginTime = System.currentTimeMillis();
             Clustering clustering = null;
             double maxModularity = Double.NEGATIVE_INFINITY;
             Random random = new Random(0);
-            int nRandomStarts = 3;
-            int nIterations = 30;
+            int nRandomStarts = 5;
+            int nIterations = 10;
 
             int j = 0;
             boolean update;
@@ -82,11 +95,11 @@ public class SeekResolutionStability {
                     //if (algorithm == 1)
                     //    update = vOSClusteringTechnique.runLouvainAlgorithm(random);
                     // else if (algorithm == 2)
-                     //    update = vOSClusteringTechnique.runLouvainAlgorithmWithMultilevelRefinement(random);
+                         update = vOSClusteringTechnique.runLouvainAlgorithmWithMultilevelRefinement(random);
                     // else if (algorithm == 3)
 
 
-                    vOSClusteringTechnique.runSmartLocalMovingAlgorithm(random);
+                   // vOSClusteringTechnique.runSmartLocalMovingAlgorithm(random);
 
                     j++;
 
@@ -135,7 +148,7 @@ public class SeekResolutionStability {
         */
 
 
-            System.out.println("# clusters:" +"\t" +  clustering.getNClusters() + "\t" + "modularity" + maxModularity + "\t" + "resolution" + "\t" +  testResulutionParas.get(k));
+            System.out.println("# clusters:" +"\t" +clustering.getNClusters() + "\t" + "Nsq:" + "\t" + getN(clustering) + "\t" +clustering.getNClusters() + "\t" + "modularity" + maxModularity + "\t" + "resolution" + "\t" +  testResulutionParas.get(k));
 
 
         } //for each resolution parameter

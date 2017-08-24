@@ -115,6 +115,10 @@ public class Silhouette {
 
         }
 
+        //remove cluster that i is a part of
+
+        potentialClusters.remove(  partition[i] );
+
         double maxAvgSim = 0;
 
 
