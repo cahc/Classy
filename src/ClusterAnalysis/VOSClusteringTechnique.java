@@ -1,4 +1,4 @@
-package Clustering;
+package ClusterAnalysis;
 
 /**
  * VOSClusteringTechnique

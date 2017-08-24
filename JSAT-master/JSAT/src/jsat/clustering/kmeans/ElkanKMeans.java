@@ -271,7 +271,7 @@ public class ElkanKMeans extends KMeans
                     }
                     catch (InterruptedException ex)
                     {
-                        throw new ClusterFailureException("Clustering failed");
+                        throw new ClusterFailureException("ClusterAnalysis failed");
                     }
                 }
                 else

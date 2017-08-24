@@ -1,4 +1,4 @@
-package Clustering;
+package ClusterAnalysis;
 
 /**
  * ModularityOptimizer
@@ -8,6 +8,9 @@ package Clustering;
  * @version 1.3.0, 08/31/15
  */
 
+import jsat.linear.IndexValue;
+import jsat.linear.SparseMatrix;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.Console;
@@ -15,6 +18,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Random;
 
 public class ModularityOptimizer
@@ -236,6 +240,120 @@ public class ModularityOptimizer
 
         return network;
     }
+
+
+    public static Network convertSparseMatrix(SparseMatrix similarityMatrix, int modularityFunction) throws IOException
+    {
+
+
+        double[] edgeWeight1, edgeWeight2, nodeWeight;
+        int i, j, nEdges, nLines, nNodes;
+        int[] firstNeighborIndex, neighbor, nNeighbors, node1, node2;
+        Network network;
+        String[] splittedLine;
+
+
+
+       nLines = (int)(similarityMatrix.nnz()/2); //no diag, and overflow could happen
+
+
+
+        node1 = new int[nLines];
+        node2 = new int[nLines];
+        edgeWeight1 = new double[nLines];
+        i = -1;
+
+       /* for (j = 0; j < nLines; j++)
+        {
+            splittedLine = bufferedReader.readLine().split("\t");
+            node1[j] = Integer.parseInt(splittedLine[0]);
+            if (node1[j] > i)
+                i = node1[j];
+            node2[j] = Integer.parseInt(splittedLine[1]);
+            if (node2[j] > i)
+                i = node2[j];
+            edgeWeight1[j] = (splittedLine.length > 2) ? Double.parseDouble(splittedLine[2]) : 1;
+        }
+
+
+        nNodes = i + 1;
+*/
+
+       int k=0;
+
+      for(int row=0; row<similarityMatrix.rows(); row++) {
+
+
+         Iterator<IndexValue> iter =  similarityMatrix.getRowView(row).getNonZeroIterator();
+
+         while(iter.hasNext()) {
+
+             IndexValue indexValue = iter.next();
+
+             if(indexValue.getIndex() < row) continue;
+
+             node1[ k ] = row;
+             node2[ k ] = indexValue.getIndex();
+             edgeWeight1[ k ] = indexValue.getValue();
+             k++;
+
+         }
+
+
+
+      }
+
+       nNodes = similarityMatrix.rows();
+
+
+        nNeighbors = new int[nNodes];
+        for (i = 0; i < nLines; i++)
+            if (node1[i] < node2[i])
+            {
+                nNeighbors[node1[i]]++;
+                nNeighbors[node2[i]]++;
+            }
+
+        firstNeighborIndex = new int[nNodes + 1];
+        nEdges = 0;
+        for (i = 0; i < nNodes; i++)
+        {
+            firstNeighborIndex[i] = nEdges;
+            nEdges += nNeighbors[i];
+        }
+        firstNeighborIndex[nNodes] = nEdges;
+
+        neighbor = new int[nEdges];
+        edgeWeight2 = new double[nEdges];
+        Arrays.fill(nNeighbors, 0);
+        for (i = 0; i < nLines; i++)
+            if (node1[i] < node2[i])
+            {
+                j = firstNeighborIndex[node1[i]] + nNeighbors[node1[i]];
+                neighbor[j] = node2[i];
+                edgeWeight2[j] = edgeWeight1[i];
+                nNeighbors[node1[i]]++;
+                j = firstNeighborIndex[node2[i]] + nNeighbors[node2[i]];
+                neighbor[j] = node1[i];
+                edgeWeight2[j] = edgeWeight1[i];
+                nNeighbors[node2[i]]++;
+            }
+
+        if (modularityFunction == 1)
+            network = new Network(nNodes, firstNeighborIndex, neighbor, edgeWeight2);
+        else
+        {
+            nodeWeight = new double[nNodes];
+            Arrays.fill(nodeWeight, 1);
+            network = new Network(nNodes, nodeWeight, firstNeighborIndex, neighbor, edgeWeight2);
+        }
+
+        return network;
+    }
+
+
+
+
 
     public static void writeOutputFile(String fileName, Clustering clustering) throws IOException
     {

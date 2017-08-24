@@ -7,7 +7,7 @@ import jsat.classifiers.DataPoint;
 /**
  * This interface provides the basic contract for measuring the dissimilarity 
  * between two clusters, and intended for use in Hierarchical Agglomerative 
- * Clustering. 
+ * ClusterAnalysis.
  * 
  * @author Edward Raff
  */

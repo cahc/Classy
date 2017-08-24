@@ -162,7 +162,7 @@ public class ElkanKernelKMeans extends KernelKMeans
                     }
                     catch (InterruptedException ex)
                     {
-                        throw new ClusterFailureException("Clustering failed");
+                        throw new ClusterFailureException("ClusterAnalysis failed");
                     }
                 }
                 

@@ -45,7 +45,7 @@ import jsat.utils.SystemInfo;
 import jsat.utils.concurrent.AtomicDouble;
 
 /**
- * This class implements Hierarchical Agglomerative Clustering via the Nearest
+ * This class implements Hierarchical Agglomerative ClusterAnalysis via the Nearest
  * Neighbor Chain approach. This runs in O(n<sup>2</sup>) time for any
  * {@link LanceWilliamsDissimilarity Lance Williams} dissimilarity and uses O(n)
  * memory. <br> 
@@ -56,7 +56,7 @@ import jsat.utils.concurrent.AtomicDouble;
  * <li>Müllner, D. (2011). Modern hierarchical, agglomerative clustering
  * algorithms. arXiv Preprint arXiv:1109.2378. Retrieved from
  * <a href="http://arxiv.org/abs/1109.2378">here</a></li>
- * <li>Murtagh, F., & Contreras, P. (2011). Methods of Hierarchical Clustering.
+ * <li>Murtagh, F., & Contreras, P. (2011). Methods of Hierarchical ClusterAnalysis.
  * In Data Mining and Knowledge Discovery. Wiley-Interscience.</li>
  * </ul>
  *

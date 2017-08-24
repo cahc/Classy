@@ -42,7 +42,7 @@ public class LloydKernelKMeans extends KernelKMeans
     public int[] cluster(DataSet dataSet, final int K, ExecutorService threadpool, int[] designations)
     {
         if(K < 2)
-            throw new FailedToFitException("Clustering requires at least 2 clusters");
+            throw new FailedToFitException("ClusterAnalysis requires at least 2 clusters");
         
         final int N = dataSet.getSampleSize();
         if(designations == null)
@@ -154,7 +154,7 @@ public class LloydKernelKMeans extends KernelKMeans
     public int[] cluster(DataSet dataSet, int K, int[] designations)
     {
         if(K < 2)
-            throw new FailedToFitException("Clustering requires at least 2 clusters");
+            throw new FailedToFitException("ClusterAnalysis requires at least 2 clusters");
         
         final int N = dataSet.getSampleSize();
         if(designations == null)

@@ -34,7 +34,6 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/cqengine-stream-support-1.1.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/jlangdetect-extra-0.5-SNAPSHOT.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/liblinear-1.95.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="F:/apache-tomcat-8.5.16/lib/servlet-api.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-cli-1.3.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/koloboke-impl-jdk8-1.0.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/koloboke-impl-common-jdk8-1.0.0.jar" path-in-jar="/" />
@@ -52,6 +51,9 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/lz4-1.3.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/elsa-3.0.0-M5.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/JSAT-0.0.7-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="library" level="project" name="jlangdetect-extra-0.5-SNAPSHOT" />
+      <element id="library" level="project" name="jlangdetect-europarl-0.5-SNAPSHOT" />
+      <element id="library" level="project" name="jlangdetect-0.5-SNAPSHOT-javadoc" />
     </root>
   </artifact>
 </component>

@@ -1,4 +1,4 @@
-package Clustering;
+package ClusterAnalysis;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -133,6 +133,7 @@ public class SeekResolutionStability {
 
 
         */
+
 
             System.out.println("# clusters:" +"\t" +  clustering.getNClusters() + "\t" + "modularity" + maxModularity + "\t" + "resolution" + "\t" +  testResulutionParas.get(k));
 

@@ -1,7 +1,7 @@
-package Clustering;
+package ClusterAnalysis;
 
 /**
- * Clustering
+ * ClusterAnalysis
  *
  * @author Ludo Waltman
  * @author Nees Jan van Eck
@@ -22,7 +22,7 @@ public class Clustering implements Cloneable, Serializable
 
     protected int nNodes;
     protected int nClusters;
-    protected int[] cluster;
+    public int[] cluster;
 
     public static Clustering load(String fileName) throws ClassNotFoundException, IOException
     {

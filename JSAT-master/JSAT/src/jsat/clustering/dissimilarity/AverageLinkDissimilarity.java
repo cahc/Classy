@@ -6,7 +6,7 @@ import jsat.linear.distancemetrics.DistanceMetric;
 import jsat.linear.distancemetrics.EuclideanDistance;
 
 /**
- * Also known as Group-Average Agglomerative Clustering (GAAC) and UPGMA, this
+ * Also known as Group-Average Agglomerative ClusterAnalysis (GAAC) and UPGMA, this
  * measure computer the dissimilarity by summing the distances between all
  * possible data point pairs in the union of the clusters.
  *

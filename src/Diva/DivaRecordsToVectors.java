@@ -1,5 +1,6 @@
 package Diva;
 
+import ClusterAnalysis.*;
 import Database.ModsDivaFileParser;
 import SwePub.Record;
 import com.google.common.collect.MinMaxPriorityQueue;
@@ -179,6 +180,31 @@ public class DivaRecordsToVectors {
     }
 
 
+    public static Set<VectorAndSim> getSimilarThreshold(VectorWithID v, List<VectorWithID> vectorSet, double threshold) {
+
+        HashSet<VectorAndSim> setOfSimilarVectors = new HashSet<>();
+
+        SparseVector targetVector = v.getVec();
+        int targetID = v.getId();
+
+        for(VectorWithID otherVector : vectorSet) {
+
+
+            if(targetID == otherVector.getId()) continue; //dont compare with yourself
+
+            double sim = targetVector.dot(  otherVector.getVec() );
+
+            if(sim < threshold) continue;
+
+            setOfSimilarVectors.add(  new VectorAndSim(otherVector,sim)  );
+
+
+        }
+
+
+        return setOfSimilarVectors;
+    }
+
     public static SparseMatrix knngToSymetricSimilarityMatrix(List<MinMaxPriorityQueue<VectorAndSim>> topKsets) {
 
 
@@ -243,7 +269,7 @@ public class DivaRecordsToVectors {
         SparseMatrix trasposeText = sparseSimilarityMatrix.clone();
         trasposeText.mutableTranspose();
         sparseSimilarityMatrix.mutableAdd(1,trasposeText);
-        sparseSimilarityMatrix.mutableMultiply(0.5);
+        //sparseSimilarityMatrix.mutableMultiply(0.5);
 
 
         return  sparseSimilarityMatrix;
@@ -267,9 +293,6 @@ public class DivaRecordsToVectors {
 
                 sparseSimilarityMatrix.set(i, vec.getVectorID(),vec.getSim() );
 
-                //make symetric
-
-                //sparseSimilarityMatrix.set(vec.getVectorID(), i , vec.getSim() );
 
             }
 
@@ -277,40 +300,46 @@ public class DivaRecordsToVectors {
         }
 
 
+        //multiplyTranspose(Matrix B, Matrix C)
+        //Alters the matrix C to be equal to C = C+A*BT
 
-        //check for symmetric, else remove the cell with > 0.0D
+        SparseMatrix A = new SparseMatrix(sparseSimilarityMatrix.rows(),sparseSimilarityMatrix.cols(),20);
 
-        for(int i=0; i<sparseSimilarityMatrix.rows(); i++) {
+        SparseMatrix B = new SparseMatrix(sparseSimilarityMatrix.rows(),sparseSimilarityMatrix.cols(),20);
 
+        SparseMatrix transposed = sparseSimilarityMatrix.clone();
+        transposed.mutableTranspose();
 
-            SparseVector row = (SparseVector)sparseSimilarityMatrix.getRowView(i);
-            Iterator<IndexValue> iter = row.getNonZeroIterator();
-
-            while(iter.hasNext()) {
-
-                int index = iter.next().getIndex();
-
-               double sim =  sparseSimilarityMatrix.get( index, i );
-
-               if( sim <= 0.0D ) {
-
-                   row.set( index, 0.0D );
-
-               }
-
-
-            }
+        sparseSimilarityMatrix.multiplyTranspose(sparseSimilarityMatrix,A);
+        transposed.multiplyTranspose(transposed,B);
 
 
 
-
-        }
-
-
-        return sparseSimilarityMatrix;
+        return (SparseMatrix)A.add(B);
     }
 
+    public static SparseMatrix epsToSymetricSimilarityMatrix(List<Set<VectorAndSim>> epsSet) {
 
+        SparseMatrix sparseSimilarityMatrix = new SparseMatrix(epsSet.size(),epsSet.size(),15);
+
+        for(int i=0; i<epsSet.size(); i++) {
+
+            Set<VectorAndSim> set = epsSet.get(i);
+
+
+                for(VectorAndSim vectorAndSim : set) {
+
+                    sparseSimilarityMatrix.set(i, vectorAndSim.getVectorID(), vectorAndSim.getSim() );
+                    sparseSimilarityMatrix.set(vectorAndSim.getVectorID(), i, vectorAndSim.getSim() );
+
+                }
+
+
+        }
+
+        return sparseSimilarityMatrix;
+
+    }
 
 
     public static void writeToPajek(SparseMatrix matrix, String fileName) throws IOException {
@@ -440,10 +469,10 @@ public class DivaRecordsToVectors {
         List<SparseVector> sparseVectors = divaRecordsToVectors.getSparseVectors(reducedRecorList);
 
         System.out.println("Weighting vectors");
-        divaRecordsToVectors.applyOkapiBM25onVectorList(sparseVectors);
+        //divaRecordsToVectors.applyOkapiBM25onVectorList(sparseVectors);
 
-        //divaRecordsToVectors.applyTFIDFonVectorList(sparseVectors);
-        //for(SparseVector v : sparseVectors) v.normalize();
+        divaRecordsToVectors.applyTFIDFonVectorList(sparseVectors);
+        for(SparseVector v : sparseVectors) v.normalize();
 
 
         List<VectorWithID> vectorWithIDS = new ArrayList<>();
@@ -456,17 +485,24 @@ public class DivaRecordsToVectors {
 
 
 
-
         System.out.println("Finding k-nearest neighbours in parallel");
 
         long now = System.currentTimeMillis();
 
 
-         List<MinMaxPriorityQueue<VectorAndSim>> topKsets =  vectorWithIDS.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDS,10,100)   ).collect(Collectors.toList());
-
+         List<MinMaxPriorityQueue<VectorAndSim>> topKsets =  vectorWithIDS.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDS,10,0.05)   ).collect(Collectors.toList());
 
 
         System.out.println("TopK calculations in : " + (System.currentTimeMillis() - now)/1000.0 );
+
+
+        System.out.println("Finding eps-nearest neighbours in parallel");
+
+        now = System.currentTimeMillis();
+
+        List<Set<VectorAndSim>> topEpsSets =  vectorWithIDS.parallelStream().map( (VectorWithID vector) -> getSimilarThreshold(vector,vectorWithIDS,0.1)   ).collect(Collectors.toList());
+
+        System.out.println("TopEps calculations in : " + (System.currentTimeMillis() - now)/1000.0 );
 
 
         // check some results
@@ -504,13 +540,21 @@ public class DivaRecordsToVectors {
 
        //SparseMatrix sparseSimilarityMatrix = knngToSymetricSimilarityMatrix(topKsets);
        // SparseMatrix sparseSimilarityMatrix = knngToSymetricSimilarityMatrixType2(topKsets);
-        SparseMatrix sparseSimilarityMatrix = knngToSymetricSimilarityMatrixType3(topKsets);
+      //  SparseMatrix sparseSimilarityMatrix = knngToSymetricSimilarityMatrixType3(topKsets);
 
-        System.out.println(sparseSimilarityMatrix.rows() + " " + sparseSimilarityMatrix.cols() + " " + sparseSimilarityMatrix.isSparce() + " " + sparseSimilarityMatrix.nnz());
 
-        writeToPajek(sparseSimilarityMatrix,"pajek.net");
+        SparseMatrix sparseSimilarityMatrix  = epsToSymetricSimilarityMatrix(topEpsSets);
 
-        writeToNetwork(sparseSimilarityMatrix,"network.txt");
+        SparseMatrix sparseSimilarityMatrix2 = knngToSymetricSimilarityMatrixType2(topKsets);
+
+        System.out.println("eps:" +" " + sparseSimilarityMatrix.rows() + " " + sparseSimilarityMatrix.cols() + " " + sparseSimilarityMatrix.isSparce() + " " + sparseSimilarityMatrix.nnz());
+
+        System.out.println("Top10:" +" " + sparseSimilarityMatrix2.rows() + " " + sparseSimilarityMatrix2.cols() + " " + sparseSimilarityMatrix2.isSparce() + " " + sparseSimilarityMatrix2.nnz());
+
+
+        writeToPajek(sparseSimilarityMatrix2,"pajek.net");
+
+        writeToNetwork(sparseSimilarityMatrix2,"network.txt");
 
 
         BufferedWriter writer = new BufferedWriter( new FileWriter( new File("bibInfo.txt") ));
@@ -525,6 +569,107 @@ public class DivaRecordsToVectors {
 
         writer.flush();
         writer.close();
+
+
+        //CLUSTERING
+
+        int modularityFunction = 1;
+        double resolution = 1;
+        double resolution2;
+
+        Network network = ModularityOptimizer.convertSparseMatrix(sparseSimilarityMatrix2,modularityFunction);
+
+        resolution2 = ((modularityFunction == 1) ? (resolution / (2 * network.getTotalEdgeWeight() + network.getTotalEdgeWeightSelfLinks())) : resolution);
+
+
+        long beginTime = System.currentTimeMillis();
+        Clustering clustering = null;
+        double maxModularity = Double.NEGATIVE_INFINITY;
+        Random random = new Random( 0 );
+        int nRandomStarts = 5;
+        int i,j;
+        boolean printOutput = true;
+        int nIterations = 10;
+        int algorithm = 3;
+        boolean update;
+        double modularity;
+        long endTime;
+        VOSClusteringTechnique VOSClusteringTechnique;
+
+        for (i = 0; i < nRandomStarts; i++)
+        {
+            if (printOutput && (nRandomStarts > 1))
+                System.out.format("Random start: %d%n", i + 1);
+
+            VOSClusteringTechnique = new VOSClusteringTechnique(network, resolution2);
+
+            j = 0;
+            update = true;
+            do
+            {
+                if (printOutput && (nIterations > 1))
+                    System.out.format("Iteration: %d%n", j + 1);
+
+                if (algorithm == 1)
+                    update = VOSClusteringTechnique.runLouvainAlgorithm(random);
+                else if (algorithm == 2)
+                    update = VOSClusteringTechnique.runLouvainAlgorithmWithMultilevelRefinement(random);
+                else if (algorithm == 3)
+                    VOSClusteringTechnique.runSmartLocalMovingAlgorithm(random);
+                j++;
+
+                modularity = VOSClusteringTechnique.calcQualityFunction();
+
+                if (printOutput && (nIterations > 1))
+                    System.out.format("Modularity: %.4f%n", modularity);
+            }
+            while ((j < nIterations) && update);
+
+            if (modularity > maxModularity)
+            {
+                clustering = VOSClusteringTechnique.getClustering();
+                maxModularity = modularity;
+            }
+
+            if (printOutput && (nRandomStarts > 1))
+            {
+                if (nIterations == 1)
+                    System.out.format("Modularity: %.4f%n", modularity);
+                System.out.println();
+            }
+        }
+        endTime = System.currentTimeMillis();
+
+        if (printOutput)
+        {
+            if (nRandomStarts == 1)
+            {
+                if (nIterations > 1)
+                    System.out.println();
+                System.out.format("Modularity: %.4f%n", maxModularity);
+            }
+            else
+                System.out.format("Maximum modularity in %d random starts: %.4f%n", nRandomStarts, maxModularity);
+            System.out.format("Number of communities: %d%n", clustering.getNClusters());
+            System.out.format("Elapsed time: %d seconds%n", Math.round((endTime - beginTime) / 1000.0));
+            System.out.println();
+            System.out.println("Writing output file...");
+            System.out.println();
+        }
+
+        ModularityOptimizer.writeOutputFile("partition.part2", clustering);
+
+
+        System.out.println("calculating silhouettes");
+        Silhouette silhouette = new Silhouette(sparseSimilarityMatrix2, clustering.cluster);
+
+
+        System.out.println("Network: " + network.getNNodes() + " " +network.getTotalEdgeWeight() );
+
+        System.out.format("Number of nodes: %d%n", network.getNNodes());
+        System.out.format("Number of edges: %d%n", network.getNEdges());
+
+
 
        // System.out.println(sparseSimilarityMatrix.getRowView(0));
 

@@ -45,7 +45,7 @@ import jsat.utils.*;
  * this may be improved in the future with more advanced algorithms.<br>
  * <br>
  * See: Campello, R. J. G. B., Moulavi, D., & Sander, J. (2013). Density-Based
- * Clustering Based on Hierarchical Density Estimates. In J. Pei, V. Tseng, L.
+ * ClusterAnalysis Based on Hierarchical Density Estimates. In J. Pei, V. Tseng, L.
  * Cao, H. Motoda, & G. Xu (Eds.), Advances in Knowledge Discovery and Data
  * Mining (pp. 160–172). Springer Berlin Heidelberg.
  * doi:10.1007/978-3-642-37456-2_14

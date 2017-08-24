@@ -14,7 +14,7 @@ import jsat.parameters.*;
 import jsat.utils.*;
 
 /**
- * A parallel implementation of <i>Locally Scaled Density Based Clustering</i>. 
+ * A parallel implementation of <i>Locally Scaled Density Based ClusterAnalysis</i>.
  * <br><br>
  * See paper:<br>
  * <a href="http://www.springerlink.com/index/0116171485446868.pdf">Biçici, E., 
