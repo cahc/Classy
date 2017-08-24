@@ -660,9 +660,28 @@ public class DivaRecordsToVectors {
         ModularityOptimizer.writeOutputFile("partition.part2", clustering);
 
 
+
         System.out.println("calculating silhouettes");
         Silhouette silhouette = new Silhouette(sparseSimilarityMatrix2, clustering.cluster);
+        List<Integer> indices = new ArrayList<>();
 
+       // System.out.println("sil for i=0 : " +  silhouette.getSilhouette(0));
+
+        /*
+        for(int m=0; m<sparseSimilarityMatrix2.rows(); m++) {
+
+            indices.add(m);
+        }
+
+        List<Double> sils = indices.parallelStream().map( silhouette::getSilhouette ).collect( Collectors.toList() );
+
+        int numerator = 0;
+
+        for(int x=0; x<sils.size(); x++) numerator+=sils.get(x);
+
+        System.out.println("Average sil: " +  numerator/sils.size());
+
+*/
 
         System.out.println("Network: " + network.getNNodes() + " " +network.getTotalEdgeWeight() );
 

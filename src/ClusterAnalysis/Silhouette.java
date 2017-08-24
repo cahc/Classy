@@ -43,10 +43,9 @@ public class Silhouette {
 
         for (int i = 0; i < partition.length; i++) {
 
-
             int clu = partition[i];
 
-            clusterToNodeSet[clu].add(i);
+           clusterToNodeSet[clu].add(i);
 
         }
 
@@ -58,7 +57,7 @@ public class Silhouette {
 
     //todo don't control for self loops
 
-    private double getAverageSim(int i, int clu) {
+    private Double getAverageSim(int i, int clu) {
 
         //a(i) average similarity between i and the nodes in i:s cluster
 
@@ -146,8 +145,7 @@ public class Silhouette {
 
 
         return (a-b)/Math.max(a,b);
-
-
+        
     }
 
 

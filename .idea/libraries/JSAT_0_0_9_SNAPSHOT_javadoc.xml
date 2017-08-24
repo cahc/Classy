@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="JSAT-0.0.9-SNAPSHOT-javadoc">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../JSAT-0.9-SNAPSHOT/JSAT/target/JSAT-0.0.9-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../JSAT-0.9-SNAPSHOT/JSAT/target/JSAT-0.0.9-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
