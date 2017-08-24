@@ -145,7 +145,7 @@ public class Silhouette {
 
 
         return (a-b)/Math.max(a,b);
-        
+
     }
 
 
