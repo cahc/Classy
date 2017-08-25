@@ -48,7 +48,9 @@ public class SeekResolutionStability {
         System.out.format("Number of edges: %d%n", network.getNEdges());
 
 
-        List<Double> sequenceOfResParameters = SeekResolutionStability.getSequenceOfResParameters(0.2,3,0.0028028); //0.0056112
+        List<Double> sequenceOfResParameters = SeekResolutionStability.getSequenceOfResParameters(0.2,3.5,0.0033033 );
+
+
 
         List<int[]> partitions = new ArrayList<>();
 
@@ -150,6 +152,8 @@ public class SeekResolutionStability {
         int delta = 5;
 
         BufferedWriter writer = new BufferedWriter( new FileWriter( new File("StabilityCheck.txt")));
+        writer.write("RESOLUTION\tAVG_IV\tCLUSTERS");
+        writer.newLine();
 
         for(int i=0; i<partitions.size()-delta; i++) {
 
@@ -160,7 +164,7 @@ public class SeekResolutionStability {
             }
 
 
-            writer.write("resolution: " +"\t" + sequenceOfResParameters.get(i) + "\t" + "avg_vi:" +"\t" + ivs.stream().mapToDouble(Double::doubleValue).average().getAsDouble() +"\t" + "# clusters:" + "\t" + nrClusters.get(i)  );
+            writer.write( sequenceOfResParameters.get(i) + "\t" + ivs.stream().mapToDouble(Double::doubleValue).average().getAsDouble() +"\t" +  nrClusters.get(i)  );
             writer.newLine();
         }
 
