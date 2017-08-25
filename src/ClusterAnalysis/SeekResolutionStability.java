@@ -71,7 +71,7 @@ public class SeekResolutionStability {
             double maxModularity = Double.NEGATIVE_INFINITY;
             Random random = new Random(0);
             int nRandomStarts = 5;
-            int nIterations = 10;
+            int nIterations = 20;
 
             int j = 0;
             boolean update;
