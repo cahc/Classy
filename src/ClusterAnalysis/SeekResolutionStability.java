@@ -1,9 +1,13 @@
 package ClusterAnalysis;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  * Created by crco0001 on 8/22/2017.
@@ -32,20 +36,10 @@ public class SeekResolutionStability {
     }
 
 
-    public static long getN(Clustering clustering) {
 
-        int[] nodesPerCluster = clustering.getNNodesPerCluster();
+    public static void main(String[] arg) throws Exception {
 
-        long N = 0;
-
-        for(int i=0; i<nodesPerCluster.length; i++) N += Math.pow(nodesPerCluster[i],2);
-
-        return N;
-    }
-
-    public static void main(String[] arg) throws IOException {
-
-        int modularityFunction = 2;
+        int modularityFunction = 1;
 
         Network network = ModularityOptimizer.readInputFile(arg[0], 1);
 
@@ -53,31 +47,36 @@ public class SeekResolutionStability {
         System.out.format("Number of nodes: %d%n", network.getNNodes());
         System.out.format("Number of edges: %d%n", network.getNEdges());
 
-        List<Double> testResulutionParas = SeekResolutionStability.getSequenceOfResParameters(0.0,0.0001,0.00000001);
+
+        List<Double> sequenceOfResParameters = SeekResolutionStability.getSequenceOfResParameters(0.2,3,0.0028028); //0.0056112
+
+        List<int[]> partitions = new ArrayList<>();
 
         List<Integer> nrClusters = new ArrayList<>();
-        List<Double> objectiveValue = new ArrayList<>();
 
+        int counter = 0;
 
-        for(int k=0; k<testResulutionParas.size(); k++) {
+        for(int k=0; k<sequenceOfResParameters.size(); k++) {
 
-            double resolution =  testResulutionParas.get(k);
+            double resolution =  sequenceOfResParameters.get(k);
 
             double resolution2 = ((modularityFunction == 1) ? (resolution / (2 * network.getTotalEdgeWeight() + network.totalEdgeWeightSelfLinks)) : resolution);
 
 
-            long beginTime = System.currentTimeMillis();
+
             Clustering clustering = null;
             double maxModularity = Double.NEGATIVE_INFINITY;
             Random random = new Random(0);
-            int nRandomStarts = 5;
-            int nIterations = 20;
+            int nRandomStarts = 1;
+            int nIterations = 30;
 
             int j = 0;
             boolean update;
             boolean printOutput = false;
             double modularity;
             VOSClusteringTechnique vOSClusteringTechnique;
+
+            List<Integer> clusterSizes = new ArrayList<>();
 
             for (int i = 0; i < nRandomStarts; i++) {
 
@@ -95,11 +94,11 @@ public class SeekResolutionStability {
                     //if (algorithm == 1)
                     //    update = vOSClusteringTechnique.runLouvainAlgorithm(random);
                     // else if (algorithm == 2)
-                         update = vOSClusteringTechnique.runLouvainAlgorithmWithMultilevelRefinement(random);
+                     //    update = vOSClusteringTechnique.runLouvainAlgorithmWithMultilevelRefinement(random);
                     // else if (algorithm == 3)
 
 
-                   // vOSClusteringTechnique.runSmartLocalMovingAlgorithm(random);
+                    vOSClusteringTechnique.runSmartLocalMovingAlgorithm(random);
 
                     j++;
 
@@ -107,8 +106,12 @@ public class SeekResolutionStability {
 
                     if (printOutput && (nIterations > 1))
                         System.out.format("Modularity: %.4f%n", modularity);
-                }
-                while ((j < nIterations) && update);
+                } while ((j < nIterations) && update);
+
+
+
+
+
 
                 if (modularity > maxModularity) {
                     clustering = vOSClusteringTechnique.getClustering();
@@ -124,41 +127,48 @@ public class SeekResolutionStability {
             } // for each iteration
 
 
-            long endTime = System.currentTimeMillis();
 
-        /*
-        if (printOutput)
-        {
-            if (nRandomStarts == 1)
-            {
-                if (nIterations > 1)
-                    System.out.println();
-                System.out.format("Modularity: %.4f%n", maxModularity);
-            }
-            else
-                System.out.format("Maximum modularity in %d random starts: %.4f%n", nRandomStarts, maxModularity);
-            System.out.format("Number of communities: %d%n", clustering.getNClusters());
-            System.out.format("Elapsed time: %d seconds%n", Math.round((endTime - beginTime) / 1000.0));
-            System.out.println();
-            System.out.println("Writing output file...");
-            System.out.println();
-        }
+           partitions.add(  clustering.getClusters() );
 
 
-        */
+
+            nrClusters.add( clustering.getNClusters()  );
+            //System.out.println("# clusters:" +"\t" +  clustering.getNClusters()  + "\t" + "modularity" + maxModularity + "\t" + "resolution:" + "\t" +  sequenceOfResParameters.get(k));
 
 
-            System.out.println("# clusters:" +"\t" +clustering.getNClusters() + "\t" + "Nsq:" + "\t" + getN(clustering) + "\t" +clustering.getNClusters() + "\t" + "modularity" + maxModularity + "\t" + "resolution" + "\t" +  testResulutionParas.get(k));
-
+            System.out.println("Tested: " + resolution);
 
         } //for each resolution parameter
 
         //ModularityOptimizer.writeOutputFile("partition2.txt", clustering);
 
 
+        System.out.println(partitions.size()+ " partitions created");
+
+        System.out.println("Calculating robustness of partition at resolution value eps");
+
+        int delta = 5;
+
+        BufferedWriter writer = new BufferedWriter( new FileWriter( new File("StabilityCheck.txt")));
+
+        for(int i=0; i<partitions.size()-delta; i++) {
+
+            List<Double> ivs = new ArrayList<>();
+            for (int j = 1; j <= delta; j++) {
+
+                ivs.add(VariationOfInformation.getVI(partitions.get(i), partitions.get(i + j)));
+            }
 
 
-    }
+            writer.write("resolution: " +"\t" + sequenceOfResParameters.get(i) + "\t" + "avg_vi:" +"\t" + ivs.stream().mapToDouble(Double::doubleValue).average().getAsDouble() +"\t" + "# clusters:" + "\t" + nrClusters.get(i)  );
+            writer.newLine();
+        }
+
+
+        writer.flush();
+        writer.close();
+
+    } //main ends
 
 
 }

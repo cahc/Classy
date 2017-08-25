@@ -70,12 +70,6 @@ public class VariationOfInformation {
 
 
 
-       for(Map.Entry<Integer,Long> entry : ck_p2.entrySet()) {
-
-           System.out.println(entry.getKey()+ " -> " +entry.getValue());
-       }
-
-
        double vi = 0;
        for(int i=0; i<np1; i++) {
 
