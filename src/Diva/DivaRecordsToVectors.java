@@ -539,7 +539,7 @@ public class DivaRecordsToVectors {
         long now = System.currentTimeMillis();
 
 
-         List<MinMaxPriorityQueue<VectorAndSim>> topKsets =  vectorWithIDS.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDS,10,0.05)   ).collect(Collectors.toList());
+         List<MinMaxPriorityQueue<VectorAndSim>> topKsets =  vectorWithIDS.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDS,20,0.05)   ).collect(Collectors.toList());
 
 
         System.out.println("TopK calculations in : " + (System.currentTimeMillis() - now)/1000.0 );
@@ -598,21 +598,24 @@ public class DivaRecordsToVectors {
 
         System.out.println("eps:" +" " + sparseSimilarityMatrix.rows() + " " + sparseSimilarityMatrix.cols() + " " + sparseSimilarityMatrix.isSparce() + " " + sparseSimilarityMatrix.nnz());
 
-        System.out.println("Top10:" +" " + sparseSimilarityMatrix2.rows() + " " + sparseSimilarityMatrix2.cols() + " " + sparseSimilarityMatrix2.isSparce() + " " + sparseSimilarityMatrix2.nnz());
+        System.out.println("Top20:" +" " + sparseSimilarityMatrix2.rows() + " " + sparseSimilarityMatrix2.cols() + " " + sparseSimilarityMatrix2.isSparce() + " " + sparseSimilarityMatrix2.nnz());
 
 
-        System.out.println("Second order..");
+       // System.out.println("Second order..");
+
+        //  SparseMatrix secondOrderSim = getTopKSecondOrder(sparseSimilarityMatrix,15,0.05);
+
+      // writeToPajek(secondOrderSim,"pajekSecondOrder.txt");
+      //  writeToNetwork(sparseSimilarityMatrix2,"networkSecondOrder.txt");
 
 
-       SparseMatrix secondOrderSim = getTopKSecondOrder(sparseSimilarityMatrix,15,0.05);
+        writeToPajek(sparseSimilarityMatrix2,"pajekTop20.net");
 
-       writeToPajek(secondOrderSim,"pajekSecondOrder.txt");
-        writeToNetwork(sparseSimilarityMatrix2,"networkSecondOrder.txt");
+        writeToNetwork(sparseSimilarityMatrix2,"networkTop20.txt");
 
+        writeToPajek(sparseSimilarityMatrix,"pajekEps.net");
 
-        writeToPajek(sparseSimilarityMatrix2,"pajek.net");
-
-        writeToNetwork(sparseSimilarityMatrix2,"network.txt");
+        writeToNetwork(sparseSimilarityMatrix,"networkEps.txt");
 
 
         BufferedWriter writer = new BufferedWriter( new FileWriter( new File("bibInfo.txt") ));
@@ -630,7 +633,7 @@ public class DivaRecordsToVectors {
 
 
         //CLUSTERING
-
+/*
         int modularityFunction = 1;
         double resolution = 0.1;
         double resolution2;
@@ -758,6 +761,9 @@ public class DivaRecordsToVectors {
        // System.out.println(sparseSimilarityMatrix.getRowView(0));
 
         //List<Double> hej = sparseVectors.parallelStream().map(  (SparseVector v) -> DivaRecordsToVectors.apa(v,sparseVectors)    ).collect(Collectors.toList() );
+
+*/
+
 
 
     }
