@@ -3,6 +3,7 @@ package Diva;
 import ClusterAnalysis.*;
 import Database.ModsDivaFileParser;
 import SwePub.Record;
+import SwePub.TextAndLang;
 import com.google.common.collect.MinMaxPriorityQueue;
 import com.koloboke.collect.map.hash.HashObjIntMap;
 import com.koloboke.collect.map.hash.HashObjIntMaps;
@@ -622,6 +623,16 @@ public class DivaRecordsToVectors {
 
         int counter = 0;
         for(Record r : reducedRecorList ) {
+
+
+            List<TextAndLang> summary = r.getSummary();
+
+            for(TextAndLang textAndLang : summary) {
+
+                String text = textAndLang.getText();
+
+               textAndLang.setText( text.replaceAll("[\\r\\n]+", "") );
+            }
 
             writer.write(counter +"\t" +r.getURI() +"\t"+ r.getTitle() + "\t" +r.getSummary() +"\t" +r.getHostName() );
             writer.newLine();
