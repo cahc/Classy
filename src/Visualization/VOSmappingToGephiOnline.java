@@ -14,6 +14,27 @@ import java.util.List;
  */
 public class VOSmappingToGephiOnline {
 
+   public static String xmlEscapeText(String t) {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < t.length(); i++){
+            char c = t.charAt(i);
+            switch(c){
+                case '<': sb.append("&lt;"); break;
+                case '>': sb.append("&gt;"); break;
+                case '\"': sb.append("&quot;"); break;
+                case '&': sb.append("&amp;"); break;
+                case '\'': sb.append("&apos;"); break;
+                default:
+                    if(c>0x7e) {
+                        sb.append("&#"+((int)c)+";");
+                    }else
+                        sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+
 
     public static String writeNode(VOSNode vosNode, DistinctColours distinctColours,List<Record> listOfRecords) {
 
@@ -24,11 +45,16 @@ public class VOSmappingToGephiOnline {
         int g = color.getGreen();
         int b = color.getBlue();
 
-       // String title = listOfRecords.get( (vosNode.id-1) ).getTitle().toString();
-     //   String host = listOfRecords.get( (vosNode.id-1) ).getHostName();
+        String title = listOfRecords.get( (vosNode.id-1) ).getTitle().toString();
+        String host = listOfRecords.get( (vosNode.id-1) ).getHostName();
+        if(host == null) host = "not available";
 
-        String title = "hej";
-        String host = "blavla";
+
+       title = title.replaceAll("\"","");
+       host = host.replaceAll("\"","");
+
+       title = xmlEscapeText(title);
+       host = xmlEscapeText(host);
 
         stringBuilder.append("<node id=\"").append( vosNode.getId() ).append("\">").append("\n");
         stringBuilder.append("<attvalues>").append("\n");
