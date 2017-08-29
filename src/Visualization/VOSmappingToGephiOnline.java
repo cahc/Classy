@@ -47,6 +47,7 @@ public class VOSmappingToGephiOnline {
 
         String title = listOfRecords.get( (vosNode.id-1) ).getTitle().toString();
         String host = listOfRecords.get( (vosNode.id-1) ).getHostName();
+        String URI = listOfRecords.get( (vosNode.id-1) ).getURI();
         if(host == null) host = "not available";
 
 
@@ -62,6 +63,7 @@ public class VOSmappingToGephiOnline {
             stringBuilder.append("<attvalue for=\"Cluster\" value=\"").append(vosNode.getCluster()).append("\"/>").append("\n");
             stringBuilder.append("<attvalue for=\"Title\" value=\"").append( title ).append("\"/>").append("\n");
             stringBuilder.append("<attvalue for=\"Host\" value=\"").append( host ).append("\"/>").append("\n");
+            stringBuilder.append("<attvalue for=\"URI\" value=\"").append( URI  ).append("\"/>").append("\n");
 
         stringBuilder.append("</attvalues>").append("\n");
 
@@ -161,6 +163,8 @@ public class VOSmappingToGephiOnline {
         writer.write("<attribute id=\"Title\" title=\"Title\" type=\"string\"/>");
         writer.newLine();
         writer.write("<attribute id=\"Host\" title=\"Host\" type=\"string\"/>");
+        writer.newLine();
+        writer.write("<attribute id=\"URI\" title=\"URI\" type=\"string\"/>");
         writer.newLine();
         writer.write(" </attributes>");
         writer.newLine();
