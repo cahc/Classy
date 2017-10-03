@@ -51,9 +51,9 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/lz4-1.3.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/elsa-3.0.0-M5.jar" path-in-jar="/" />
       <element id="library" level="project" name="jlangdetect-extra-0.5-SNAPSHOT" />
-      <element id="library" level="project" name="jlangdetect-europarl-0.5-SNAPSHOT" />
-      <element id="library" level="project" name="jlangdetect-0.5-SNAPSHOT-javadoc" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/JSAT-0.0.9-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jlangdetect-europarl-0.5-SNAPSHOT.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slf4j-api-1.7.61.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
