@@ -4,6 +4,7 @@ import Database.ModsOnlineParser;
 import SwePub.Record;
 import WebApp.ClassProbPair;
 import WebApp.FetchFromDiVA;
+import misc.LanguageTools.RemoveCopyRightFromAbstract;
 import net.openhft.hashing.LongHashFunction;
 
 import javax.xml.stream.XMLStreamException;
@@ -28,21 +29,9 @@ public class PlayingAround {
     public static void main(String[] arg) throws IOException, XMLStreamException {
 
 
-        long hash = LongHashFunction.xx().hashChars("hello200");
+        String newString = RemoveCopyRightFromAbstract.cleanedAbstract("Air pollution levels (NO2, PAHs,O-3) were investigated, before (BLE)and after (ALE) leaf emergence, in the urban landscape of Gothenburg, Sweden. The aims were to study the 1) spatial and temporal variation in pollution levels between urban green areas, 2) effect of urban vegetation on air pollution levels at the same distance from a major emission source (traffic route), 3) improvement of urban air quality in urban parks compared to adjacent sites near traffic, 4) correlation between air pollution and noise in a park. O-3 varied little over the urban landscape. NO2 varied strongly and was higher in situations strongly influenced by traffic. Four PAH variables were included: total PAH, total particle-bound PAH, the quantitatively important gaseous phenanthrene and the highly toxic particle-bound benzo(a)pyrene. The variation of PAHs was similar to NO2, but for certain PAHs the difference between highly and less polluted sites was larger than for NO2. At a vegetated site, NO2 and particulate PAH levels were lower than at a non-vegetated site at a certain distance from a busy traffic route. This effect was significantly larger ALE compared to BLE for NO2, indicating green leaf area to be highly significant factor for air quality improvement. For particulate PAHs, the effect was similar BLE and ALE, indicating that tree bark and branches also could be an important factor in reducing air pollution. Parks represented considerably cleaner local environments (park effect), which is likely to be a consequence of both a dilution (distance effect) and deposition. Noise and air pollution (NO2 and PAH) levels were strongly correlated. Comparison of noise levels BLE and ALE also showed that the presence of leaves significantly reduced noise levels. Our results are evidence that urban green spaces are beneficial for urban environmental quality, which is important to consider in urban planning. (C) 2017 Elsevier B.V. All rights reserved.");
 
-        System.out.println(hash);
-
-        String regex = "\\d{1,20}";
-        Pattern r = java.util.regex.Pattern.compile(regex);
-
-        Matcher m = r.matcher("43535435" );
-        if (m.find( )) {
-            String divaNumber = m.group(0);
-
-            System.out.println(divaNumber);
-        }
-
-
+        System.out.println(newString);
 
     }
 }

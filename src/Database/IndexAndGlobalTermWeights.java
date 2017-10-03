@@ -367,6 +367,8 @@ public class IndexAndGlobalTermWeights {
 
     public int getLevel() {
 
+
+
         return level;
     }
 
