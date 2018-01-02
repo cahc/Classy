@@ -130,7 +130,12 @@ public class FetchFromDiVA extends HttpServlet  {
 
         if(record == null) {
 
-            return "DiVA returnerade ingen data. Kontrollera angivet diva2-id (skicka en buggrapport om du angivit ett giltigt diva2-id)";
+            return "DiVA returnerade ingen data. Kontrollera angivet diva2-id (feltyp #1)";
+        }
+
+        if( record.getTitle().size() == 0) {
+
+            return "DiVA returnerade ingen data. Kontrollera angivet diva2-id (feltyp #2)";
         }
 
         //return "Title: " + record.getTitle() + " Supported language: " + record.containsSupportedLanguageText() +"\n\n" + record.toString();
