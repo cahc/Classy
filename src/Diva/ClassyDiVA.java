@@ -100,8 +100,9 @@ public class ClassyDiVA {
                         ClassificationCategory hsv =  HsvCodeToName.getCategoryInfo( IndexAndGlobalTermWeights.level5ToCategoryCodes.inverse().get(i)    );
 
                         double prob = probabilities.get(i);
-                        Integer level2Code = HsvCodeToName.firstThreeDigitsOrNull(  hsv.getCode() );
+
                         Integer level1Code = HsvCodeToName.firstOneDigitOrNull( hsv.getCode()  );
+                        Integer level2Code = HsvCodeToName.firstThreeDigitsOrNull(  hsv.getCode() );
                         Integer level3Code = HsvCodeToName.firstFiveDigitsOrNull( hsv.getCode() );
 
                         Double problevel1 = level1ToProb.get(level1Code);
@@ -216,10 +217,6 @@ public class ClassyDiVA {
 
 
 
-
-
-
-
             if(classProbPairsLevel1.size() > 0) {
 
                 ClassificationCategory bestGuessLevel1 = HsvCodeToName.getCategoryInfo(classProbPairsLevel1.get(0).getClassCode());
@@ -235,12 +232,14 @@ public class ClassyDiVA {
                     Double confidence3 = classProbPairsLevel3.get(0).getProbability();
 
 
-                    writer.write(r.getURI() + "\t" + "eng_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel3.getEng_description() + "\t" + confidence3);
+                    //level 1, 2, 3
+                    writer.write(r.getURI() + "\t" + "eng_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel2.getEng_description() + "\t" + confidence2 +"\t"  +bestGuessLevel3.getEng_description() + "\t" + confidence3);
 
 
                 } else {
 
-                    writer.write(r.getURI() + "\t" + "swe_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel2.getEng_description() + "\t" + confidence2);
+                    //level 1,2,2!
+                    writer.write(r.getURI() + "\t" + "swe_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel2.getEng_description() + "\t" + confidence2 +"\t" +bestGuessLevel2.getEng_description() + "\t" + confidence2);
                 }
                 writer.newLine();
 
