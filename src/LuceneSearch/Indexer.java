@@ -27,7 +27,9 @@ public class Indexer {
         Document doc = new Document();
 
          doc.add(new StringField("pid", docRow[ReducedDiVAColumnIndices.PID.getValue()], Field.Store.YES ));
-         doc.add(new TextField("keyword", docRow[ReducedDiVAColumnIndices.Keywords.getValue()], Field.Store.YES ));
+         doc.add(new TextField("keyword", docRow[ReducedDiVAColumnIndices.Keywords.getValue()].replaceAll(";", " "), Field.Store.YES ));
+        doc.add(new TextField("title", docRow[ReducedDiVAColumnIndices.Title.getValue()], Field.Store.YES ));
+
          //combine title and abstract
          doc.add(new TextField("text", docRow[ReducedDiVAColumnIndices.Title.getValue()].concat(" ").concat(docRow[ReducedDiVAColumnIndices.Abstract.getValue()]), Field.Store.YES ));
 

@@ -30,31 +30,42 @@ public class Searcher {
 
     public static void main(String[] args) throws IOException {
 
-        if(args.length != 1) {System.out.println("Supply c lucene index"); System.exit(0);}
+        if(args.length < 1) {System.out.println("Supply c lucene index"); System.exit(0);}
+
+
 
         List<String> queries = new ArrayList<>();
 
-        while (true) {
+        String query = null;
 
-            System.out.print("Enter query (press n if done): ");
+        if(args.length != 2) {
+            while (true) {
 
-            queries.add( System.console().readLine() );
+                System.out.print("Enter query (press n if done): ");
 
-            if ("n".equals( queries.get( queries.size()-1  ) )) {
-                System.out.println("OK..");
-                break;
+                queries.add(System.console().readLine());
+
+                if ("n".equals(queries.get(queries.size() - 1))) {
+                    System.out.println("OK..");
+                    break;
+                }
+
+                System.out.println("query : " + queries.get(queries.size() - 1));
+                System.out.println("-----------\n");
             }
 
-            System.out.println("query : " + queries.get( queries.size()-1 ));
-            System.out.println("-----------\n");
+
+            if (queries.size() == 1) {
+                query = queries.get(0);
+            } else {
+
+                query = queries.get(queries.size() - 2);
+            }
+
+        } else {
+
+            query = args[1];
         }
-
-        String query = null;
-        if(queries.size() == 1) {query = queries.get(0); } else {
-
-            query = queries.get( queries.size()-2);
-        }
-
 
 
         //setup lucene index
@@ -95,7 +106,7 @@ public class Searcher {
 
         ScoreDoc[] hits = returnedDocs.scoreDocs;
 
-     //   BufferedWriter writer = new BufferedWriter( new FileWriter( new File("recordsTextSearch.txt")));
+     BufferedWriter writer = new BufferedWriter( new FileWriter( new File("recordsTextSearch.txt")));
 
 
         //display
@@ -104,9 +115,9 @@ public class Searcher {
 
             int docID = hits[i].doc;
             Document d = searcher.doc(docID);
-            System.out.println( d.get("pid") + " " + d.get("text") );
-       //     writer.write(d.get("pid") +"\t" + d.get("title") );
-        //    writer.newLine();
+            System.out.println( d.get("pid") + "\t" + d.get("title") );
+            writer.write(d.get("pid") +"\t" + d.get("title") );
+           writer.newLine();
         }
 
 
@@ -114,8 +125,8 @@ public class Searcher {
         System.out.println("Using " + q.toString());
         reader.close();
         luceneIndex.close();
-     //   writer.flush();
-     //   writer.close();
+        writer.flush();
+        writer.close();
 
 
 
