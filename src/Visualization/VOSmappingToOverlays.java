@@ -1,6 +1,10 @@
 package Visualization;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by crco0001 on 1/22/2018.
@@ -36,17 +40,17 @@ public class VOSmappingToOverlays {
     public static void main(String[] arg) throws IOException {
 
 
-        if(arg.length != 1) {System.out.println("Supply a map file"); System.exit(0); }
+        if(arg.length != 1) {System.out.println("Supply a map file (arg should = 1)"); System.exit(0); }
 
         File file = new File(arg[0]);
 
-        if(!file.exists()) {System.out.println("Supply a map file"); System.exit(0); }
+        if(!file.exists()) {System.out.println("Supply a map file (supplyed non existing"); System.exit(0); }
 
         BufferedReader reader = new BufferedReader( new FileReader( file ));
         //check headers
         String header = reader.readLine();
 
-        if( header == null ) {System.out.println("Supply a map file"); System.exit(0); }
+        if( header == null ) {System.out.println("Supply a map file (null when checking header)"); System.exit(0); }
 
          //   id	label	x	y	cluster	weight<Links>	weight<Total link strength>	red	green	blue	weight<highlight>
 
@@ -64,18 +68,47 @@ public class VOSmappingToOverlays {
             if ("label".equals( pars[i])) labelInx = i;
             if ("x".equals( pars[i])) xInx = i;
             if ("y".equals( pars[i])) yInx = i;
-            if ("clustering".equals( pars[i])) clusteringInx = i;
+            if ("cluster".equals( pars[i])) clusteringInx = i;
 
             }
 
 
-        if(idInx == -1 || labelInx == -1 || xInx == -1 ||  yInx == -1 || clusteringInx == -1)   {System.out.println("Supply a map file"); System.exit(0); }
+        if(idInx == -1 || labelInx == -1 || xInx == -1 ||  yInx == -1 || clusteringInx == -1)   {System.out.println("Supply a map file, unexpected header"); System.exit(0); }
 
 
+        List<String> id = new ArrayList<>();
+        List<String> label = new ArrayList<>();
+        List<String> x = new ArrayList<>();
+        List<String> y = new ArrayList<>();
+        List<Integer> cluster = new ArrayList<>();
 
+        String line;
+        while( (line = reader.readLine()) != null ) {
 
+          String[] parts =  line.split("\t");
+
+          id.add( parts[idInx]  );
+          label.add( parts[labelInx]  );
+          x.add( parts[xInx]  );
+          y.add( parts[yInx]  );
+          cluster.add( Integer.valueOf(parts[clusteringInx])  );
+
+        }
+
+        System.out.println("# items: " + id.size());
+
+        List<Integer> clusterIds = cluster.stream().distinct().collect(Collectors.toList());
+        System.out.println("# clusters  " + clusterIds.size() );
+        Collections.sort(clusterIds);
 
         reader.close();
+
+        for(Integer s : clusterIds) {
+
+            System.out.println(s);
+        }
+
+
 
         }
 
