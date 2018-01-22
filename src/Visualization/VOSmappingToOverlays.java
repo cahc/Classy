@@ -103,14 +103,96 @@ public class VOSmappingToOverlays {
 
         reader.close();
 
-        for(Integer s : clusterIds) {
+        //        for(Integer s : clusterIds) {
 
-            System.out.println(s);
+        //          System.out.println(s);
+        //     }
+
+
+
+        StringBuilder stringBuilder = new StringBuilder();
+        //    id	label	x	y	cluster	weight<Links>	weight<Total link strength>	red	green   blue	weight<highlight>
+        stringBuilder.append("id").append("\t").append("label").append("\t").append("x").append("\t").append("y").append("\t").append("cluster").append("\t").append("red").append("\t").append("green").append("\t").append("blue").append("\t").append("weight<highlight>");
+        String headerString = stringBuilder.toString();
+
+        for(Integer clusterID : clusterIds) {
+
+            BufferedWriter writer = new BufferedWriter( new FileWriter( new File("OverlayCluster" + clusterID + ".txt") ));
+            writer.write(headerString);
+            writer.newLine();
+
+
+            for(int i=0; i<id.size(); i++) {
+
+                boolean isTargetCluster = cluster.get(i).equals( clusterID );
+
+                if(isTargetCluster) {
+
+                    writer.write(id.get(i));
+                    writer.write("\t");
+                    writer.write(label.get(i));
+                    writer.write("\t");
+                    writer.write(x.get(i));
+                    writer.write("\t");
+                    writer.write(y.get(i));
+                    writer.write("\t");
+                    writer.write( cluster.get(i).toString()   );
+                    writer.write("\t");
+
+
+                    writer.write("255" );
+                    writer.write("\t");
+                    writer.write("0" );
+                    writer.write("\t");
+                    writer.write("0" );
+                    writer.write("\t");
+
+                    writer.write("2" );
+                    writer.newLine();
+
+
+                } else {
+
+                    writer.write(id.get(i));
+                    writer.write("\t");
+                    writer.write(label.get(i));
+                    writer.write("\t");
+                    writer.write(x.get(i));
+                    writer.write("\t");
+                    writer.write(y.get(i));
+                    writer.write("\t");
+                    writer.write(cluster.get(i).toString() );
+                    writer.write("\t");
+
+
+                    writer.write("192" );
+                    writer.write("\t");
+                    writer.write("192" );
+                    writer.write("\t");
+                    writer.write("192" );
+                    writer.write("\t");
+
+                    writer.write("1" );
+                    writer.newLine();
+
+
+                }
+
+
+            }
+
+
+
+            writer.flush();
+            writer.close();
+
+
         }
 
 
 
-        }
+
+    }
 
 
 
