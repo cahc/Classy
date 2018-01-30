@@ -43,7 +43,7 @@ public class CmdParser {
         Option language = Option.builder("language").hasArg().optionalArg(true).argName("swe or eng").desc("model for which language").build();
         options.addOption(language);
 
-        Option level = Option.builder("level").hasArg().optionalArg(true).argName("3 or 5").desc("model for specifyed hsv level").build();
+        Option level = Option.builder("level").hasArg().optionalArg(true).argName("3 or 5").desc("model for specified hsv level").build();
         options.addOption(level);
         options.addOption("CreateTrainingAndHoldOut",false,"read index from mapDB and create sparse vectors");
         options.addOption("Train", false,"train and serialize model");
@@ -132,7 +132,7 @@ public class CmdParser {
 
             if( !(parser.hasOption("language") && parser.hasOption("level"))  ) {
 
-                System.out.println("must supply both language (swe or eng) and level (3 or 5");
+                System.out.println("must supply both language (swe or eng) and level (3 or 5)");
                 System.exit(0);
             }
 
@@ -202,7 +202,7 @@ public class CmdParser {
 
             if( !(parser.hasOption("language") && parser.hasOption("level"))  ) {
 
-                System.out.println("must supply both language (swe or eng) and level (3 or 5");
+                System.out.println("must supply both language (swe or eng) and level (3 or 5)");
                 System.exit(0);
             }
 
@@ -301,7 +301,7 @@ public class CmdParser {
 
             System.out.println("Writing Training And hold-out data to disk");
 
-            Splitter splitter = new Splitter(classificationDataSet,0.05);
+            Splitter splitter = new Splitter(classificationDataSet,0.07);
 
             List<ClassificationDataSet> trainingAndHoldOut = splitter.splitInTrainingAndHoldOut();
 
@@ -346,7 +346,7 @@ public class CmdParser {
 
             if (!(parser.hasOption("language") && parser.hasOption("level"))) {
 
-                System.out.println("must supply both language (swe or eng) and level (3 or 5");
+                System.out.println("must supply both language (swe or eng) and level (3 or 5)");
                 System.exit(0);
             }
 
