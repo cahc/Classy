@@ -462,7 +462,7 @@ public class DivaRecordsToVectors {
 
          */
 
-        if(matrix.rows() != matrix.cols()) throw new IOException("not a symmetric matrix");
+        if(matrix.rows() != matrix.cols()) throw new IOException("not a square matrix");
 
         BufferedWriter writer = new BufferedWriter( new FileWriter( new File(fileName)));
 

@@ -188,12 +188,12 @@ public class ScopusParser {
     }
 
 
-    public Record getCoreData() throws XPathExpressionException {
+    public ScopusRecord getCoreData() throws XPathExpressionException {
 
         NodeList nodeList = (NodeList)coreDataExp.evaluate(this.doc,XPathConstants.NODESET);
 
         System.out.println("Extracting core data");
-        Record record = new Record();
+        ScopusRecord record = new ScopusRecord();
 
         for(int i=0; i< nodeList.getLength(); i++) {
 
@@ -421,7 +421,7 @@ public class ScopusParser {
 
 
 
-        List<Record> records = new ArrayList<>();
+        List<ScopusRecord> records = new ArrayList<>();
         for(File file : eidFiles) {
 
             System.out.println("Parsing file: " + file.toString());
@@ -436,7 +436,7 @@ public class ScopusParser {
 
 
             ScopusParser scopusParser = new ScopusParser(doc);
-            Record record = scopusParser.getCoreData();
+            ScopusRecord record = scopusParser.getCoreData();
 
            // System.out.println(record.getAuthorKeywords());
           //  System.out.println(record.getIndexTerms() );

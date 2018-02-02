@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by crco0001 on 1/26/2018.
  */
-public class Playground {
+public class PrintToTextForDebugging {
 
 
 
@@ -19,7 +19,7 @@ public class Playground {
 
 
         System.out.println("Reading in serialized records..");
-        List<Record> records = SimplePersistor.deserializeList("records.ser");
+        List<ScopusRecord> records = SimplePersistor.deserializeList("records.ser");
 
 
         BufferedWriter writer = new BufferedWriter( new FileWriter( new File("output.txt")));
@@ -27,7 +27,7 @@ public class Playground {
 
 
 
-        for(Record record : records) {
+        for(ScopusRecord record : records) {
             StringBuilder stringBuilder = new StringBuilder(100);
 
             stringBuilder.append(record.getEid()).append("\t");
@@ -74,7 +74,7 @@ public class Playground {
 
 
         System.out.println("writing cited references to file");
-        for(Record record : records) {
+        for(ScopusRecord record : records) {
 
            List<CitedReference> list = record.getCitedReferences();
 
@@ -100,7 +100,7 @@ public class Playground {
 
 
         System.out.println("writing Affils references to file");
-        for(Record record : records) {
+        for(ScopusRecord record : records) {
 
            List<AffiliationLevel1> affiliationLevel1List = record.getAffiliationLevel1List();
 
@@ -119,7 +119,7 @@ public class Playground {
         BufferedWriter writerAuthors = new BufferedWriter( new FileWriter( new File("Authors.txt")));
 
         System.out.println("writing Authors references to file");
-        for(Record record : records) {
+        for(ScopusRecord record : records) {
 
             List<Author>  authorList = record.getAuthorList();
 

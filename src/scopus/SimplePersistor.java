@@ -30,15 +30,15 @@ public class SimplePersistor {
     }
 
 
-    public static List<Record> deserializeList(String filename) throws IOException {
+    public static List<ScopusRecord> deserializeList(String filename) throws IOException {
 
         ObjectInputStream objectinputstream = null;
-        List<Record> readRecords = null;
+        List<ScopusRecord> readRecords = null;
 
         try {
             FileInputStream streamIn = new FileInputStream(filename);
             objectinputstream = new ObjectInputStream(streamIn);
-           readRecords = (List<Record>) objectinputstream.readObject();
+           readRecords = (List<ScopusRecord>) objectinputstream.readObject();
 
         } catch (Exception e) {
             e.printStackTrace();

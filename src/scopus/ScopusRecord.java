@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by crco0001 on 1/10/2018.
  */
-public class Record implements Serializable {
+public class ScopusRecord implements Serializable {
 
 
     //from <coredata>
