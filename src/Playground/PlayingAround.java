@@ -40,5 +40,7 @@ public class PlayingAround {
 
         System.out.println( test.toSparseMatrix() );
 
+        System.out.println( test.toSparseMatrix().transpose() );
+
     }
 }
