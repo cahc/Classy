@@ -353,8 +353,6 @@ public class ModularityOptimizer
 
 
 
-
-
     public static void writeOutputFile(String fileName, Clustering clustering) throws IOException
     {
         BufferedWriter bufferedWriter;

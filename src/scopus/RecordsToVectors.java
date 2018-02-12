@@ -155,8 +155,7 @@ public class RecordsToVectors {
 
     }
 
-
-    public static void writeToTriplets(List<MinMaxPriorityQueue<VectorAndSim>> topk, String file) throws IOException {
+    public static void writeToTripletsZeroBased(List<MinMaxPriorityQueue<VectorAndSim>> topk, String file) throws IOException {
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(new File(file)));
 
@@ -171,7 +170,7 @@ public class RecordsToVectors {
 
                 VectorAndSim similarVector = iterator.next();
 
-                writer.write(i + " " + similarVector.getVectorID() + " " + similarVector.getSim());
+                writer.write( i + "\t" + similarVector.getVectorID() + "\t" + similarVector.getSim());
                 writer.newLine();
 
                 //obs! wont make this symmetric here.
@@ -186,6 +185,88 @@ public class RecordsToVectors {
         writer.close();
     }
 
+
+    public static SparseMatrix knngToMatrix(List<MinMaxPriorityQueue<VectorAndSim>> topKsets, boolean makeSymetric) {
+
+
+        SparseMatrix sparseSimilarityMatrix = new SparseMatrix(topKsets.size(),topKsets.size(),20);
+
+        for(int i=0; i< topKsets.size(); i++) {
+
+            MinMaxPriorityQueue<VectorAndSim> similarVectors = topKsets.get(i);
+
+            Iterator<VectorAndSim> iterator = similarVectors.iterator();
+
+            while(iterator.hasNext()) {
+
+                VectorAndSim vec = iterator.next();
+
+
+                sparseSimilarityMatrix.set(i, vec.getVectorID(),vec.getSim() );
+
+                //make symetric
+
+               if(makeSymetric)  sparseSimilarityMatrix.set(vec.getVectorID(), i , vec.getSim() );
+
+
+            }
+
+
+        }
+
+
+        return sparseSimilarityMatrix;
+
+    }
+
+    public static void writeToPajek(SparseMatrix matrix, String fileName, boolean upperRightOnly) throws IOException {
+
+
+        if(matrix.rows() != matrix.cols()) throw new IOException("not a square matrix");
+
+
+        BufferedWriter writer = new BufferedWriter( new FileWriter( new File(fileName)));
+
+        writer.write("*Vertices " + matrix.rows() );
+        writer.newLine();
+
+        for(int i=1; i<= matrix.rows(); i++) {
+
+            writer.write(i + " " +"\"" + (i-1) + "\"" );
+            writer.newLine();
+
+        }
+
+        writer.write("*arcs");
+        writer.newLine();
+
+
+        for(int r=0; r<matrix.rows(); r++) {
+
+            Iterator<IndexValue> it = matrix.getRowView(r).getNonZeroIterator();
+            while (it.hasNext()) {
+
+                IndexValue indexValue = it.next();
+
+                if(upperRightOnly && indexValue.getIndex() <= r) continue;
+
+                writer.write((r+1) +" " + (indexValue.getIndex()+1) + " " + indexValue.getValue() );
+                writer.newLine();
+            }
+
+
+
+        }
+
+
+
+
+        writer.flush();
+        writer.close();
+
+
+
+    }
 
     public static void main(String[] arg) throws IOException {
 
@@ -203,7 +284,7 @@ public class RecordsToVectors {
 
         System.out.println("Extracting terms and cited refs (keys)");
         BufferedWriter writeEidToIndex = new BufferedWriter( new FileWriter( new File("EIDtoIndex.txt")) );
-       int counter = 0;
+       int counter_zero_based = 0;
         for(ScopusRecord record : records) {
 
             boolean isEnglish = "eng".equals(record.getLanguage());
@@ -259,8 +340,8 @@ public class RecordsToVectors {
 
 
 
-           writeEidToIndex.write(counter +" " + record.getEid() );
-           counter++;
+           writeEidToIndex.write(counter_zero_based +" " + record.getEid() );
+           counter_zero_based++;
            writeEidToIndex.newLine();
 
 
@@ -290,36 +371,59 @@ public class RecordsToVectors {
 
 
         List<VectorWithID> vectorWithIDsTEXT = new ArrayList<>();
-        int id = 0;
+        int id_zero_based = 0;
         for(SparseVector v : sparseTextVectors) {
 
-            vectorWithIDsTEXT.add( new VectorWithID(v,id)  );
-            id++;
+            vectorWithIDsTEXT.add( new VectorWithID(v,id_zero_based)  );
+            id_zero_based++;
         }
 
 
         List<VectorWithID> vectorWithIDsREF = new ArrayList<>();
-        id = 0;
+        id_zero_based = 0;
         for(SparseVector v : sparseCitedRefsVectors) {
 
-            vectorWithIDsREF.add( new VectorWithID(v,id)  );
-            id++;
+            vectorWithIDsREF.add( new VectorWithID(v,id_zero_based)  );
+            id_zero_based++;
         }
 
 
         System.out.println("Running knng algo for text and ref..");
 
         long now = System.currentTimeMillis();
-        List<MinMaxPriorityQueue<VectorAndSim>> knngREF =  vectorWithIDsREF.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsREF,20,0.01)   ).collect(Collectors.toList());
-        List<MinMaxPriorityQueue<VectorAndSim>> knngTEXT =  vectorWithIDsTEXT.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsTEXT,20,0.01)   ).collect(Collectors.toList());
+        List<MinMaxPriorityQueue<VectorAndSim>> knngREF =  vectorWithIDsREF.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsREF,10,0.01)   ).collect(Collectors.toList());
+        List<MinMaxPriorityQueue<VectorAndSim>> knngTEXT =  vectorWithIDsTEXT.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsTEXT,10,0.01)   ).collect(Collectors.toList());
 
 
         System.out.println("TopK calculations in : " + (System.currentTimeMillis() - now)/1000.0 );
+        System.out.println("# in list<MinMaxPrioQ: " + knngREF.size() + " " +knngTEXT.size() );
 
         System.out.println("Writing to file..");
 
-        writeToTriplets(knngREF,"tripletMatrixREF.txt");
-        writeToTriplets(knngTEXT,"tripletMatrixTEXT.txt");
+        SparseMatrix MatrixRef = knngToMatrix(knngREF,false);
+        SparseMatrix MatrixText = knngToMatrix(knngTEXT,false);
+
+        double weigh = 0.5;
+        MatrixRef.mutableMultiply(1-weigh);
+        MatrixRef.mutableAdd(weigh,MatrixText);
+
+        SparseMatrix transposed = new SparseMatrix(MatrixRef.rows(),MatrixText.cols(),15);
+        MatrixRef.transpose(transposed);
+
+        MatrixRef.mutableAdd(transposed);
+
+
+        writeToPajek(MatrixRef,"combined.net",false);
+
+
+        //writeToPajek(M1,"refs2.net", false);
+        //writeToPajek(M2, "text2.net",false);
+
+        //writeToTripletsZeroBased(knngREF,"tripletMatrixREF.txt");
+        //writeToTripletsZeroBased(knngTEXT,"tripletMatrixTEXT.txt");
+
+
+
 
        // System.out.println("Finding eps-nearest neighbours in parallel");
 

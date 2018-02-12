@@ -379,12 +379,12 @@ public class DivaRecordsToVectors {
             Set<VectorAndSim> set = epsSet.get(i);
 
 
-                for(VectorAndSim vectorAndSim : set) {
+            for(VectorAndSim vectorAndSim : set) {
 
-                    sparseSimilarityMatrix.set(i, vectorAndSim.getVectorID(), vectorAndSim.getSim() );
-                    sparseSimilarityMatrix.set(vectorAndSim.getVectorID(), i, vectorAndSim.getSim() );
+                sparseSimilarityMatrix.set(i, vectorAndSim.getVectorID(), vectorAndSim.getSim() );
+                sparseSimilarityMatrix.set(vectorAndSim.getVectorID(), i, vectorAndSim.getSim() );
 
-                }
+            }
 
 
         }
