@@ -1,9 +1,13 @@
 package Playground;
 
 import Database.ModsOnlineParser;
+import Diva.VectorAndSim;
+import Diva.VectorWithID;
 import SwePub.Record;
 import WebApp.ClassProbPair;
 import WebApp.FetchFromDiVA;
+import com.google.common.collect.MinMaxPriorityQueue;
+import jsat.linear.SparseVector;
 import misc.LanguageTools.RemoveCopyRightFromAbstract;
 import net.openhft.hashing.LongHashFunction;
 import smile.data.SparseDataset;
@@ -14,10 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,17 +31,20 @@ public class PlayingAround {
     public static void main(String[] arg) throws IOException, XMLStreamException {
 
 
-        SparseDataset test = new SparseDataset();
 
-        test.set(0,0,10);
-        test.set(0,1,100);
-        test.set(1,1,100);
-        test.set(4,4,100);
-        System.out.println(test.size() +" " + test.ncols());
+        Integer[] docFreq = new Integer[ 10 ];
 
-        System.out.println( test.toSparseMatrix() );
+        for(int i=0; i<docFreq.length; i++ ) docFreq[i] = 0;
 
-        System.out.println( test.toSparseMatrix().transpose() );
+        docFreq[5]++;
+
+        docFreq[9]++;
+        docFreq[9]++;
+         System.out.println( Arrays.asList(docFreq) );
+
+
+
+        }
+
 
     }
-}

@@ -2,6 +2,10 @@ package scopus;
 
 
 
+import ClusterAnalysis.ModularityOptimizer;
+import ClusterAnalysis.Network;
+import ClusterAnalysis.VOSClusteringTechnique;
+import Diva.MatrixEntry;
 import Diva.VectorAndSim;
 import Diva.VectorWithID;
 import com.google.common.collect.MinMaxPriorityQueue;
@@ -11,10 +15,14 @@ import jsat.linear.IndexValue;
 import jsat.linear.SparseMatrix;
 import jsat.linear.SparseVector;
 import jsat.text.wordweighting.TfIdf;
+import jsat.utils.DoubleList;
+import misc.EqualizeDistributions.ECDF;
+import misc.EqualizeDistributions.QuantileFun;
 import misc.LanguageTools.RemoveCopyRightFromAbstract;
 import misc.Parsers.SimpleParser;
 import misc.Stemmers.EnglishStemmer;
 import misc.stopwordLists.EnglishStopWords60;
+
 
 
 import java.io.BufferedWriter;
@@ -108,6 +116,8 @@ public class RecordsToVectors {
 
         for (int i = 0; i < docFreq.length; i++) docFreq[i] = 0;
 
+
+
         for (SparseVector v : vectors) {
 
             Iterator<IndexValue> it = v.getNonZeroIterator();
@@ -155,6 +165,101 @@ public class RecordsToVectors {
 
     }
 
+
+    public static SparseMatrix getSecondOrderTopEps(SparseMatrix similarityMatrix, double threshold, boolean normalize ) {
+
+
+        if(normalize) {
+
+
+            for(int i=0; i<similarityMatrix.rows(); i++)  similarityMatrix.getRowView(i).normalize();
+
+
+        }
+
+
+
+        int rows = similarityMatrix.rows();
+
+        SparseMatrix secorndOrder = new SparseMatrix(similarityMatrix.rows(), similarityMatrix.cols(),20);
+
+
+        for(int i=0; i<rows; i++) {
+
+            SparseVector i_sparseVector = ((SparseVector)similarityMatrix.getRowView(i));
+
+                for(int j=(i+1); j<rows; j++ ) {
+
+
+                    double sim = i_sparseVector.dot( (SparseVector)similarityMatrix.getRowView(j) );
+
+                    if(sim > threshold) secorndOrder.set(i,j,sim);
+
+
+                }
+
+
+
+        }
+
+
+        return secorndOrder; //upper right, symmetric
+
+
+    }
+
+
+    public static SparseMatrix getSecondOrderTopK(SparseMatrix similarityMatrix, int K, boolean normalize) {
+
+
+        int rows = similarityMatrix.rows();
+
+        SparseMatrix secorndOrder = new SparseMatrix(similarityMatrix.rows(), similarityMatrix.cols(), K + 10);
+
+
+        if (normalize) {
+
+
+            for (int i = 0; i < similarityMatrix.rows(); i++) similarityMatrix.getRowView(i).normalize();
+
+        }
+
+
+        for (int i = 0; i < rows; i++) {
+
+            SparseVector i_sparseVector = ((SparseVector) similarityMatrix.getRowView(i));
+
+            MinMaxPriorityQueue<MatrixEntry> minMaxPriorityQueue = MinMaxPriorityQueue.maximumSize(K).create();
+
+
+            for (int j = 0; j < rows; j++) {
+
+                if (i == j) continue;
+
+                double sim = i_sparseVector.dot((SparseVector) similarityMatrix.getRowView(j));
+                minMaxPriorityQueue.add(new MatrixEntry(i, j, sim));
+
+            }
+
+
+            Iterator<MatrixEntry> iter = minMaxPriorityQueue.iterator();
+
+            while (iter.hasNext()) {
+
+
+                MatrixEntry matrixEntry = iter.next();
+
+                secorndOrder.set(matrixEntry.getI(), matrixEntry.getJ(), matrixEntry.getVal());
+
+            }
+
+
+        }
+
+
+        return secorndOrder;
+    }
+
     public static void writeToTripletsZeroBased(List<MinMaxPriorityQueue<VectorAndSim>> topk, String file) throws IOException {
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(new File(file)));
@@ -184,7 +289,6 @@ public class RecordsToVectors {
         writer.flush();
         writer.close();
     }
-
 
     public static SparseMatrix knngToMatrix(List<MinMaxPriorityQueue<VectorAndSim>> topKsets, boolean makeSymetric) {
 
@@ -267,6 +371,37 @@ public class RecordsToVectors {
 
 
     }
+
+    public static void writeToTripletUpperRight(SparseMatrix M, String filename) throws IOException {
+
+        int n = M.rows();
+
+        BufferedWriter writer = new BufferedWriter( new FileWriter( new File(filename)));
+
+
+        for(int i=0; i<n; i++) {
+
+            Iterator<IndexValue> iter = M.getRowView(i).getNonZeroIterator();
+
+            while(iter.hasNext()) {
+
+                IndexValue indexValue = iter.next();
+
+                if(i >= indexValue.getIndex()) continue;
+
+                writer.write(i + "\t" + indexValue.getIndex() +"\t" + indexValue.getValue());
+                writer.newLine();
+            }
+
+
+        }
+
+
+        writer.flush();
+        writer.close();
+    }
+
+
 
     public static void main(String[] arg) throws IOException {
 
@@ -388,38 +523,124 @@ public class RecordsToVectors {
         }
 
 
-        System.out.println("Running knng algo for text and ref..");
+        System.out.println("Calculating top K for text and cited references..");
 
         long now = System.currentTimeMillis();
-        List<MinMaxPriorityQueue<VectorAndSim>> knngREF =  vectorWithIDsREF.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsREF,10,0.01)   ).collect(Collectors.toList());
-        List<MinMaxPriorityQueue<VectorAndSim>> knngTEXT =  vectorWithIDsTEXT.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsTEXT,10,0.01)   ).collect(Collectors.toList());
+        List<MinMaxPriorityQueue<VectorAndSim>> knngREF =  vectorWithIDsREF.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsREF,25,0.01)   ).collect(Collectors.toList());
+        List<MinMaxPriorityQueue<VectorAndSim>> knngTEXT =  vectorWithIDsTEXT.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsTEXT,25,0.01)   ).collect(Collectors.toList());
 
 
-        System.out.println("TopK calculations in : " + (System.currentTimeMillis() - now)/1000.0 );
+        System.out.println("time elapsed : " + (System.currentTimeMillis() - now)/1000.0 );
         System.out.println("# in list<MinMaxPrioQ: " + knngREF.size() + " " +knngTEXT.size() );
 
-        System.out.println("Writing to file..");
+        SparseMatrix matrixRef = knngToMatrix(knngREF,false);
+        SparseMatrix matrixText = knngToMatrix(knngTEXT,false);
 
-        SparseMatrix MatrixRef = knngToMatrix(knngREF,false);
-        SparseMatrix MatrixText = knngToMatrix(knngTEXT,false);
+        System.out.println("Building ECDF and Quantile function for normalization..");
 
-        double weigh = 0.5;
-        MatrixRef.mutableMultiply(1-weigh);
-        MatrixRef.mutableAdd(weigh,MatrixText);
+        DoubleList citedRefValues = new DoubleList(1000);
+        for(int i=0; i<matrixRef.rows(); i++) {
 
-        SparseMatrix transposed = new SparseMatrix(MatrixRef.rows(),MatrixText.cols(),15);
-        MatrixRef.transpose(transposed);
+            Iterator<IndexValue> iter = matrixRef.getRowView(i).getNonZeroIterator();
 
-        MatrixRef.mutableAdd(transposed);
+            while(iter.hasNext()) {
+
+                citedRefValues.add(iter.next().getValue() );
+
+            }
+
+        }
+
+        ECDF citedRefECDF = new ECDF(citedRefValues);
 
 
-        writeToPajek(MatrixRef,"combined.net",false);
+        DoubleList textValues = new DoubleList(1000);
+        for(int i=0; i<matrixText.rows(); i++) {
+
+            Iterator<IndexValue> iter = matrixText.getRowView(i).getNonZeroIterator();
+
+            while(iter.hasNext()) {
+
+                textValues.add(iter.next().getValue() );
+
+            }
+
+        }
+
+        QuantileFun textQuantileFunction = new QuantileFun(textValues);
+
+        System.out.println("Normalizing..");
+
+
+
+
+
+       // double weigh = 0.5;
+       // MatrixRef.mutableMultiply(1-weigh);
+       // MatrixRef.mutableAdd(weigh,MatrixText);
+
+        //SparseMatrix transposed = new SparseMatrix(MatrixRef.rows(),MatrixText.cols(),15);
+       // MatrixRef.transpose(transposed);
+
+       // MatrixRef.mutableAdd(transposed);
+
+
+        //second order
+
+        //add knng, wight ref vectors a higer
+        matrixText.mutableAdd(2,matrixRef);
+
+        System.out.println("Running secondOrder..");
+
+        //not symmetric!
+        SparseMatrix finalMatrix = getSecondOrderTopK(matrixText,10,true);
+
+        //SparseMatrix secondOrder = getSecondOrderTopEps(MatrixRef,0.2,true);
+
+        System.out.println("Second order calculations in : " + (System.currentTimeMillis() - now)/1000.0 );
+
+
+        //create a symmetric network
+        //zero based indices
+
+        finalMatrix.mutableAdd( finalMatrix.clone().transpose() );
+
+        Network network = ModularityOptimizer.convertSparseMatrix(finalMatrix,1);
+
+        //clustering
+        int modularityFunction = 1;
+
+        double resolution =  1;
+
+        double resolution2 = ((modularityFunction == 1) ? (resolution / (2 * network.getTotalEdgeWeight() + network.getTotalEdgeWeightSelfLinks() )) : resolution);
+
+        VOSClusteringTechnique vOSClusteringTechnique = new VOSClusteringTechnique(network, resolution2);
+        double modularity = vOSClusteringTechnique.calcQualityFunction();
+        System.out.println("Q: " + modularity +" clusters: " + vOSClusteringTechnique.getClustering().getNClusters());
+
+
+        vOSClusteringTechnique.runSmartLocalMovingAlgorithm( new Random() );
+        modularity = vOSClusteringTechnique.calcQualityFunction();
+        System.out.println("Q: " + modularity +" clusters: " + vOSClusteringTechnique.getClustering().getNClusters());
+
+        vOSClusteringTechnique.runSmartLocalMovingAlgorithm( new Random() );
+        modularity = vOSClusteringTechnique.calcQualityFunction();
+        System.out.println("Q: " + modularity  +" clusters: " + vOSClusteringTechnique.getClustering().getNClusters() );
+
+
+
+        writeToTripletUpperRight(finalMatrix,"triplet.mat");
+
+        //writeToPajek(finalMatrix,"secondOrderV2.net",false);
+
+       // writeToPajek(MatrixRef,"combined.net",false);
 
 
         //writeToPajek(M1,"refs2.net", false);
         //writeToPajek(M2, "text2.net",false);
 
         //writeToTripletsZeroBased(knngREF,"tripletMatrixREF.txt");
+
         //writeToTripletsZeroBased(knngTEXT,"tripletMatrixTEXT.txt");
 
 

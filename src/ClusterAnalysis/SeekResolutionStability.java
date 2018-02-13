@@ -48,9 +48,7 @@ public class SeekResolutionStability {
         System.out.format("Number of edges: %d%n", network.getNEdges());
 
 
-        List<Double> sequenceOfResParameters = SeekResolutionStability.getSequenceOfResParameters(0.2,3.5,0.0033033 );
-
-
+        List<Double> sequenceOfResParameters = SeekResolutionStability.getSequenceOfResParameters(0.2,3,0.0025 );
 
         List<int[]> partitions = new ArrayList<>();
 
@@ -69,7 +67,7 @@ public class SeekResolutionStability {
             Clustering clustering = null;
             double maxModularity = Double.NEGATIVE_INFINITY;
             Random random = new Random(0);
-            int nRandomStarts = 1;
+            int nRandomStarts = 5;
             int nIterations = 30;
 
             int j = 0;
