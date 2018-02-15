@@ -30,7 +30,7 @@ public class SimplePersistor {
     }
 
 
-    public static List<ScopusRecord> deserializeList(String filename) throws IOException {
+    public static List<ScopusRecord> deserializeListScopusRecords(String filename) throws IOException {
 
         ObjectInputStream objectinputstream = null;
         List<ScopusRecord> readRecords = null;
@@ -55,7 +55,54 @@ public class SimplePersistor {
     }
 
 
+    public static List<List<String>> deserializeListofLists(String filename) throws IOException {
+
+        ObjectInputStream objectinputstream = null;
+        List<List<String>> readRecords = null;
+
+        try {
+            FileInputStream streamIn = new FileInputStream(filename);
+            objectinputstream = new ObjectInputStream(streamIn);
+            readRecords = (List<List<String>>)objectinputstream.readObject();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(objectinputstream != null){
+                objectinputstream .close();
+            }
+        }
 
 
+
+        return readRecords;
+
+    }
+
+
+
+    public static List<String> deserializeList(String filename) throws IOException {
+
+        ObjectInputStream objectinputstream = null;
+        List<String> readRecords = null;
+
+        try {
+            FileInputStream streamIn = new FileInputStream(filename);
+            objectinputstream = new ObjectInputStream(streamIn);
+            readRecords = (List<String>)objectinputstream.readObject();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(objectinputstream != null){
+                objectinputstream .close();
+            }
+        }
+
+
+
+        return readRecords;
+
+    }
 
 }

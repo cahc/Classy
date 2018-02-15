@@ -408,7 +408,7 @@ public class RecordsToVectors {
         RecordsToVectors recordsToVectors = new RecordsToVectors();
 
         System.out.println("Reading in serialized records..");
-        List<ScopusRecord> records = SimplePersistor.deserializeList("records.ser");
+        List<ScopusRecord> records = SimplePersistor.deserializeListScopusRecords("records.ser");
 
         EnglishStemmer stemmer = new EnglishStemmer();
         EnglishStopWords60 englishStopWords60 = new EnglishStopWords60();
@@ -419,7 +419,10 @@ public class RecordsToVectors {
 
         System.out.println("Extracting terms and cited refs (keys)");
         BufferedWriter writeEidToIndex = new BufferedWriter( new FileWriter( new File("EIDtoIndex.txt")) );
-       int counter_zero_based = 0;
+
+        List<String> publicationNames = new ArrayList<>();
+
+        int counter_zero_based = 0;
         for(ScopusRecord record : records) {
 
             boolean isEnglish = "eng".equals(record.getLanguage());
@@ -470,11 +473,11 @@ public class RecordsToVectors {
             citedRefsTokenLists.add(citationKeys);
 
 
-          //  System.out.println(citationKeys);
+            //  System.out.println(citationKeys);
             //   System.out.println("");
 
 
-
+           publicationNames.add(record.getPublicationName() );
            writeEidToIndex.write(counter_zero_based +" " + record.getEid() );
            counter_zero_based++;
            writeEidToIndex.newLine();
@@ -487,6 +490,11 @@ public class RecordsToVectors {
         writeEidToIndex.close();
 
         //now we have lists with terms and citationKeys
+
+
+        SimplePersistor.serialiseList(textTokenLists,"texttokens.ser");
+        SimplePersistor.serialiseList(publicationNames,"pubnames.ser");
+
 
         System.out.println("creating vectors");
         List<SparseVector> sparseTextVectors = recordsToVectors.getSparseVectors(textTokenLists,true);
@@ -526,8 +534,8 @@ public class RecordsToVectors {
         System.out.println("Calculating top K for text and cited references..");
 
         long now = System.currentTimeMillis();
-        List<MinMaxPriorityQueue<VectorAndSim>> knngREF =  vectorWithIDsREF.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsREF,25,0.01)   ).collect(Collectors.toList());
-        List<MinMaxPriorityQueue<VectorAndSim>> knngTEXT =  vectorWithIDsTEXT.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsTEXT,25,0.01)   ).collect(Collectors.toList());
+        List<MinMaxPriorityQueue<VectorAndSim>> knngREF =  vectorWithIDsREF.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsREF,50,0.01)   ).collect(Collectors.toList());
+        List<MinMaxPriorityQueue<VectorAndSim>> knngTEXT =  vectorWithIDsTEXT.parallelStream().map( (VectorWithID vector) -> getTopK(vector,vectorWithIDsTEXT,50,0.01)   ).collect(Collectors.toList());
 
 
         System.out.println("time elapsed : " + (System.currentTimeMillis() - now)/1000.0 );
@@ -569,67 +577,78 @@ public class RecordsToVectors {
 
         QuantileFun textQuantileFunction = new QuantileFun(textValues);
 
-        System.out.println("Normalizing..");
+        System.out.println("Normalizing Cited referens matrix w.r.t. text matrix..");
+
+
+
+        for(int i=0; i<matrixRef.rows(); i++) {
+
+            Iterator<IndexValue> iter = matrixRef.getRowView(i).getNonZeroIterator();
+
+            while(iter.hasNext()) {
+
+                IndexValue indexValue = iter.next();
+
+                double prob = citedRefECDF.getProbBinarySearch( indexValue.getValue()  );
+                double newValue = textQuantileFunction.getQuantile(prob);
+
+                indexValue.setValue(newValue);
+
+            }
+
+        }
 
 
 
 
-
-       // double weigh = 0.5;
-       // MatrixRef.mutableMultiply(1-weigh);
-       // MatrixRef.mutableAdd(weigh,MatrixText);
-
-        //SparseMatrix transposed = new SparseMatrix(MatrixRef.rows(),MatrixText.cols(),15);
-       // MatrixRef.transpose(transposed);
-
-       // MatrixRef.mutableAdd(transposed);
-
-
-        //second order
-
-        //add knng, wight ref vectors a higer
-        matrixText.mutableAdd(2,matrixRef);
+        System.out.println("merge matrices, equal weight");
+        matrixText.mutableAdd(1,matrixRef);
 
         System.out.println("Running secondOrder..");
 
         //not symmetric!
-        SparseMatrix finalMatrix = getSecondOrderTopK(matrixText,10,true);
+        SparseMatrix finalMatrix = getSecondOrderTopK(matrixText,30,true);
 
         //SparseMatrix secondOrder = getSecondOrderTopEps(MatrixRef,0.2,true);
 
         System.out.println("Second order calculations in : " + (System.currentTimeMillis() - now)/1000.0 );
 
 
-        //create a symmetric network
-        //zero based indices
+        System.out.println("Make symmetric");
 
         finalMatrix.mutableAdd( finalMatrix.clone().transpose() );
 
         Network network = ModularityOptimizer.convertSparseMatrix(finalMatrix,1);
 
-        //clustering
-        int modularityFunction = 1;
-
-        double resolution =  1;
-
-        double resolution2 = ((modularityFunction == 1) ? (resolution / (2 * network.getTotalEdgeWeight() + network.getTotalEdgeWeightSelfLinks() )) : resolution);
-
-        VOSClusteringTechnique vOSClusteringTechnique = new VOSClusteringTechnique(network, resolution2);
-        double modularity = vOSClusteringTechnique.calcQualityFunction();
-        System.out.println("Q: " + modularity +" clusters: " + vOSClusteringTechnique.getClustering().getNClusters());
-
-
-        vOSClusteringTechnique.runSmartLocalMovingAlgorithm( new Random() );
-        modularity = vOSClusteringTechnique.calcQualityFunction();
-        System.out.println("Q: " + modularity +" clusters: " + vOSClusteringTechnique.getClustering().getNClusters());
-
-        vOSClusteringTechnique.runSmartLocalMovingAlgorithm( new Random() );
-        modularity = vOSClusteringTechnique.calcQualityFunction();
-        System.out.println("Q: " + modularity  +" clusters: " + vOSClusteringTechnique.getClustering().getNClusters() );
-
-
-
+        network.save("triplet.bin");
         writeToTripletUpperRight(finalMatrix,"triplet.mat");
+
+        writeToPajek(finalMatrix,"triplet.net",true);
+
+
+        //clustering
+        //int modularityFunction = 1;
+
+        //double resolution =  1;
+
+        //double resolution2 = ((modularityFunction == 1) ? (resolution / (2 * network.getTotalEdgeWeight() + network.getTotalEdgeWeightSelfLinks() )) : resolution);
+
+        //VOSClusteringTechnique vOSClusteringTechnique = new VOSClusteringTechnique(network, resolution2);
+        //double modularity = vOSClusteringTechnique.calcQualityFunction();
+        //System.out.println("Q: " + modularity +" clusters: " + vOSClusteringTechnique.getClustering().getNClusters());
+
+
+        //vOSClusteringTechnique.runSmartLocalMovingAlgorithm( new Random() );
+       //modularity = vOSClusteringTechnique.calcQualityFunction();
+       // System.out.println("Q: " + modularity +" clusters: " + vOSClusteringTechnique.getClustering().getNClusters());
+
+        //vOSClusteringTechnique.runSmartLocalMovingAlgorithm( new Random() );
+       // modularity = vOSClusteringTechnique.calcQualityFunction();
+       // System.out.println("Q: " + modularity  +" clusters: " + vOSClusteringTechnique.getClustering().getNClusters() );
+
+
+
+        //writeToTripletUpperRight(finalMatrix,"triplet.mat");
 
         //writeToPajek(finalMatrix,"secondOrderV2.net",false);
 

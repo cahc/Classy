@@ -67,8 +67,8 @@ public class SeekResolutionStability {
             Clustering clustering = null;
             double maxModularity = Double.NEGATIVE_INFINITY;
             Random random = new Random(0);
-            int nRandomStarts = 5;
-            int nIterations = 30;
+            int nRandomStarts = 2;
+            int nIterations = 15;
 
             int j = 0;
             boolean update;

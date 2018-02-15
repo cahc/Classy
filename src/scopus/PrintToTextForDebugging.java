@@ -19,7 +19,7 @@ public class PrintToTextForDebugging {
 
 
         System.out.println("Reading in serialized records..");
-        List<ScopusRecord> records = SimplePersistor.deserializeList("records.ser");
+        List<ScopusRecord> records = SimplePersistor.deserializeListScopusRecords("records.ser");
 
 
         BufferedWriter writer = new BufferedWriter( new FileWriter( new File("output.txt")));

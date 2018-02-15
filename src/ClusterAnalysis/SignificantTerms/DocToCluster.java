@@ -64,6 +64,27 @@ public class DocToCluster {
     }
 
 
+    public DocToCluster(int[] docID, int[] clusterId) {
+
+
+        if(docID.length != clusterId.length) {
+
+           System.out.println("length of ids != length of partition");  System.exit(0);
+        }
+
+
+        for(int i=0; i<docID.length; i++) {
+
+
+            docIdToClusterLable.put( docID[i], clusterId[i] );
+
+        }
+
+
+
+    }
+
+
     public Integer getClusterId(Integer docID) {
 
         return docIdToClusterLable.get(docID);
@@ -88,7 +109,7 @@ public class DocToCluster {
 
         Integer lable = docIdToClusterLable.get( id );
 
-        if( this.clusterLableToDocs.containsKey(lable) ) {
+        if( this.clusterLableToDocs.containsKey(lable) ) {  //int -->set<int>
 
             this.clusterLableToDocs.get(lable).add( id );
 
@@ -146,6 +167,123 @@ public class DocToCluster {
 
 
     }
+
+    public void addRecord(List<String> tokens, int id) {
+
+        //1. lable to -> doc ids
+
+        //  Integer id = r.getMapDBKey();
+        this.allDocIds.add(id);
+
+        Integer lable = docIdToClusterLable.get( id );
+
+        if( this.clusterLableToDocs.containsKey(lable) ) {  //int -->set<int>
+
+            this.clusterLableToDocs.get(lable).add( id );
+
+        } else {
+
+            HashSet newSetOfDocIDs = new HashSet();
+            newSetOfDocIDs.add( id );
+
+            this.clusterLableToDocs.put(lable,newSetOfDocIDs);
+
+        }
+
+        // term to doc ids
+
+
+        HashSet<String> terms2 = new HashSet<>();
+        terms2.addAll(tokens);
+
+
+        if(!this.lableToTermSet.containsKey(lable)) {
+
+            this.lableToTermSet.put(lable, new HashSet<String>());
+
+        }
+
+        Set<String> termSetForLable = this.lableToTermSet.get(lable);
+
+        for(String s : terms2 ) {
+
+            termSetForLable.add(s);
+
+
+
+            if(this.termToDocs.containsKey(s)) {
+
+                this.termToDocs.get(s).add(id);
+            } else {
+
+
+                HashSet<Integer> newDocIdSet = new HashSet<>();
+                newDocIdSet.add(id);
+                this.termToDocs.put(s,newDocIdSet);
+
+            }
+
+
+
+        }
+
+
+    }
+
+
+    public void addRecord(String token, int id) {
+
+        //1. lable to -> doc ids
+
+        //  Integer id = r.getMapDBKey();
+        this.allDocIds.add(id);
+
+        Integer lable = docIdToClusterLable.get( id );
+
+        if( this.clusterLableToDocs.containsKey(lable) ) {  //int -->set<int>
+
+            this.clusterLableToDocs.get(lable).add( id );
+
+        } else {
+
+            HashSet newSetOfDocIDs = new HashSet();
+            newSetOfDocIDs.add( id );
+
+            this.clusterLableToDocs.put(lable,newSetOfDocIDs);
+
+        }
+
+        // term to doc ids
+
+
+        if(!this.lableToTermSet.containsKey(lable)) {
+
+            this.lableToTermSet.put(lable, new HashSet<String>());
+
+        }
+
+        Set<String> termSetForLable = this.lableToTermSet.get(lable);
+
+        termSetForLable.add(token);
+
+
+            if(this.termToDocs.containsKey(token)) {
+
+                this.termToDocs.get(token).add(id);
+            } else {
+
+
+                HashSet<Integer> newDocIdSet = new HashSet<>();
+                newDocIdSet.add(id);
+                this.termToDocs.put(token,newDocIdSet);
+
+            }
+
+
+    }
+
+
+
 
 
     public int getNrTerms() {
