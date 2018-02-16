@@ -7,6 +7,11 @@
       <root url="jar://$PROJECT_DIR$/lib/smile-math-1.5.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/smile-graph-1.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/smile-core-1.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/smile-data-1.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/smile-math-1.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/smile-graph-1.5.0.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="jar://$PROJECT_DIR$/lib/smile-core-1.5.0-javadoc.jar!/" />
@@ -14,6 +19,7 @@
       <root url="jar://$PROJECT_DIR$/lib/smile-math-1.5.0-javadoc.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.25-javadoc.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/smile-graph-1.5.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/smile-core-1.5.0-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
       <root url="jar://$PROJECT_DIR$/lib/smile-core-1.5.0-sources.jar!/" />
@@ -21,6 +27,7 @@
       <root url="jar://$PROJECT_DIR$/lib/smile-math-1.5.0-sources.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.25-sources.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/smile-graph-1.5.0-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/smile-core-1.5.0-sources.jar!/" />
     </SOURCES>
   </library>
 </component>
