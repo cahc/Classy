@@ -61,9 +61,9 @@ public class FetchFromDiVA extends HttpServlet  {
 
             swedishLevel3 = new IndexAndGlobalTermWeights("swe", 3);
 
-            englishLevel5.readFromMapDB();
+            englishLevel5.readFromMapDB(null);
 
-            swedishLevel3.readFromMapDB();
+            swedishLevel3.readFromMapDB(null);
 
 
 

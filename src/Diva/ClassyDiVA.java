@@ -47,9 +47,9 @@ public class ClassyDiVA {
 
         IndexAndGlobalTermWeights swedishLevel3 = new IndexAndGlobalTermWeights("swe", 3);
 
-        englishLevel5.readFromMapDB();
+        englishLevel5.readFromMapDB(null);
 
-        swedishLevel3.readFromMapDB();
+        swedishLevel3.readFromMapDB(null);
 
 
         Classifier classifierlevel5eng = TrainAndPredict.HelperFunctions.readSerializedClassifier("classifier.eng.5.ser");

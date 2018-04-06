@@ -911,9 +911,19 @@ System.out.println("Global term weights calculated for: " + this.indexToGlobalWe
         dbPersist.close();
     }
 
-    public void readFromMapDB() {
+    public void readFromMapDB(String directory) {
 
-        File persist = new File("termIndex." + this.language+"." +this.level +".db");
+        File persist;
+        if(directory == null) {
+
+             persist = new File("termIndex." + this.language+"." +this.level +".db");
+
+        } else {
+          persist = new File(directory + "termIndex." + this.language+"." +this.level +".db");
+
+
+        }
+
 
         DB dbPersist = DBMaker.fileDB(persist)
                 .fileMmapEnableIfSupported()

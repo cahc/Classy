@@ -214,7 +214,7 @@ public class CmdParser {
 
             System.out.println("Reading index from termIndex.db");
             IndexAndGlobalTermWeights indexAndGlobalTermWeights = new IndexAndGlobalTermWeights(lang, level);
-            indexAndGlobalTermWeights.readFromMapDB();
+            indexAndGlobalTermWeights.readFromMapDB(null);
 
             FileHashDB fileHashDB = new FileHashDB();
             fileHashDB.createOrOpenDatabase();
