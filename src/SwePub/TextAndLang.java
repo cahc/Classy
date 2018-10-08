@@ -37,7 +37,7 @@ public class TextAndLang implements Serializable {
     @Override
     public String toString() {
 
-        return text + " [" + lang + "]";
+        return text.replaceAll("\\s+", " ") + " [" + lang + "]"; // remove errornou snew lines and stuff
     }
 
 }

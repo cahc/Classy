@@ -74,6 +74,12 @@ public class FileHashDB {
         this.database.put(i,r);
 
     }
+
+    public Record get(Integer i) {
+
+        return this.database.get(i);
+
+    }
     public int size() {
 
         return this.database.size();

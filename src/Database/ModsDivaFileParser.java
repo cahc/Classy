@@ -715,6 +715,7 @@ public class ModsDivaFileParser {
                         record.setContainsEnglish( eng_abstract || eng_title );
                         record.setContainsSwedish( swe_abstract || swe_title );
 
+                        record.setMapDBKey(docs);
                         recordsList.add(record);
                         break;
                     }
