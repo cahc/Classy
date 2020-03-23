@@ -99,6 +99,7 @@ public class Record implements Serializable {
     ////////////////not used as features in classification///////////////////
    // private Integer internalID;
     private String URI; //link to source
+    private String diva2Id;
     private Integer publishedYear; // only available if the publication is formally published
     private ArrayList<String> supplier; //from which local repository
 
@@ -135,6 +136,13 @@ public class Record implements Serializable {
     }
 
 
+    public String getDiva2Id() {
+        return diva2Id;
+    }
+
+    public void setDiva2Id(String diva2Id) {
+        this.diva2Id = diva2Id;
+    }
 
     public boolean isFullSwedishText() {
         return fullSwedishText;

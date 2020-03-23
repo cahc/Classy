@@ -28,6 +28,15 @@ public class ClassyDiVA {
 
     public static void main(String[] arg) throws IOException, XMLStreamException, MyOwnException, ClassNotFoundException {
 
+        ModsDivaFileParser modsDivaFileParser = new ModsDivaFileParser();
+        List<Record> recordList = modsDivaFileParser.parse( "C:\\Users\\crco0001\\Desktop\\export_b.xml");
+        System.out.println("size: " + recordList.size());
+        System.out.println( recordList.get(1).getDiva2Id() );
+
+
+        System.exit(0);
+
+        /*
 
         //TODO include number in output
 
@@ -266,8 +275,13 @@ public class ClassyDiVA {
         writer.close();
         System.out.println(classed + " classified records and " + notClassed + " records not classified");
 
+         */
 
     }
 
 
-}
+
+
+
+
+    }
