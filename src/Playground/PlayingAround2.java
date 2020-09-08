@@ -19,6 +19,13 @@ public class PlayingAround2 {
 
     public static void main(String[] arg) throws IOException {
 
+        //foo
+        Integer year = 2015;
+
+        System.out.println(year.compareTo(2016));
+
+        System.exit(0);
+
         System.out.println("Reading in serialized records..");
         List<ScopusRecord> records = SimplePersistor.deserializeListScopusRecords("records.ser");
 

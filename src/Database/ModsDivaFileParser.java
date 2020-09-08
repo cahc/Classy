@@ -30,9 +30,10 @@ import java.util.regex.Pattern;
  */
 public class ModsDivaFileParser {
 
-    public static final String prefixFromAffiliation = "A@";
+    public static final String prefixFromAffiliation = "A@"; // record.makeFeaturesFromAffiliation();
+
     public static final String prefixFromKeyWords = "K@";
-    public static final String prefixFromHost = "H@";  //todo why never used?
+    public static final String prefixFromHost = "H@";  // record.makeFeaturesFromHost();
     public static final String prefixFromTIABSwe = "TS@";
     public static final String prefixFromTIABEng = "TE@";
 
@@ -40,7 +41,7 @@ public class ModsDivaFileParser {
 
     public static int depth;
 
-    public static ArrayList<String> getRecordContentSource(XMLEventReader r) throws XMLStreamException {
+    public static ArrayList<String> getRecordContentSourceAndDiva2ID(XMLEventReader r, Record record) throws XMLStreamException {
 
         ArrayList<String> organisationIdentifyer = new ArrayList<>(1);
         //recordContentSource is Mandatory
@@ -63,6 +64,18 @@ public class ModsDivaFileParser {
                 //now at END ELEMENT
                 depth--;
             }
+
+            if (isStart && event.asStartElement().getName().getLocalPart().equals("recordIdentifier")) {
+
+                String diva2Id = r.getElementText().toLowerCase();
+
+                //now at END ELEMENT
+                record.setDiva2Id(diva2Id);
+                depth--;
+
+            }
+
+
 
 
             if (isEnd && event.asEndElement().getName().getLocalPart().equals("recordInfo")) break;
@@ -161,7 +174,7 @@ public class ModsDivaFileParser {
 
                 if (attribute != null) {
 
-                    if (attribute.getValue().equals("issn")) {
+                    if (attribute.getValue().equals("issn")  || attribute.getValue().equals("eissn")   ) {
 
                         String issnData = r.getElementText();
                         depth--;
@@ -213,6 +226,43 @@ public class ModsDivaFileParser {
         return abstr;
 
     }
+
+    public static String getDiva2(XMLEventReader r) throws XMLStreamException {
+
+        String diva2Id = "-";
+
+        while(true) {
+
+            XMLEvent event = r.nextEvent();
+
+            boolean isStart = event.isStartElement();
+            if (isStart) depth++;
+
+            boolean isEnd = event.isEndElement();
+            if (isEnd) depth--;
+
+            if (isStart && event.asStartElement().getName().getLocalPart().equals("recordIdentifier")) {
+                //TODO can there be multiple topics within a <subject></subject> ?
+                diva2Id = r.getElementText().toLowerCase();
+                //now at END ELEMENT
+                depth--;
+                return diva2Id;
+            }
+
+
+            if (isEnd && event.asEndElement().getName().getLocalPart().equals("recordInfo")) {
+
+                break;
+            }
+
+
+        }
+
+        return diva2Id;
+
+
+        }
+
 
     public static String getKeyword(XMLEventReader r) throws XMLStreamException {
 
@@ -376,9 +426,9 @@ public class ModsDivaFileParser {
         return languages;
     }
 
-    public static List<Record> parse(String xmlFile) throws IOException, XMLStreamException { //indexed
+    public static List<Record> parse(Object xmlFile) throws IOException, XMLStreamException {
+        Reader reader = null;
 
-        // System.err.println
         FileOutputStream f = new FileOutputStream("ErrorLog.txt");
         System.setErr(new PrintStream(f));
 
@@ -389,7 +439,15 @@ public class ModsDivaFileParser {
         SwedishStemmer swedishStemmer = new SwedishStemmer();
         EnglishStemmer englishStemmer = new EnglishStemmer();
 
-        Reader reader = new BufferedReader( new InputStreamReader(new FileInputStream(xmlFile),"UTF-8") );
+        if(xmlFile instanceof String) {
+
+            reader = new BufferedReader( new InputStreamReader(new FileInputStream((String)xmlFile),"UTF-8") );
+        }
+
+        if(xmlFile instanceof BufferedReader) {
+
+            reader = (BufferedReader)xmlFile;
+        }
 
 
         XMLInputFactory xmlif = XMLInputFactory.newFactory();
@@ -429,7 +487,8 @@ public class ModsDivaFileParser {
                     if (isStart && xmle.asStartElement().getName().getLocalPart().equals("recordInfo")) { // recordInfo is a container
 
 
-                        ArrayList<String> supplier = getRecordContentSource(xmler);
+
+                        ArrayList<String> supplier = getRecordContentSourceAndDiva2ID(xmler, record);
 
                         record.setSupplier(supplier);
                         //System.out.println("Depth: " + depth + " " + supplier);
@@ -611,6 +670,7 @@ public class ModsDivaFileParser {
                         setRelatedItemInfo(xmler, record);
 
                     }
+
 
 
                     if (isEnd && xmle.asEndElement().getName().getLocalPart().equals("mods")) {

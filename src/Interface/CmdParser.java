@@ -513,7 +513,7 @@ public class CmdParser {
             double C = 1.0;    // cost of constraints violation
             double eps = 0.0025; // stopping criteria
             Parameter parameter = new Parameter(solver, C, eps);
-            parameter.setMaxIters(15);
+            //parameter.setMaxIters(15);
 
             double[] weights = new double[2];
 
