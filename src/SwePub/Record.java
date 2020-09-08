@@ -111,7 +111,7 @@ public class Record implements Serializable {
 
     private List<TextAndLang> title; // inc sub-title
     private List<TextAndLang> summary; //abstract
-    private List<String> termsFromTitleAbstract;
+    private ArrayList<String> termsFromTitleAbstract;
     private List<String> termsFromAffiliation;
     private List<String> termFromHost;
 
@@ -234,9 +234,9 @@ public class Record implements Serializable {
     }
 
 
-    public List<String> getTermsFromTitleAbstract() {
+    public ArrayList<String> getTermsFromTitleAbstract() {
 
-        if(this.termsFromTitleAbstract == null) return Collections.emptyList();
+        if(this.termsFromTitleAbstract == null) return new ArrayList<>();
         return this.termsFromTitleAbstract;
     }
 
@@ -570,11 +570,11 @@ public class Record implements Serializable {
         }
     }
 
-    public Set<Integer> getClassificationCodes() {
+    public HashSet<Integer> getClassificationCodes() {
 
         if( classificationCodes != null) return classificationCodes;
 
-        return Collections.emptySet();
+        return new HashSet<>();
 
     }
 
@@ -686,12 +686,12 @@ public class Record implements Serializable {
     }
 
 
-    public List<String> getLanguageSpecificTerms(String lang) {
+    public ArrayList<String> getLanguageSpecificTerms(String lang) {
 
 
 
         List<String> allTerms = this.getTermsFromTitleAbstract();
-        List<String> restrictedTerms = new ArrayList<>();
+        ArrayList<String> restrictedTerms = new ArrayList<>();
         for(int i=0; i<allTerms.size(); i++ ) {
 
             String t = allTerms.get(i);

@@ -1,23 +1,25 @@
 package Interface;
 import Database.*;
-import SwePub.ClassificationCategory;
+import LibLinear.CV;
 import SwePub.HsvCodeToName;
 import SwePub.Record;
 import TrainAndPredict.HelperFunctions;
 import TrainAndPredict.Splitter;
 import TrainAndPredict.VecHsvPair;
 import com.google.common.collect.BiMap;
-import com.google.common.collect.MapDifference;
+import de.bwaldvogel.liblinear.*;
 import jsat.classifiers.*;
 import jsat.classifiers.linear.*;
-import jsat.distributions.Distribution;
-import jsat.distributions.LogUniform;
 import jsat.linear.Vec;
-import jsat.math.decayrates.PowerDecay;
+import multiLabel.EntropyTermWeights;
+import multiLabel.ReduceDB;
 import org.apache.commons.cli.*;
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
+
+import static Database.SimpleSerializer.deserializeLabelList;
 
 /**
  * Created by Cristian on 2016-12-05.
@@ -30,6 +32,72 @@ public class CmdParser {
         helpFormatter.printHelp("Missing arguments:", options);
         System.exit(0);
     }
+
+
+    public static double calculateWeightForTrueClass(double[] groundTruth) {
+
+        double x = 0;
+
+        for(int i=0; i<groundTruth.length; i++) if(groundTruth[i]==1) x++;
+
+        return(groundTruth.length/ (x*2));
+
+    }
+
+    public static double getRateBinary(Model model, Feature[][] vectors, double[] groundTruth) {
+
+
+        double correct=0;
+        double R = 0;
+        int predictedClass = 0;
+
+        for(int i=0; i< vectors.length; i++) {
+
+            double label = Linear.predict(model,vectors[i]);
+            if(groundTruth[i] == 1) predictedClass++;
+
+            if(label == groundTruth[i]) correct++;
+
+            if(label == 1 && groundTruth[i]==1) R++;
+
+        }
+
+        System.out.println("n=" +vectors.length + " correct=" +correct + " predicted class size=" + predictedClass +" R:" +R/predictedClass );
+
+        return correct/vectors.length;
+
+    }
+
+    public static double getRateBinaryPostClassified(int predicted[], int[] groundTruth) {
+
+
+        double correct=0;
+        double R = 0;
+        int predictedClass = 0;
+
+        for(int i=0; i< predicted.length; i++) {
+
+            double label = predicted[i];
+
+            if(groundTruth[i] == 1) predictedClass++;
+
+            if(label == groundTruth[i]) correct++;
+
+            if(label == 1 && groundTruth[i]==1) R++;
+
+        }
+
+        System.out.println("n=" +predicted.length + " correct=" +correct + " predicted class size=" + predictedClass +" R:" +R/predictedClass );
+
+        return correct/predicted.length;
+
+    }
+
+
+
+
+
+
     Options options;
     CommandLine cmd;
     public CmdParser(String[] arg) throws ParseException {
@@ -39,6 +107,10 @@ public class CmdParser {
         options.addOption("XMLtoMapDB", false, "parse SwePub XML and save to MapDB");
         options.addOption("MapDBToText", false, "read MapDB with records and print to ASCII");
         options.addOption("CreateIndex",false,"create index and save to mapDB");
+        options.addOption("IdentifyTrainingRecords",false,"create index and save to mapDB");
+        options.addOption("MultiLabelTermWeights",false,"Calculate entropy term weights");
+        options.addOption("CreateMultiLabelTrainingData",false,"create vectors and lable info");
+        options.addOption("trainMultiLabel",false,"train multi label model");
 
         Option language = Option.builder("language").hasArg().optionalArg(true).argName("swe or eng").desc("model for which language").build();
         options.addOption(language);
@@ -47,6 +119,9 @@ public class CmdParser {
         options.addOption(level);
         options.addOption("CreateTrainingAndHoldOut",false,"read index from mapDB and create sparse vectors");
         options.addOption("Train", false,"train and serialize model");
+
+        Option target = Option.builder("target").hasArg().optionalArg(true).argName("0..41, 0..259").desc("true class in onevsall").build();
+        options.addOption(target);
 
         Option C = Option.builder("C").hasArg().optionalArg(true).argName("int").desc("regularization parameter [0,100]").build();
         options.addOption(C);
@@ -127,6 +202,87 @@ public class CmdParser {
             }
 
 
+
+            if(parser.hasOption("IdentifyTrainingRecords")) {
+
+                if( !(parser.hasOption("language") && parser.hasOption("level"))  ) {
+
+                    System.out.println("must supply both language (swe or eng) and level (3 or 5)");
+                    System.exit(0);
+                }
+
+
+                ReduceDB reduceDB = new ReduceDB(parser.cmd.getOptionValue("language"),Integer.valueOf(parser.cmd.getOptionValue("level")));
+
+                reduceDB.potentialTrainingPosts();
+
+
+
+            }
+
+
+            if(parser.hasOption("MultiLabelTermWeights")) {
+
+
+                if( !(parser.hasOption("language") && parser.hasOption("level"))  ) {
+
+                    System.out.println("must supply both language (swe or eng) and level (3 or 5)");
+                    System.exit(0);
+                }
+
+                String lang = parser.cmd.getOptionValue("language");
+                int level = Integer.valueOf(parser.cmd.getOptionValue("level"));
+
+
+                FileHashDB fileHashDB = new FileHashDB();
+                fileHashDB.createOrOpenDatabase();
+
+
+                System.out.println("now building index..");
+
+                int counter = 0;
+                int total = 0;
+
+                EntropyTermWeights entropyTermWeights = new EntropyTermWeights(lang,level);
+
+                for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+
+                    total++;
+
+                    if( entropyTermWeights.indexRecord(entry.getValue()) ) counter++;
+
+
+
+                }
+
+                System.out.println("done");
+                System.out.println("Added terms from " + counter + " records out of a total of " + total + " records" );
+                fileHashDB.closeDatabase();
+
+                entropyTermWeights.printStat("termsTemp" + lang +".before"); // term, index, docfreq, total freq (counting duplicates here, as there is multi-labels!)
+
+
+                entropyTermWeights.indexSize();
+
+                entropyTermWeights.reduceIndex(2);
+
+                entropyTermWeights.indexSize(); // new index
+
+                entropyTermWeights.printStat("termsTemp" + lang +".after"); // term, index, docfreq, total freq (counting duplicates here, as there is multi-labels!)
+
+
+                //int index = entropyTermWeights.getIndex("TE@nanotechnology");
+                //System.out.println("TE@nanotechnology==" + index);
+                //System.out.println( entropyTermWeights.getCategoryDistFor(index).printCategoryDistributionForATerm() );
+
+                entropyTermWeights.calculateEntropyWeights();
+                entropyTermWeights.printEntropyWeights("TermWeights" +lang +".txt");
+                entropyTermWeights.writeToMapDB();
+
+
+            }
+
+
         if(parser.hasOption("CreateIndex")) {
 
 
@@ -157,7 +313,6 @@ public class CmdParser {
                 total++;
 
                 if( indexAndGlobalTermWeights.addTermsToIndex(entry.getValue()) ) counter++;
-
 
 
 
@@ -194,6 +349,244 @@ public class CmdParser {
             indexAndGlobalTermWeights.writeToMapDB();
 
         }
+
+
+        if(parser.hasOption("CreateMultiLabelTrainingData")){
+
+            if( !(parser.hasOption("language") && parser.hasOption("level"))  ) {
+
+                System.out.println("must supply both language (swe or eng) and level (3 or 5)");
+                System.exit(0);
+            }
+
+            String lang = parser.cmd.getOptionValue("language");
+            int level = Integer.valueOf(parser.cmd.getOptionValue("level"));
+
+            EntropyTermWeights entropyTermWeights = new EntropyTermWeights(lang, level );
+            entropyTermWeights.readFromMapDB(null);
+
+            FileHashDB records = new FileHashDB();
+            records.setPathToFile("Records." + lang +"." + level +".db");
+            records.createOrOpenDatabase();
+            System.out.println("data set: " + records.size());
+
+
+            ArrayList< ArrayList<FeatureNode> > featureVectors = new ArrayList<>( records.size() );
+            ArrayList< HashSet<Integer> > labelInfo = new ArrayList<>( records.size()  );
+
+            for (Map.Entry<Integer, Record> entry : records.database.entrySet()) {
+
+                Record record = entry.getValue();
+
+                HashSet<Integer> codes = record.getClassificationCodes();
+                HashSet<Integer> hsv = new HashSet<>(2);
+
+                if(level == 3) {
+
+                    for(Integer code : codes) {
+
+                        Integer level3Code = HsvCodeToName.firstThreeDigitsOrNull(code);
+
+                        //hsv code to 0....42
+                        if(level3Code != null) hsv.add(     IndexAndGlobalTermWeights.level3ToCategoryCodes.get(level3Code) );
+                    }
+
+                }
+
+                if(level == 5) {
+
+                    for(Integer code : codes) {
+
+                        Integer level5Code = HsvCodeToName.firstFiveDigitsOrNull(code);
+                        if(level5Code != null) hsv.add( IndexAndGlobalTermWeights.level5ToCategoryCodes.get(level5Code));
+                    }
+
+                }
+
+
+                ArrayList<FeatureNode> featureNodes = entropyTermWeights.getFeatureNodeList( record );
+                entropyTermWeights.applyWeighting(featureNodes); //todo add l2 or l1 normalization perhaps?
+                featureVectors.add(featureNodes);
+                labelInfo.add( hsv );
+
+
+
+            }
+
+
+            SerializeToMVStorage serializeToMVStorage = new SerializeToMVStorage("DB." + lang +"." +level +".bin");
+
+            for(int i=0; i<featureVectors.size(); i++) {
+
+
+
+                serializeToMVStorage.saveInstance(i,featureVectors.get(i),labelInfo.get(i));
+
+            }
+
+            serializeToMVStorage.forceCommit();
+            serializeToMVStorage.close();
+
+            //SimpleSerializer.serialiseList(featureVectors,"featureNodeLists." + lang + "." + level + ".ser");
+            //SimpleSerializer.serialiseList(labelInfo, "labelList." + lang + "." + level +".ser");
+
+
+            records.closeDatabase();
+        }
+
+
+
+        if(parser.hasOption("trainMultiLabel")) {
+
+            if( !(parser.hasOption("language") && parser.hasOption("level"))  ) {
+
+                System.out.println("must supply both language (swe or eng) and level (3 or 5)");
+                System.exit(0);
+            }
+
+            int true_class = 0;
+            if(parser.hasOption("target")) {
+
+
+                true_class = Integer.valueOf(parser.cmd.getOptionValue("target"));
+            }
+
+            String lang = parser.cmd.getOptionValue("language");
+            int level = Integer.valueOf(parser.cmd.getOptionValue("level"));
+
+            System.out.println("Deserializing..");
+
+
+            SerializeToMVStorage serializeToMVStorage = new SerializeToMVStorage("DB." + lang +"." +level +".bin");
+
+            int N = serializeToMVStorage.dbSize();
+
+            FeatureNode[][] x = new FeatureNode[N][];
+            double[] y = new double[  N ]; //this will depend on one-vs-all run
+            List<Set<Integer>> labels = new ArrayList<>();
+
+
+
+            for(int i=0; i<N; i++) {
+
+
+               x[i] = serializeToMVStorage.retrieveInstanceFeatures(i);
+               labels.add( serializeToMVStorage.retrieveInstanceLabels(i)  );
+            }
+
+            serializeToMVStorage.close();
+
+            System.out.println("building problem");
+
+            Problem problem = new Problem();
+            problem.bias = 1.0;
+            problem.l = N; // number of training examples
+            problem.n = x[0][ x[0].length-1 ].index; // number of features + 1 for bias
+
+            System.out.println(N + "instances");
+            System.out.println(problem.n +" features (including bias)");
+
+            System.out.println("training with class=" + true_class);
+
+            for(int i=0; i<N; i++) {
+
+                if(labels.get(i).contains(true_class)) {
+
+                    y[i] = 1;
+
+                } else {
+
+                    y[i] = 0;
+
+                }
+
+
+            }
+            problem.x = x;
+            problem.y = y;
+
+            SolverType solver = SolverType.L2R_LR; // -s 0
+
+            //Large Value of parameter C => small margin (small regularization)
+            //Small Value of paramerter C => Large margin (large regularization)
+
+            double C = 1.0;    // cost of constraints violation
+            double eps = 0.0025; // stopping criteria
+            Parameter parameter = new Parameter(solver, C, eps);
+            parameter.setMaxIters(15);
+
+            double[] weights = new double[2];
+
+            //double weightTrueClass = calculateWeightForTrueClass(problem.y);
+
+            weights[0] = 5;
+            weights[1] = 1;
+            int[] lables = new int[2];
+            lables[0] = 1;
+            lables[1] = 0;
+            parameter.setWeights(weights,lables);
+            System.out.println("Using weights: " + Arrays.toString(weights));
+
+
+            System.out.println("training..");
+
+            Model model = Linear.train(problem, parameter);
+
+
+            //File modelFile = new File("model");
+            //model.save(modelFile);
+            // load model or use it directly
+            // model = Model.load(modelFile);
+
+
+
+
+            double rate = getRateBinary(model,problem.x,problem.y);
+            System.out.println("final rate: " + rate);
+
+            int[] predicted = new int[problem.l];
+
+            for(int i=0; i< problem.l; i++) {
+
+                double label = Linear.predict(model,problem.x[i]);
+
+                predicted[i] = (int)label;
+
+            }
+
+            int[] groundtruth  = new int[problem.l];
+            for(int i=0; i< groundtruth.length; i++) groundtruth[i] = (int)problem.y[i];
+
+
+            double prec = meka.core.Metrics.P_Precision(groundtruth,predicted);
+            double rec = meka.core.Metrics.P_Recall(groundtruth,predicted);
+            System.out.println("P: " + prec);
+            System.out.println("R: " + rec );
+            System.out.println("F1: "  + (2*prec*rec)/(rec+prec) );
+
+            System.out.println( "jaccard: " + meka.core.Metrics.P_Accuracy(groundtruth,predicted) );
+
+
+            System.out.println("Random subsample..");
+
+            double averageF1 = CV.randomHoldOut(problem,parameter,0.05,3);
+
+            System.out.println("random sample F1: " + averageF1);
+
+
+            /*
+
+                 //probability estimate
+                 double[] probability = new double[model.getNrClass()];
+                 double lable = Linear.predictProbability(model,problem.x[374], probability );
+                 System.out.println(lable);
+                 System.out.println(Arrays.toString(probability));
+
+             */
+
+
+        }
+
 
 
 

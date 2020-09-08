@@ -508,6 +508,12 @@ public class SwePubParser {
                                     //temp fix for erroneous data in SwePub TODO remove this later
                                     if(classsificationCode.equals("20309")) classsificationCode = "20399";
 
+                                    //210 and 21001 Nanoteknik is the same.. remapp so we can use level 3 nano tech in level 5 classifyers
+
+                                    if(classsificationCode.equals("210")) classsificationCode = "21001";
+
+
+
                                     record.addClassificationCodes( Integer.valueOf( classsificationCode ) );
                                     //System.out.println( attribute.getValue() );
                                     continue;

@@ -43,9 +43,9 @@ public class CategoryDistributionForATerm {
     }
 
     private int totalFrequency = 0;
-    IntIntMap categoryToFrequency;
+    public IntIntMap categoryToFrequency;
 
-    CategoryDistributionForATerm(int level) throws MyOwnException {
+    public CategoryDistributionForATerm(int level) throws MyOwnException {
 
         if (level != 3 && level != 5) throw new MyOwnException("level must be 3 or 5");
 

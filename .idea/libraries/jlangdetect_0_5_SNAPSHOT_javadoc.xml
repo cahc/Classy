@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="jlangdetect-0.5-SNAPSHOT-javadoc">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/jlangdetect-0.5-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jlangdetect-europarl-0.5-SNAPSHOT.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jlangdetect-extra-0.5-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/jlangdetect-0.5-SNAPSHOT-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jlangdetect-europarl-0.5-SNAPSHOT-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jlangdetect-extra-0.5-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
