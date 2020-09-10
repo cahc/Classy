@@ -16,7 +16,7 @@ public class EnglishStemmer implements Stemmer{
     /************************************************************************
      * Constructor
      ************************************************************************/
-    public EnglishStemmer(  ) { System.out.println("Warning! Using a modified version of UEA Lite Stemmer"); }
+    public EnglishStemmer(  ) { /*System.out.println("Warning! Using a modified version of UEA Lite Stemmer");*/ }
 
     public EnglishStemmer( int wordLength, int acronymLength ) {
         maxWordLength = wordLength;
