@@ -789,8 +789,9 @@ public class CmdParser {
 
                 OneVSAll metaClassifyer = new OneVSAll(baseClassifier, true);
 
+
                 long start = System.currentTimeMillis();
-                metaClassifyer.trainC(cds);
+                metaClassifyer.train(cds);
                 double timeRunned =  (System.currentTimeMillis() - start) / 1000.0;
 
                 int errorsTrain = 0;
@@ -866,7 +867,7 @@ public class CmdParser {
             long start = System.currentTimeMillis();
             System.out.println("Training with " +  metaClassifyer.getClass().getCanonicalName() + " using " + cds.getSampleSize() + " samples");
             System.out.println("Using regularization parameter C=" + reg);
-            metaClassifyer.trainC(cds);
+            metaClassifyer.train(cds);
             System.out.println("Training took: " + (System.currentTimeMillis() - start)/1000.0 + " seconds" );
 
             System.out.println("Serializing..");
