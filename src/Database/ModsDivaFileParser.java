@@ -429,8 +429,8 @@ public class ModsDivaFileParser {
     public static List<Record> parse(Object xmlFile) throws IOException, XMLStreamException {
         Reader reader = null;
 
-        FileOutputStream f = new FileOutputStream("ErrorLog.txt");
-        System.setErr(new PrintStream(f));
+        //FileOutputStream f = new FileOutputStream("ErrorLog.txt");
+        //System.setErr(new PrintStream(f));
 
 
         SwedishStopWords60 swedishStopWords60 = new SwedishStopWords60();
