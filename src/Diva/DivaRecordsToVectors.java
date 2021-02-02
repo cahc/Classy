@@ -153,8 +153,6 @@ public class DivaRecordsToVectors {
     }
 
 
-
-
     public static MinMaxPriorityQueue<VectorAndSim> getTopK(VectorWithID v, List<VectorWithID> vectorSet, int K, double minSim) {
 
         MinMaxPriorityQueue<VectorAndSim> minMaxPriorityQueue = MinMaxPriorityQueue.maximumSize(K).create();
@@ -394,6 +392,8 @@ public class DivaRecordsToVectors {
     }
 
 
+
+
     public static void writeToPajek(SparseMatrix matrix, String fileName) throws IOException {
 
 
@@ -524,6 +524,7 @@ public class DivaRecordsToVectors {
         //divaRecordsToVectors.applyOkapiBM25onVectorList(sparseVectors);
 
         divaRecordsToVectors.applyTFIDFonVectorList(sparseVectors);
+
         for(SparseVector v : sparseVectors) v.normalize();
 
 

@@ -203,9 +203,7 @@ public class EnglishStopWords60 implements Stopwordlist {
         englishStopwords60.add("highly");
         englishStopwords60.add("five");
 
-
-
-
+        
 
     }
 
