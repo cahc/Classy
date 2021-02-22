@@ -2831,6 +2831,55 @@ public class HelperFunctions {
 
     }
 
+
+
+    public static String extractAndHyphenateISBN(String s, boolean prefix) {
+        //record parameter only for debbuging
+        List<String> ISBNs = extractISBN(s);
+
+        if(ISBNs.size() == 0) return null;
+        String niceISBN = null;
+        boolean done = false;
+
+        for(int i=0; i<ISBNs.size(); i++) {
+
+            if(done) break;
+
+            try {
+
+                ISBN isbn = new ISBN( ISBNs.get(i), true ); //try to fix bad checksum
+                niceISBN = isbnHypenAppender.appendHyphenToISBN(isbn.toString(true) );
+
+                if(prefix)  {
+
+                    Matcher m = extractISBNprefix.matcher( niceISBN   );
+                    m.find();
+                    niceISBN =  m.group(0) ;
+                    done = true;
+                } else {
+
+                    done = true;
+                }
+
+            } catch (InvalidStandardIDException e) {
+                System.err.println("Error in extracted ISBN: " + ISBNs.get(i) );
+            } catch (UnsupportedOperationException e) {
+                System.err.println("Error in extracted ISBN (UnsupportedOperation): " + ISBNs.get(i) );
+            }
+
+            catch (StringIndexOutOfBoundsException e) {
+                System.err.println("Could not proses the ISBN (StringIndexOutOfBound)");
+            }
+
+        }
+
+
+        return niceISBN;
+
+    }
+
+
+
     private static List<String> extractISBN(String input) {
 
         List<String> result = null;
