@@ -42,6 +42,47 @@ public class JsonSwePubParser {
         return null; // null if input was less than three digits to begin with
     }
 
+    private static void recursiveGetAffils(final JsonNode node, Set<String> affils)  {
+
+
+        Iterator<Map.Entry<String, JsonNode>> fieldsIterator = node.fields();
+
+        while (fieldsIterator.hasNext()) {
+            Map.Entry<String, JsonNode> field = fieldsIterator.next();
+
+            final String key = field.getKey();
+            //System.out.println("Key: " + key);
+            final JsonNode value = field.getValue();
+
+            if(value.isContainerNode()) {
+
+
+                Iterator<JsonNode> iter = value.elements();
+
+                while(iter.hasNext()) {
+
+                    recursiveGetAffils(iter.next(),affils); //recursion
+
+                }
+
+
+            } else {
+
+
+                if("name".equals(key)) {
+
+
+
+                    // System.out.println("key/Value: " + key + " " + value + " " + value.getNodeType());
+                    affils.add(value.asText());
+                }
+
+            }
+        }
+
+
+    }
+
 
 
     public JsonSwePubParser() {};
@@ -407,33 +448,33 @@ public class JsonSwePubParser {
             //
             //dosent make much sense in a scopus type of setup
 
-            JsonNode contributions = instance.get("contribution");
-            Set<String> affilNames = new HashSet<>();
-            for(JsonNode n : contributions) {
 
+            JsonNode contrib = instance.get("contribution");
 
-                List<JsonNode> affils = n.findValues("hasAffiliation");
+            HashSet<String> a = new HashSet<>();
 
-                for(JsonNode hasAff : affils) {
+            for(JsonNode n : contrib) {
 
-                    for(int i = 0; i< hasAff.size(); i++) {
+                JsonNode aff = n.get("hasAffiliation");
 
-                        JsonNode name = hasAff.get(i).get("name");
-                        if(name != null) {
+                //System.out.println(aff);
+                if (aff == null) continue;
 
-                            affilNames.add( name.asText().toLowerCase() );
-                        }
+                //aff is an array
+                //System.out.println(  aff.size() );
 
+                for (JsonNode nn : aff) {
 
-
-                    }
+                    recursiveGetAffils(nn,a);
 
                 }
 
             }
 
 
-            record.addAffiliations( new ArrayList<>(affilNames) );
+            //System.out.println(a);
+
+            record.addAffiliations( new ArrayList<>(a) );
 
 
             //now do some language detection! only records that in the XML is tagged with swedish and english is considered
@@ -555,6 +596,8 @@ public class JsonSwePubParser {
         System.out.println("Has level 2 : " + hasLevel2 + " " + "percent: " + (double)hasLevel2/(parsed+autoclassed+noSubject+noUka+unsupportedLang)  );
 
 
+
+        reader.close();
 
 
     }
