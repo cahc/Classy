@@ -105,6 +105,8 @@ public class CmdParser {
 
         options = new Options();
         options.addOption("XMLtoMapDB", false, "parse SwePub XML and save to MapDB");
+        options.addOption("JsonToMapDB",false,"parse json and save to MapDb");
+
         options.addOption("MapDBToText", false, "read MapDB with records and print to ASCII");
         options.addOption("CreateIndex",false,"create index and save to mapDB");
         options.addOption("IdentifyTrainingRecords",false,"create index and save to mapDB");
@@ -148,7 +150,7 @@ public class CmdParser {
        return this.cmd.hasOption(opt);
     }
 
-    public static void main(String[] arg) throws ParseException, IOException, XMLStreamException, MyOwnException, ClassNotFoundException {
+    public static void main(String[] arg) throws ParseException, IOException, XMLStreamException, MyOwnException, ClassNotFoundException, InterruptedException {
 
 
         CmdParser parser = new CmdParser(arg);
@@ -173,6 +175,34 @@ public class CmdParser {
             System.exit(0);
 
         }
+
+
+        if(parser.hasOption("JsonToMapDB")) {
+
+
+            System.out.println("Parsing Json and saving to MapBD");
+
+            long start = System.currentTimeMillis();
+
+            FileHashDB fileHashDB = new FileHashDB();
+            fileHashDB.create();
+
+           JsonSwePubParser jsonSwePubParser = new JsonSwePubParser();
+           jsonSwePubParser.parse(fileHashDB);
+
+            System.out.println("Records parsed and saved: " + fileHashDB.size() );
+
+            long stop = System.currentTimeMillis();
+
+            System.out.println("Parsed and saved to db in " + (stop - start) / 1000.0 + "seconds");
+            fileHashDB.closeDatabase();
+
+
+
+        }
+
+
+
 
         if(parser.hasOption("MapDBToText")) {
                 System.out.println("Writing Records from MapDB to textFile");

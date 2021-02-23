@@ -2833,7 +2833,7 @@ public class HelperFunctions {
 
 
 
-    public static String extractAndHyphenateISBN(String s, boolean prefix) {
+    public static String extractAndHyphenateISBN(String s, boolean prefix, String IDforDebugging) {
         //record parameter only for debbuging
         List<String> ISBNs = extractISBN(s);
 
@@ -2862,13 +2862,13 @@ public class HelperFunctions {
                 }
 
             } catch (InvalidStandardIDException e) {
-                System.err.println("Error in extracted ISBN: " + ISBNs.get(i) );
+                System.err.println("Error in extracted ISBN: " + ISBNs.get(i) + " " + IDforDebugging );
             } catch (UnsupportedOperationException e) {
-                System.err.println("Error in extracted ISBN (UnsupportedOperation): " + ISBNs.get(i) );
+                System.err.println("Error in extracted ISBN (UnsupportedOperation): " + ISBNs.get(i) + " " + IDforDebugging );
             }
 
             catch (StringIndexOutOfBoundsException e) {
-                System.err.println("Could not proses the ISBN (StringIndexOutOfBound)");
+                System.err.println("Could not proses the ISBN (StringIndexOutOfBound)" + " " + IDforDebugging);
             }
 
         }

@@ -4,15 +4,14 @@ import SwePub.Record;
 import SwePub.TextAndLang;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import misc.LanguageTools.HelperFunctions;
 import misc.LanguageTools.HtmlUnescaper;
 import misc.Parsers.SimpleParser;
@@ -45,9 +44,15 @@ public class JsonSwePubParser {
 
 
 
+    public JsonSwePubParser() {};
 
-    public static void main(String[] arg) throws IOException {
 
+    public static void parse(FileHashDB db) throws IOException, InterruptedException {
+        FileOutputStream f = new FileOutputStream("ErrorLog.txt");
+        System.setErr(new PrintStream(f));
+
+
+        int docs = 0;
 
         SwedishStopWords60 swedishStopWords60 = new SwedishStopWords60();
         EnglishStopWords60 englishStopWords60 = new EnglishStopWords60();
@@ -56,7 +61,9 @@ public class JsonSwePubParser {
         EnglishStemmer englishStemmer = new EnglishStemmer();
 
 
-        BufferedReader reader = new BufferedReader(  new InputStreamReader( new FileInputStream("/Users/cristian/Desktop/JSON_SWEPUB/swepub-deduplicated-2021-02-14.jsonl"), StandardCharsets.UTF_8));
+        //BufferedReader reader = new BufferedReader(  new InputStreamReader( new FileInputStream("/Users/cristian/Desktop/JSON_SWEPUB/swepub-deduplicated-2021-02-14.jsonl"), StandardCharsets.UTF_8));
+        BufferedReader reader = new BufferedReader(  new InputStreamReader( new FileInputStream("E:\\swepub_json_20210214\\swepub-deduplicated-2021-02-21.jsonl"), StandardCharsets.UTF_8));
+
         ObjectMapper mapper = new ObjectMapper();
 
 
@@ -222,7 +229,10 @@ public class JsonSwePubParser {
 
 
             Record record = new Record();
-
+            ArrayList l = new ArrayList();
+            l.add(language);
+            record.setLanguage( l );
+            docs++;
 
             //HSV and uncontrolled keywords
             for(Integer i : swePubSubjects.getUkaLevel2()) record.addClassificationCodes(i);
@@ -236,12 +246,19 @@ public class JsonSwePubParser {
 
             for(JsonNode n : title) {
 
-                String main = n.get("mainTitle").asText();
+                //"@type":"VariantTitle"
+                //can be errornous and only containing (empty) subtitle
+
+               JsonNode m = n.get("mainTitle");
+
+               if(m == null) continue;
+
+               String main = m.asText();
 
                 JsonNode subtitle = n.get("subtitle");
                 if (subtitle != null) {
 
-                    main = main + " " + subtitle;
+                    main = main + " " + subtitle.asText();
                 }
 
 
@@ -271,16 +288,15 @@ public class JsonSwePubParser {
 
 
             //
-            //SERIE
+            //SERIE, not implemented in the original parsing of XML swepub
             //
 
+            //JsonNode hasSeries = master.get("hasSeries");
 
-            JsonNode hasSeries = master.get("hasSeries");
-
-            if(hasSeries != null) {
+            //if(hasSeries != null) {
 
                 //  TODO
-            }
+           // }
 
 
 
@@ -327,7 +343,7 @@ public class JsonSwePubParser {
 
                     String isbn = node.get("value").asText();
 
-                    String extractedISBN = HelperFunctions.extractAndHyphenateISBN(isbn,true);
+                    String extractedISBN = HelperFunctions.extractAndHyphenateISBN(isbn,true, ID);
                     if(extractedISBN != null) record.addISBN( extractedISBN );
 
                 }
@@ -366,7 +382,7 @@ public class JsonSwePubParser {
                            if("ISBN".equals( n.get("@type").asText() ) )  {
 
 
-                               String extractedISBN = HelperFunctions.extractAndHyphenateISBN( n.get("value").asText()  ,true);
+                               String extractedISBN = HelperFunctions.extractAndHyphenateISBN( n.get("value").asText()  ,true,ID );
                                if(extractedISBN != null) record.addISBN( extractedISBN );
 
 
@@ -386,7 +402,38 @@ public class JsonSwePubParser {
 
             }
 
+            //
+            //Affiliations TODO
+            //
+            //dosent make much sense in a scopus type of setup
 
+            JsonNode contributions = instance.get("contribution");
+            Set<String> affilNames = new HashSet<>();
+            for(JsonNode n : contributions) {
+
+
+                List<JsonNode> affils = n.findValues("hasAffiliation");
+
+                for(JsonNode hasAff : affils) {
+
+                    for(int i = 0; i< hasAff.size(); i++) {
+
+                        JsonNode name = hasAff.get(i).get("name");
+                        if(name != null) {
+
+                            affilNames.add( name.asText().toLowerCase() );
+                        }
+
+
+
+                    }
+
+                }
+
+            }
+
+
+            record.addAffiliations( new ArrayList<>(affilNames) );
 
 
             //now do some language detection! only records that in the XML is tagged with swedish and english is considered
@@ -400,7 +447,7 @@ public class JsonSwePubParser {
 
             //Extract terms from host & Affiliation
 
-            //record.makeFeaturesFromAffiliation();
+            record.makeFeaturesFromAffiliation();
             record.makeFeaturesFromHost();
 
 
@@ -488,85 +535,10 @@ public class JsonSwePubParser {
             record.setContainsSwedish( swe_abstract || swe_title );
 
 
+            record.setMapDBKey(docs);
+            db.put( record.getMapDBKey(), record);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            //
-            //
-            //
-
-
-            //
-            //Affiliations TODO
-            //
-            //dosent make much sense in a scopus type of setup
-
-            /*
-            JsonNode affiliations = instance.get("contribution");
-
-            List<String> affiliationStrings = new ArrayList<>();
-
-
-            //take the name if there is no identifiedBY
-            //if there are identifiedBy
-            //only
-            //@type = Local
-
-            for(JsonNode contributer : affiliations) {
-
-
-                JsonNode affils = contributer.get("hasAffiliation");
-
-               if(affils != null) {
-
-                   for(JsonNode nn : affils) {
-
-
-                       JsonNode idby = nn.get("identifiedBy");
-
-                       if(idby == null) {
-
-                         JsonNode af = nn.get("name");
-                         if(af != null) affiliationStrings.add( af.asText() );
-
-                       } else {
-
-
-                          if("Local".equals( idby.get(0).get("@type") )) affiliationStrings.add( nn.get("name").asText()  );
-
-                       }
-
-
-
-
-
-
-                   }
-
-
-               }
-
-            }
-
-            System.out.println(ID + " " + affiliationStrings);
-
-
-             */
-
+           //System.out.println(record.toString());
 
 
             parsed++;
