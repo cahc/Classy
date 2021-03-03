@@ -10,18 +10,396 @@ import com.google.common.collect.BiMap;
 import jsat.classifiers.CategoricalData;
 import jsat.classifiers.ClassificationDataSet;
 import jsat.linear.DenseVector;
+import jsat.linear.IndexValue;
 import jsat.linear.SparseVector;
 import jsat.linear.Vec;
+import jsat.utils.IntList;
+import meka.core.A;
+
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
 public class ClusteringBased {
 
+
+
+    public static double cosineSimForNonNormalizedVectors(Vec a , Vec b) {
+
+        double norm_a = a.pNorm(2.0D);
+        double norm_b = b.pNorm(2.0D);
+
+        return (a.dot(b) / (norm_a*norm_b));
+
+
+    }
+
+    public static double cosineSimPreComputedNorms(Vec a , double norm_a, Vec b, double norm_b) {
+
+        //double norm_a = a.pNorm(2.0D);
+        //double norm_b = b.pNorm(2.0D);
+
+        return (a.dot(b) / (norm_a*norm_b));
+
+
+    }
+
+
+    public static void saveSparseToCluto( List<Vec> vectors ) throws IOException {
+
+
+        BufferedWriter writer = new BufferedWriter(  new OutputStreamWriter( new FileOutputStream("matrix.clu")) );
+
+
+        int n = vectors.size();
+        int m = vectors.get(0).length();
+
+        int nnz = 0;
+        for(Vec v : vectors) {
+
+            nnz = nnz + (((SparseVector)v).nnz());
+        }
+
+
+        writer.write(n + " " + m + " " +nnz);
+        writer.newLine();
+
+
+
+        for(Vec v : vectors) {
+
+            SparseVector v2 = (SparseVector)v;
+
+            Iterator<IndexValue> iter = v2.getNonZeroIterator();
+
+            boolean first = true;
+            while(iter.hasNext()) {
+
+                IndexValue indexValue = iter.next();
+                int dim = (indexValue.getIndex() + 1);
+                double value = indexValue.getValue();
+
+                if(first) {
+
+
+                    writer.write(dim + " " + value);
+                    first =false;
+                } else {
+
+                    writer.write(" " + dim + " " + value);
+                }
+
+
+
+
+
+
+            }
+
+            writer.newLine();
+
+        }
+
+
+        writer.flush();
+        writer.close();
+
+    }
+
+
+    public static List<DenseVector> preProcess(List<Vec> vecList, double simThreshold, int K) {
+
+        //leader - follower, should be better than random initialization
+
+
+
+        ////////////indices in random order//////////////
+        int[] randomIndices = new int[vecList.size()];
+        for(int i=0; i<randomIndices.length; i++) {
+
+            randomIndices[i] = i;
+        }
+
+        Random rand = new Random();
+
+        for (int i = 0; i < randomIndices.length; i++) {
+            int randomIndexToSwap = rand.nextInt(randomIndices.length);
+            int temp = randomIndices[randomIndexToSwap];
+            randomIndices[randomIndexToSwap] = randomIndices[i];
+            randomIndices[i] = temp;
+        }
+
+
+        //////////////////////////////////////////////
+
+
+        //list of object indices in given cluster
+        List<IntList> ci = new ArrayList<>();
+
+        for(int j=0; j<vecList.size(); j++) {
+
+            int i = randomIndices[j]; //objects in random order
+
+
+            if(j==0) {
+
+                ci.add(new IntList() );
+                ci.get(0).add(i);
+
+                continue;
+            }
+
+
+            boolean addedToExisting = false;
+            Vec v = vecList.get(i);
+
+            for(IntList clusters : ci) {
+
+
+                    Integer leaderIndice = clusters.get(0); //0 always the "leader"
+
+                    Vec v2 = vecList.get(leaderIndice);
+
+                    if(v.dot(v2) >= simThreshold) {
+
+                        //add v to v2:s cluster
+                        //this is very greedy, randomize order after each iteration of the outer loop
+                        //todo maybe consider adding to the cluster with maximum sim
+                        clusters.add(i);
+                        addedToExisting = true;
+
+                        break;
+                    }
+
+            }
+
+
+
+            if(!addedToExisting) {
+
+                //i becomes a leader in a new cluster
+
+                IntList newCluster = new IntList();
+                newCluster.add(i);
+                ci.add(newCluster);
+            }
+
+
+
+            if (j % 500 == 0){
+
+                System.out.println("Proccessed: " + j + " and # groups formed so far: "  + ci.size() );
+
+            }
+
+
+
+            //shuffle list so not dependent on order in inner loop. Avoiding small clusters in the end
+            //todo shuffle at every n iterations instead
+            Collections.shuffle(ci);
+
+
+        }
+
+        //sort from largest to smallest
+        Collections.sort(ci, new IntListLengthComparator());
+
+
+
+
+
+
+
+        System.out.println("Largest: " + ci.get(0).size());
+        System.out.println("Smallest: " + ci.get( ci.size()-1).size());
+
+
+        //now merge clusters so that we can return k centroids to use as initialization of, e.g., a k-means clustering!
+
+
+        ////////////////////////////////////////////////////////////
+        //first set up init centroids based on the K largest clusters
+        /////////////////////////////////////////////////////////////
+
+        int dim = vecList.get(0).length();
+
+
+        List<DenseVector> centroids_k = new ArrayList<>();
+
+        for(int i=0; i<K; i++) {
+
+            centroids_k.add( new DenseVector( dim ) );
+
+        }
+
+
+        int totalSize1 = 0;
+
+        for(int i=0; i<K; i++) {
+
+
+            IntList c =ci.get(i);
+
+            totalSize1 = totalSize1 + c.size();
+
+
+            PrimitiveIterator.OfInt iter = c.streamInts().iterator();
+
+            while(iter.hasNext()) {
+
+                int indice = iter.next();
+
+                centroids_k.get(i).mutableAdd(  vecList.get(indice)   );
+
+
+            }
+        }
+
+
+
+
+
+        //for the rest of the clusters in ci, add to the closed centroid
+
+          List<SparseVector> toBeMergedCentroids = new ArrayList<>();
+            for(int i=K; i<ci.size(); i++) {
+
+            toBeMergedCentroids.add( new SparseVector( dim ) );
+
+            }
+
+
+
+         int j= 0;
+         for(int i=K; i<ci.size(); i++) {
+
+
+
+            IntList c = ci.get(i);
+
+            PrimitiveIterator.OfInt iter = c.streamInts().iterator();
+
+
+            while(iter.hasNext()) {
+
+                int indice = iter.next();
+
+                toBeMergedCentroids.get(j).mutableAdd(  vecList.get(indice)   );
+
+
+            }
+
+
+            j++;
+
+        }
+
+
+
+
+        System.out.println("Merging centroids so we return k=" +K);
+
+
+
+        double[] precomputedNormsForVectorsToBeAdded = new double[  toBeMergedCentroids.size()  ];
+        for(int i=0; i<toBeMergedCentroids.size(); i++)  precomputedNormsForVectorsToBeAdded[i] = toBeMergedCentroids.get(i).pNorm(2.0D);
+
+
+        //NOTE THESE MUST BE UPPDATED WHEN WE ADD MERGE A VECTOR!
+        double[] precomputedNormsForCentroidVectors = new double[K];
+        for(int i=0; i<K; i++) precomputedNormsForCentroidVectors[i] = centroids_k.get(i).pNorm(2.0D);
+
+
+
+        for(int z=0; z<toBeMergedCentroids.size(); z++) {
+
+
+            SparseVector sparseVector = toBeMergedCentroids.get(z);
+
+            int bestIndice = -1;
+            double bestSim = 0;
+
+                for(int k=0; k<K; k++ ) {
+
+
+                    //this is slow as we are normalizing every time..
+
+                    //todo we could cache the norms here to speed stuff up
+                    double sim =  cosineSimPreComputedNorms( centroids_k.get(k), precomputedNormsForCentroidVectors[k],  sparseVector, precomputedNormsForVectorsToBeAdded[z]   );
+
+
+                    if(sim > bestSim) {
+
+                        bestSim = sim;
+                        bestIndice = k;
+
+
+                    }
+
+
+                }
+
+            //merge z with the best closest centroid
+
+
+            if(bestIndice != -1) {
+
+                centroids_k.get(bestIndice).mutableAdd( sparseVector );
+
+                //and update norm
+
+                precomputedNormsForCentroidVectors[bestIndice] = centroids_k.get(bestIndice).pNorm(2.0D);
+
+
+
+            } else {
+
+                System.out.println("Warning! a to be merged vector had zero similarity with every sum/centroid vector");
+                //else ignore
+            }
+
+
+        }
+
+
+
+        //now we are done, normalize and return centroid and initial quality
+
+
+
+
+        double Q1 = 0;
+        for(int i=0; i<K; i++) {
+
+
+            Q1 = Q1 + centroids_k.get(i).pNorm(2.0D);
+
+            centroids_k.get(i).normalize();
+
+        }
+
+
+        System.out.println("Q=" + Q1 + " average similarity: " + (Q1/vecList.size()));
+
+
+
+        return centroids_k;
+
+
+    }
+
+    static class IntListLengthComparator implements Comparator<IntList> {
+        @Override
+        public int compare(IntList o1, IntList o2) {
+
+            if( o1.size() > o2.size() ) return -1;
+            if( o1.size() < o2.size() ) return 1;
+
+            return 0;
+
+        }
+    }
 
 
 
@@ -99,47 +477,106 @@ public class ClusteringBased {
 
         System.out.println("dataset size " + classificationDataSet.size());
 
-        System.out.println("Running kmeans" );
 
-          // int[] hej = elkanKMeans.cluster(classificationDataSet,50,null);
+        //pre-processing step
 
-         //   System.out.println(hej.length);
+        boolean preprocessingStep = false;
+        boolean externalPartition = false;
 
-
-
-        int k = 200;
+        int k = 300;
         int dim = classificationDataSet.getDataVectors().get(0).length(); //indexAndGlobalTermWeights.getNrTerms();
         int N = classificationDataSet.getDataVectors().size();
+        List<DenseVector> centroids = null;
+        List<Vec> vecList = classificationDataSet.getDataVectors();
+        //saveSparseToCluto(vecList);
+        //System.exit(0);
+        //for(Vec v : vecList) v.normalize();
+
+
+
+
+        if(preprocessingStep && externalPartition) {
+
+            System.out.println("Using external partition as seed");
+
+            BufferedReader reader = new BufferedReader( new FileReader( "matrix.clu.clustering.300"));
+
+            centroids = new ArrayList<>();
+
+            for(int i=0; i<k; i++) {
+
+                centroids.add( new DenseVector(dim) );
+
+            }
+
+
+            int vecIndice = 0;
+            String line;
+            while ((line = reader.readLine()) != null) {
+
+
+                Vec v = vecList.get(vecIndice);
+                int clusterIndice = Integer.valueOf(line.trim());
+
+                centroids.get(clusterIndice).mutableAdd( v );
+
+
+                vecIndice++;
+
+
+            }
+
+
+            reader.close();
+
+            //normalize seed
+
+            for(int i=0; i<k; i++) {
+
+                centroids.get(i).normalize();
+
+            }
+
+
+        }
+
+
+
+
 
         System.out.println("N=" + N + " d=" + dim +" k=" +k);
 
 
-        List<DenseVector> centroids = new ArrayList<>();
+        if(preprocessingStep && !externalPartition) {
+            System.out.println("Running leader follower for quick init");
 
-        for(int i=0; i<k; i++) {
+            centroids = preProcess(vecList, 0.1, k);
 
-            centroids.add( new DenseVector(dim) );
+
+
+        } else if(!preprocessingStep && !externalPartition) {
+
+
+            centroids = new ArrayList<>();
+
+            for(int i=0; i<k; i++) {
+
+                centroids.add( new DenseVector(dim) );
+
+            }
+
+            //initialize centroids randomly
+            for(int i=0; i<k; i++) {
+                int randomNum = ThreadLocalRandom.current().nextInt(0, vecList.size());
+                centroids.get(i).mutableAdd(  vecList.get(randomNum)  );
+            }
+
 
         }
 
-        List<Vec> vecList = classificationDataSet.getDataVectors();
-        for(Vec v : vecList) v.normalize();
-
-        //
-        //Build initial centroids
 
 
 
-
-
-        // nextInt is normally exclusive of the top value,
-        // so add 1 to make it inclusive
-
-        //initialize centroids randomly
-        for(int i=0; i<k; i++) {
-            int randomNum = ThreadLocalRandom.current().nextInt(0, vecList.size());
-            centroids.get(i).mutableAdd(  vecList.get(randomNum)  );
-        }
 
         //find closest centroid
         int[] closestCentroid = new int[vecList.size()];
@@ -151,7 +588,7 @@ public class ClusteringBased {
 
 
         //iterate from here
-        int maxIterations = 30;
+        int maxIterations = 10;
         int iter = 0;
 
 
@@ -167,6 +604,7 @@ public class ClusteringBased {
 
             System.out.println("Finding closest centroid");
             int finalIter = iter;
+            List<DenseVector> finalCentroids = centroids;
             intArrStream.forEach(i->
                     {
 
@@ -178,7 +616,7 @@ public class ClusteringBased {
 
                         for (int j = 0; j < k; j++) {
 
-                            double sim = vecList.get(i).dot(centroids.get(j));
+                            double sim = vecList.get(i).dot(finalCentroids.get(j));
 
                             if (sim > minDot) {
 
