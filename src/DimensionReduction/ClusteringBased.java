@@ -4,6 +4,7 @@ import Database.FileHashDB;
 import Database.IndexAndGlobalTermWeights;
 import Database.MyOwnException;
 import SwePub.Record;
+import TrainAndPredict.HelperFunctions;
 import TrainAndPredict.VecHsvPair;
 import com.google.common.collect.BiMap;
 import jsat.classifiers.CategoricalData;
@@ -24,9 +25,10 @@ public class ClusteringBased {
 
 
 
-    public static void main(String[] arg) throws MyOwnException, IOException {
+    public static void main(String[] arg) throws IOException {
 
 
+/*
 
         String lang = "eng";
         int level = 5;
@@ -50,6 +52,10 @@ public class ClusteringBased {
         CategoricalData categoryInformation = IndexAndGlobalTermWeights.level5CategoryInformation;
         ClassificationDataSet classificationDataSet = new ClassificationDataSet(indexAndGlobalTermWeights.getNrTerms(), new CategoricalData[]{}, categoryInformation);
 
+        BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( new FileOutputStream(" textRep.jsat")) );
+
+        System.out.println("creating normalized vectors");
+
         for (Map.Entry<Integer, Record> entry : records.database.entrySet()) {
 
             Record r = entry.getValue();
@@ -61,6 +67,9 @@ public class ClusteringBased {
 
                 if(vec == null) continue;
 
+                writer.write(r.toString());
+                writer.newLine();
+
                 SparseVector v = vec.getVector();
                 v.normalize();
                 classificationDataSet.addDataPoint(v, categoryCodeMapper.get(vec.getHsvCode()));
@@ -69,6 +78,24 @@ public class ClusteringBased {
 
 
         }
+
+        writer.flush();
+        writer.close();
+
+        System.out.println("Writing to file..");
+        HelperFunctions.writeJSATdata(classificationDataSet,"myDataSet.jsat");
+
+        records.closeDatabase();
+        System.exit(0);
+
+
+
+
+        */
+
+
+        ClassificationDataSet classificationDataSet = HelperFunctions.readJSATdata("myDataSet.jsat");
+
 
         System.out.println("dataset size " + classificationDataSet.size());
 
@@ -81,7 +108,11 @@ public class ClusteringBased {
 
 
         int k = 200;
-        int dim = indexAndGlobalTermWeights.getNrTerms();
+        int dim = classificationDataSet.getDataVectors().get(0).length(); //indexAndGlobalTermWeights.getNrTerms();
+        int N = classificationDataSet.getDataVectors().size();
+
+        System.out.println("N=" + N + " d=" + dim +" k=" +k);
+
 
         List<DenseVector> centroids = new ArrayList<>();
 
@@ -285,17 +316,17 @@ public class ClusteringBased {
             iter++;
         }
 
-        BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( new FileOutputStream("apa.txt")) );
+        BufferedWriter writer2 = new BufferedWriter( new OutputStreamWriter( new FileOutputStream("apa.txt")) );
 
         for(int i=0; i<closestCentroid.length; i++) {
 
-            writer.write( String.valueOf(closestCentroid[i]) );
-            writer.newLine();
+            writer2.write( String.valueOf(closestCentroid[i]) );
+            writer2.newLine();
 
         }
 
-        writer.flush();
-        writer.close();
+        writer2.flush();
+        writer2.close();
 
     }
 
