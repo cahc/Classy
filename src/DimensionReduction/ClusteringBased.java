@@ -480,7 +480,7 @@ public class ClusteringBased {
 
         //pre-processing step
 
-        boolean preprocessingStep = false;
+        boolean preprocessingStep = true;
         boolean externalPartition = false;
 
         int k = 300;
@@ -488,6 +488,10 @@ public class ClusteringBased {
         int N = classificationDataSet.getDataVectors().size();
         List<DenseVector> centroids = null;
         List<Vec> vecList = classificationDataSet.getDataVectors();
+
+        int maxIterations = 15;
+        int iter = 0;
+
         //saveSparseToCluto(vecList);
         //System.exit(0);
         //for(Vec v : vecList) v.normalize();
@@ -544,7 +548,7 @@ public class ClusteringBased {
 
 
 
-        System.out.println("N=" + N + " d=" + dim +" k=" +k);
+
 
 
         if(preprocessingStep && !externalPartition) {
@@ -583,13 +587,9 @@ public class ClusteringBased {
 
         int[] previousCentroid = new int[vecList.size()];
 
-        for(int i=0; i<previousCentroid.length; i++) previousCentroid[i] =i;
+        for(int i=0; i<previousCentroid.length; i++) previousCentroid[i] = -1; //dummy init
 
 
-
-        //iterate from here
-        int maxIterations = 10;
-        int iter = 0;
 
 
         int[] array= new int[vecList.size()];
@@ -597,6 +597,8 @@ public class ClusteringBased {
 
 
 
+        System.out.println("Now running k-means for " + maxIterations + " iterations");
+        System.out.println("N=" + N + " d=" + dim +" k=" +k);
 
         while(iter < maxIterations) {
 
@@ -610,9 +612,7 @@ public class ClusteringBased {
 
                         double minDot = 0.0;
 
-                        //random in case of no similarity to any centroid (in the first assignment step)
-                        int bestCentrodSoFar;
-                        if(finalIter ==0) { bestCentrodSoFar = ThreadLocalRandom.current().nextInt(0, k); } else { bestCentrodSoFar = closestCentroid[i]; }
+                        int bestCentrodSoFar = -1;
 
                         for (int j = 0; j < k; j++) {
 
@@ -627,7 +627,10 @@ public class ClusteringBased {
 
                         } //inner loop ends
 
-                        closestCentroid[i] = bestCentrodSoFar;
+
+                        //assign object to a random cluster if it has zero sim to any centroid
+                        if(bestCentrodSoFar != -1) { closestCentroid[i] = bestCentrodSoFar; } else { closestCentroid[i] = ThreadLocalRandom.current().nextInt(0, k);     }
+
 
                     }
 
