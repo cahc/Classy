@@ -725,7 +725,7 @@ public class SphericalKmeans {
         List<Vec> vecList = classificationDataSet.getDataVectors();
 
 
-        SphericalKmeans sphericalKmeans = new SphericalKmeans(vecList, 500, true, 10, false);
+        SphericalKmeans sphericalKmeans = new SphericalKmeans(vecList, 1000, true, 10, false);
 
         //SphericalKmeans sphericalKmeans = new SphericalKmeans(vecList,"partition.txt",300,5,false);
 
@@ -743,7 +743,7 @@ public class SphericalKmeans {
         System.out.println("Similarity between centrod 5 and centroid 100: " + centroids.get(4).dot(centroids.get(99))); //should be low
 
 
-        BufferedWriter writer2 = new BufferedWriter( new OutputStreamWriter( new FileOutputStream("partition_500_run2.txt")) );
+        BufferedWriter writer2 = new BufferedWriter( new OutputStreamWriter( new FileOutputStream("partition_1000_run1.txt")) );
 
         for(int i=0; i<partition.length; i++) {
 
