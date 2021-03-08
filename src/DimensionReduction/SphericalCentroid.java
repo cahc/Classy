@@ -77,8 +77,11 @@ public class SphericalCentroid {
         this.S = this.S - removeFromS;
 
         //step 2 todo with a learning step, here implicit 1.0
+        //this should be scaled!!
+        //1-s2.0-S0893608005X01228
 
-        this.vector.mutableAdd(sparseVector);
+
+       if(this.l2norm != 0)   { this.vector.mutableAdd(this.l2norm,sparseVector); } else { this.vector.mutableAdd(sparseVector); }
 
         //step 3
 
@@ -119,66 +122,40 @@ public class SphericalCentroid {
         int N = vecList.size();
         int dim = vecList.get(0).length();
 
+
         SphericalCentroid sphericalCentroid = new SphericalCentroid(dim);
-
-
-        for(int i=0; i< 100; i++) {
-
-
-            sphericalCentroid.add( (SparseVector)vecList.get(i) );
-
-
-            if(i % 10 == 0) System.out.println(i + " S: " + sphericalCentroid.S + " l2: " + sphericalCentroid.l2norm);
-
-        }
-
-
-        System.out.println();
-
-        System.out.println(sphericalCentroid.S);
-        System.out.println(sphericalCentroid.l2norm);
-
-
-        System.out.println();
-
-
         DenseVector denseVector = new DenseVector(dim);
-        for(int i=0; i< 100; i++) {
 
 
-            denseVector.mutableAdd( (SparseVector)vecList.get(i) );
 
-            denseVector.normalize(); //we avoid this costly step by using SphericalCentroid class instead
+
+        System.out.println("Deferred normalization");
+        for(int i=0; i<100; i++ ) {
+
+            sphericalCentroid.add(  (SparseVector)vecList.get(i) );
 
         }
 
-        System.out.println("Should be 1.0: " + denseVector.dot( sphericalCentroid.vector ) / sphericalCentroid.l2norm );
 
 
-   /*
-        SparseVector sparseVector = new SparseVector(10,10);
-        sparseVector.set(0,1);
-        sparseVector.set(1,2);
-        sparseVector.set(4,3);
-        sparseVector.set(6,1);
-        sparseVector.set(9,1);
-        sphericalCentroid.add(sparseVector);
-        System.out.println(sphericalCentroid.l2norm);
-        sparseVector.normalize();
-        System.out.println(sphericalCentroid.similarity(sparseVector));
-        SparseVector sparseVector1 = new SparseVector(10,10);
-        sparseVector1.set(2,1);
-        sparseVector1.set(3,1);
-        sparseVector1.set(5,1);
-        sparseVector1.set(6,2);
-        sparseVector1.set(9,1);
-        sphericalCentroid.add(sparseVector1);
-        System.out.println(sphericalCentroid.l2norm);
-        sphericalCentroid.add(sparseVector1);
-        System.out.println(sphericalCentroid.l2norm);
+
+        System.out.println("Eager normalization");
+        for(int i=0; i<100; i++ ) {
+
+            denseVector.mutableAdd(  vecList.get(i) );
+            denseVector.normalize();
+
+        }
 
 
-    */
+
+        System.out.println("Should be 1.0: " + denseVector.dot( sphericalCentroid.vector  ) / sphericalCentroid.l2norm );
+
+        System.out.println(denseVector.dot(vecList.get(10) ));
+
+        System.out.println(sphericalCentroid.similarity( (SparseVector)vecList.get(10)  ));
+
+
 
     }
 
