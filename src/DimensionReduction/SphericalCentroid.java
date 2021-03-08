@@ -13,10 +13,10 @@ import java.util.List;
 
 public class SphericalCentroid {
 
+    private static final double overflowWarning = Double.MAX_VALUE*0.95;
+
     DenseVector vector;
-
     double S; //sum of squares , the L2 norm of vector is the sqrt of S
-
     double l2norm; //sqrt(S)
 
 
@@ -99,6 +99,22 @@ public class SphericalCentroid {
         //step 4, uppdate the l2-norm
 
         this.l2norm = Math.sqrt( this.S );
+
+
+        //normalize when things are close to overflow
+        if(this.S >= this.overflowWarning) {
+
+
+            this.vector.mutableDivide(this.l2norm);
+            this.l2norm = 1.0D;
+            this.S = 1.0D;
+
+          //  System.out.println("Normalized to avoid overflow");
+        }
+
+
+
+
     }
 
 
@@ -108,7 +124,6 @@ public class SphericalCentroid {
         return ( s.dot(this.vector) / this.l2norm );
 
     }
-
 
 
 
@@ -129,8 +144,8 @@ public class SphericalCentroid {
 
 
 
-        System.out.println("Deferred normalization");
-        for(int i=0; i<100; i++ ) {
+        System.out.println("Deferred normalization (fast)");
+        for(int i=10000; i<30000; i++ ) {
 
             sphericalCentroid.add(  (SparseVector)vecList.get(i) );
 
@@ -139,15 +154,15 @@ public class SphericalCentroid {
 
 
 
-        System.out.println("Eager normalization");
-        for(int i=0; i<100; i++ ) {
+        System.out.println("Eager normalization (slow)");
+        for(int i=10000; i<30000; i++ ) {
 
             denseVector.mutableAdd(  vecList.get(i) );
             denseVector.normalize();
 
         }
 
-
+        System.out.println(Double.MAX_VALUE*0.95);
 
         System.out.println("Should be 1.0: " + denseVector.dot( sphericalCentroid.vector  ) / sphericalCentroid.l2norm );
 
