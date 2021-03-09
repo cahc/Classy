@@ -32,21 +32,16 @@ public class SphericalCentroid {
     public SphericalCentroid(DenseVector vec) {
 
         this.vector = vec;
+        this.vector.normalize();
 
-        double S = 0;
 
-        for(int i=0; i< vec.length(); i++) {
-
-            S = S + Math.pow(vector.get(i),2.0D);
-        }
-
-        this.S = S;
-        this.l2norm = Math.sqrt(S);
+        this.S = 1.0D;
+        this.l2norm = 1.0D;
 
     }
 
 
-    public void add(SparseVector sparseVector) {
+    public void add(SparseVector sparseVector, double learningRate) {
 
 
         //step one
@@ -58,7 +53,6 @@ public class SphericalCentroid {
             nonzeroIndices[j] = nzItert.next().getIndex();
             j++;
         }
-
 
         double removeFromS = 0;
         for(int i=0; i<nonzeroIndices.length; i++) {
@@ -76,12 +70,11 @@ public class SphericalCentroid {
 
         this.S = this.S - removeFromS;
 
-        //step 2 todo with a learning step, here implicit 1.0
-        //this should be scaled!!
+        //step 2 todo with a learning step, here implicit flat 1.0
         //1-s2.0-S0893608005X01228
 
 
-       if(this.l2norm != 0)   { this.vector.mutableAdd(this.l2norm,sparseVector); } else { this.vector.mutableAdd(sparseVector); }
+       if(this.l2norm != 0)   { this.vector.mutableAdd(this.l2norm * learningRate,sparseVector); } else { this.vector.mutableAdd(sparseVector); }
 
         //step 3
 
@@ -147,7 +140,7 @@ public class SphericalCentroid {
         System.out.println("Deferred normalization (fast)");
         for(int i=10000; i<30000; i++ ) {
 
-            sphericalCentroid.add(  (SparseVector)vecList.get(i) );
+            sphericalCentroid.add(  (SparseVector)vecList.get(i), 1.0D );
 
         }
 
