@@ -349,6 +349,7 @@ public class BatchSphericalKmeans {
             for (int i = 0; i < k; i++) {
                 compositeVectors.add(new DenseVector(dim));
             }
+
             System.out.println("# centroids: " + compositeVectors.size());
             for (int i = 0; i < closestCentroid.length; i++) {
 
@@ -371,6 +372,13 @@ public class BatchSphericalKmeans {
 
 
             System.out.println("Q: " + Q + " avg sim: " + (Q / closestCentroid.length) + " 1-cos(x,cent): " + (vecList.size() - Q) );
+
+            //todo sparsifying
+
+
+
+
+
 
             System.out.println("##");
 

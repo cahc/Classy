@@ -9,10 +9,22 @@ public class Project {
 
 
 
-    public static DenseVector project(SparseVector input, List<DenseVector> axis) {
+    public static DenseVector project(SparseVector input, List<DenseVector> axis, double regularization) {
 
 
-        return null;
+        DenseVector projected = new DenseVector( axis.size() );
+
+        for(int i=0; i<axis.size(); i++) {
+
+
+            double val = input.dot( axis.get(i) );
+
+
+           if(val >= regularization) projected.set(i ,  val   );
+        }
+
+
+        return projected;
 
     }
 
