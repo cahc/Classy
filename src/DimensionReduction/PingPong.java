@@ -64,6 +64,11 @@ public class PingPong {
 
         System.out.println("Similarity between original vectors: " + similarity(vecList.get(first), vecList.get(second)));
 
+        System.out.println("centroid nnz%:");
+        System.out.println(batchSphericalKmeans.getCentroids().get(0).nnz() / (double)batchSphericalKmeans.getCentroids().get(0).length()  );
+
+        System.out.println("centroid nnz%:");
+        System.out.println(batchSphericalKmeans.getCentroids().get(1).nnz() / (double)batchSphericalKmeans.getCentroids().get(1).length()  );
 
 
 
