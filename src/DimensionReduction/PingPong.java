@@ -33,12 +33,12 @@ public class PingPong {
         List<SparseVector> vecList = (List<SparseVector>)(Object)classificationDataSet.getDataVectors();
 
         //two run of online k-means for initialization of centroids
-        OnlineSphericalKmeans onlineSphericalKmeans = new OnlineSphericalKmeans(vecList,200,2);
+        OnlineSphericalKmeans onlineSphericalKmeans = new OnlineSphericalKmeans(vecList,300,2);
         onlineSphericalKmeans.fit();
         int[] partition = onlineSphericalKmeans.getPartition();
 
 
-        BatchSphericalKmeans batchSphericalKmeans = new BatchSphericalKmeans(vecList,partition,200,10,false);
+        BatchSphericalKmeans batchSphericalKmeans = new BatchSphericalKmeans(vecList,partition,300,10,false);
         batchSphericalKmeans.fit();
 
         List<DenseVector> axis = batchSphericalKmeans.getCentroids();
