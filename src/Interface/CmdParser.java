@@ -187,7 +187,9 @@ public class CmdParser {
             FileHashDB fileHashDB = new FileHashDB();
             fileHashDB.create();
 
-           JsonSwePubParser jsonSwePubParser = new JsonSwePubParser();
+
+
+           JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\swepub_json_20210214\\swepub-deduplicated-2021-02-21.jsonl");
            jsonSwePubParser.parse(fileHashDB);
 
             System.out.println("Records parsed and saved: " + fileHashDB.size() );

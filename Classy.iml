@@ -31,5 +31,6 @@
     <orderEntry type="library" name="JSAT-0.1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="de.ruedigermoeller:fst:2.57" level="project" />
     <orderEntry type="library" name="com.fasterxml.jackson.core:jackson-databind:2.8.8" level="project" />
+    <orderEntry type="library" name="mulan" level="project" />
   </component>
 </module>

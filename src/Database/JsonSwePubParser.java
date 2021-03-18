@@ -8,10 +8,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import misc.LanguageTools.HelperFunctions;
 import misc.LanguageTools.HtmlUnescaper;
 import misc.Parsers.SimpleParser;
@@ -22,6 +20,8 @@ import misc.stopwordLists.SwedishStopWords60;
 
 
 public class JsonSwePubParser {
+
+    private String pathToJson;
 
     public static final String prefixFromKeyWords = "K@";
     public static final String prefixFromAffiliation = "A@";
@@ -85,10 +85,10 @@ public class JsonSwePubParser {
 
 
 
-    public JsonSwePubParser() {};
+    public JsonSwePubParser(String jsonfile) { this.pathToJson = jsonfile;};
 
 
-    public static void parse(FileHashDB db) throws IOException, InterruptedException {
+    public void parse(FileHashDB db) throws IOException, InterruptedException {
         FileOutputStream f = new FileOutputStream("ErrorLog.txt");
         System.setErr(new PrintStream(f));
 
@@ -103,7 +103,7 @@ public class JsonSwePubParser {
 
 
         //BufferedReader reader = new BufferedReader(  new InputStreamReader( new FileInputStream("/Users/cristian/Desktop/JSON_SWEPUB/swepub-deduplicated-2021-02-14.jsonl"), StandardCharsets.UTF_8));
-        BufferedReader reader = new BufferedReader(  new InputStreamReader( new FileInputStream("E:\\swepub_json_20210214\\swepub-deduplicated-2021-02-21.jsonl"), StandardCharsets.UTF_8));
+        BufferedReader reader = new BufferedReader(  new InputStreamReader( new FileInputStream(this.pathToJson), StandardCharsets.UTF_8));
 
         ObjectMapper mapper = new ObjectMapper();
 
