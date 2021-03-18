@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="mulan">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/mulan.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
