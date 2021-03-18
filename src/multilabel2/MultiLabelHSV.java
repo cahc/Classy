@@ -98,18 +98,18 @@ public class MultiLabelHSV {
         /////////////////////////////////////////////////////
                     //PARSE RECORDS AND SAVE TO DB//
         /////////////////////////////////////////////////////
-   /*
+
         long start = System.currentTimeMillis();
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\swepub_json_20210214\\SwePubJson.db");
+        fileHashDB.setPathToFile("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJson.db");
         fileHashDB.create();
-        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\swepub_json_20210214\\swepub-deduplicated-2021-02-21.jsonl");
+        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("/Users/cristian/Desktop/JSON_SWEPUB/swepub-deduplicated-2021-02-21.jsonl");
         jsonSwePubParser.parse(fileHashDB);
         System.out.println("Records parsed and saved: " + fileHashDB.size() );
         long stop = System.currentTimeMillis();
         System.out.println("Parsed and saved to db in " + (stop - start) / 1000.0 + "seconds");
         fileHashDB.closeDatabase();
-'*/
+
 
 
         /////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ public class MultiLabelHSV {
 
         //level 3 and english
 
-        /*
+
 
         Index index = new Index();
 
@@ -141,7 +141,7 @@ public class MultiLabelHSV {
         System.out.println("IDF ind 0: " + index.getIDF(0) + " " + index.reverseLookupSlow(0));
         index.save("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJsonIndexLevel5LangEng.ser");
 
-*/
+
 
 
         /*
@@ -158,10 +158,10 @@ public class MultiLabelHSV {
 
 
 
-        //fileHashDB2.closeDatabase();
+        fileHashDB2.closeDatabase();
 
 
-        Index index = new Index();
+        index = new Index();
         index.load("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJsonIndexLevel5LangEng.ser");
 
         boolean balanced = false;
@@ -172,7 +172,7 @@ public class MultiLabelHSV {
 
 
 
-        FileHashDB fileHashDB2 = new FileHashDB();
+        fileHashDB2 = new FileHashDB();
         fileHashDB2.setPathToFile("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJson.db");
         fileHashDB2.createOrOpenDatabase();
 
@@ -279,15 +279,15 @@ public class MultiLabelHSV {
 
         
         System.out.println("Started training..");
-        long start = System.currentTimeMillis();
+        start = System.currentTimeMillis();
 
 
-        LogisticRegressionDCD base = new LogisticRegressionDCD(1.0,500);
+        LogisticRegressionDCD base = new LogisticRegressionDCD(2.0,500);
         base.setUseBias(true);
         MultiLabel multiLabelClassifier = new MultiLabel(base,true,dataPointList);
         System.out.println("Training multi-label classifier. # labels: " + multiLabelClassifier.numberOfLabels());
         multiLabelClassifier.train(0.15);
-        long stop = System.currentTimeMillis();
+        stop = System.currentTimeMillis();
 
         multiLabelClassifier.save("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJsonClassifierLevel5LangEng.ser");
 
@@ -334,6 +334,7 @@ public class MultiLabelHSV {
 
 
 
+        fileHashDB2.closeDatabase();
     }
 
 
