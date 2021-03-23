@@ -99,16 +99,16 @@ public class MultiLabelHSV {
                     //PARSE RECORDS AND SAVE TO DB//
         /////////////////////////////////////////////////////
 
-        long start = System.currentTimeMillis();
-        FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJson.db");
-        fileHashDB.create();
-        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("/Users/cristian/Desktop/JSON_SWEPUB/swepub-deduplicated-2021-02-21.jsonl");
-        jsonSwePubParser.parse(fileHashDB);
-        System.out.println("Records parsed and saved: " + fileHashDB.size() );
-        long stop = System.currentTimeMillis();
-        System.out.println("Parsed and saved to db in " + (stop - start) / 1000.0 + "seconds");
-        fileHashDB.closeDatabase();
+        //long start = System.currentTimeMillis();
+        //FileHashDB fileHashDB = new FileHashDB();
+        //fileHashDB.setPathToFile("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJson.db");
+        //fileHashDB.create();
+        //JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("/Users/cristian/Desktop/JSON_SWEPUB/swepub-deduplicated-2021-02-21.jsonl");
+        //jsonSwePubParser.parse(fileHashDB);
+        //System.out.println("Records parsed and saved: " + fileHashDB.size() );
+        //long stop = System.currentTimeMillis();
+        //System.out.println("Parsed and saved to db in " + (stop - start) / 1000.0 + "seconds");
+        //fileHashDB.closeDatabase();
 
 
 
@@ -248,6 +248,8 @@ public class MultiLabelHSV {
 
         }
 
+        saveDataPointList(dataPointList,"/Users/cristian/Desktop/JSON_SWEPUB/SwePubJsonDataPointsNOWEIGHTNONORMLevel5LangEng.ser"); //try LDA on this?
+
 
         System.out.println("Datapoint list size: "+ dataPointList.size());
 
@@ -279,15 +281,15 @@ public class MultiLabelHSV {
 
         
         System.out.println("Started training..");
-        start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
 
 
-        LogisticRegressionDCD base = new LogisticRegressionDCD(2.0,500);
+        LogisticRegressionDCD base = new LogisticRegressionDCD(3.0,500);
         base.setUseBias(true);
         MultiLabel multiLabelClassifier = new MultiLabel(base,true,dataPointList);
         System.out.println("Training multi-label classifier. # labels: " + multiLabelClassifier.numberOfLabels());
         multiLabelClassifier.train(0.15);
-        stop = System.currentTimeMillis();
+       long stop = System.currentTimeMillis();
 
         multiLabelClassifier.save("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJsonClassifierLevel5LangEng.ser");
 
@@ -302,7 +304,7 @@ public class MultiLabelHSV {
 
 
         MacroFMeasure macroF = new MacroFMeasure( multiLabelClassifier.numberOfLabels() ); //label-based
-        MicroFMeasure microF = new MicroFMeasure( multiLabelClassifier.numberOfLabels() );
+  //      MicroFMeasure microF = new MicroFMeasure( multiLabelClassifier.numberOfLabels() );
 
 
 
@@ -320,7 +322,7 @@ public class MultiLabelHSV {
             exampleBasedFMeasure.update(predictions,groundTruth);
 
             macroF.update(predictions,groundTruth);
-            microF.update(predictions,groundTruth);
+          //  microF.update(predictions,groundTruth);
 
         }
 
@@ -330,7 +332,7 @@ public class MultiLabelHSV {
         System.out.println("Example-based Recall: institution classifier: " + String.format("%.3f",exampleBasedRecall.getValue()));
         System.out.println("Example-based F-measure: institution classifier: " + String.format("%.3f",exampleBasedFMeasure.getValue()));
         System.out.println("MacroF: institution classifier: " + String.format("%.3f",macroF.getValue()));
-        System.out.println("MicroF: " + String.format("%.3f",microF.getValue()));
+      //  System.out.println("MicroF: " + String.format("%.3f",microF.getValue()));
 
 
 
