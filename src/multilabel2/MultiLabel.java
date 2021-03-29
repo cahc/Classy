@@ -13,7 +13,7 @@ public class MultiLabel implements Serializable, Pred {
 
     private static final long serialVersionUID = -973737364433488888L;
 
-    private final CategoricalData[] predicting; // length  number of labels (1/0).
+    private final CategoricalData[] predicting; // length  number of labels (1/0). //TODO test if it requires [-1,1] for linearBatch
     private final Classifier[] OneVsRestMultiLabel;
     private final Classifier baseClassifier;
     private boolean concurrentTraining;

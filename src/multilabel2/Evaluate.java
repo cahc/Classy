@@ -13,6 +13,8 @@ import java.util.List;
 public class Evaluate {
 
 
+
+
     public static GroundTruth groundTruth(int[] indicatorArray) {
 
         boolean[] groundtruth = new boolean[indicatorArray.length];
@@ -25,6 +27,43 @@ public class Evaluate {
 
         return new GroundTruth(groundtruth);
     }
+
+
+
+    public static MultiLabelOutput multiLabelOutputLibLinear(double[] predictedProb, int[] lables) {
+
+        boolean[] predictedClassed = new boolean[lables.length];
+
+        //recode
+
+        if(lables[0] == 1) {
+
+            if(predictedProb[0] > 0.5) {predictedClassed[0] = true; } else { predictedClassed[1] = true; }
+
+
+        } else {
+
+
+            if(predictedProb[1] > 0.5) { predictedClassed[0] = true; } else { predictedClassed[1] = true; }
+
+        }
+
+
+        return new MultiLabelOutput( predictedClassed );
+
+    }
+
+
+    public static GroundTruth groundTruthLibLinear(int classLable) {
+        boolean[] trueClasses = new boolean[2];
+
+        if(classLable == 1) { trueClasses[0] = true; } else { trueClasses[1] = true; }
+
+
+        return new GroundTruth( trueClasses );
+    }
+
+
 
 
     public static MultiLabelOutput multiLabelOutput(CategoricalResults cr, boolean onlyTheBest) {
@@ -66,6 +105,22 @@ public class Evaluate {
 
 
     }
+
+
+    public static MultiLabelOutput multiLabelOutput(int[] indicatorArray) {
+
+        boolean[] output = new boolean[indicatorArray.length];
+
+
+        for(int i=0; i<indicatorArray.length; i++) {
+
+            if(indicatorArray[i] == 1) output[i] = true;
+
+        }
+
+                return( new MultiLabelOutput(output) );
+    }
+
 
 
     public static boolean hasMultiplePredictedCategories(MultiLabelOutput multiLabelOutput) {
