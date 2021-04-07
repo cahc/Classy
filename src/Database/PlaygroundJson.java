@@ -74,11 +74,27 @@ public class PlaygroundJson {
 
         ////////////
 
+
+        //TODO
+
+        //for each AUTHOR
+        //external to swepub contributors --> check if it is a duplicate
+        //else get local id (crco0001 etc)
+        //get university
+
         JsonNode contrib = obj.get("instanceOf").get("contribution");
 
         HashSet<String> a = new HashSet<>();
 
         for(JsonNode n : contrib) {
+
+            System.out.println(n);
+
+            System.out.println( n.size() );
+            System.out.println(n.get("@type")); // contribution
+
+           System.out.println( n.get("agent").getNodeType() );
+
 
             JsonNode aff = n.get("hasAffiliation");
 
