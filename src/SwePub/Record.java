@@ -21,6 +21,7 @@ public class Record implements Serializable {
 
         StringBuilder stringBuilder = new StringBuilder();
 
+        stringBuilder.append(this.URI).append(separator);
         stringBuilder.append(this.supplier).append(separator);
         stringBuilder.append(this.language).append(separator);
         stringBuilder.append(this.containsSupportedLanguageText).append(separator);
@@ -105,6 +106,8 @@ public class Record implements Serializable {
 
     private int mapDBKey;
 
+    private boolean autoClassedBySwepub;
+
     //classification target
     private HashSet<Integer> classificationCodes; //HSV
 
@@ -138,6 +141,15 @@ public class Record implements Serializable {
 
     public String getDiva2Id() {
         return diva2Id;
+    }
+
+
+    public boolean isAutoClassedBySwepub() {
+        return autoClassedBySwepub;
+    }
+
+    public void setAutoClassedBySwepub(boolean autoClassedBySwepub) {
+        this.autoClassedBySwepub = autoClassedBySwepub;
     }
 
     public void setDiva2Id(String diva2Id) {

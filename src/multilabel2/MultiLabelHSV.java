@@ -99,25 +99,18 @@ public class MultiLabelHSV {
                     //PARSE RECORDS AND SAVE TO DB//
         /////////////////////////////////////////////////////
 
-        //long start = System.currentTimeMillis();
-        //FileHashDB fileHashDB = new FileHashDB();
-        //fileHashDB.setPathToFile("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJson.db");
-        //fileHashDB.create();
-        //JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("/Users/cristian/Desktop/JSON_SWEPUB/swepub-deduplicated-2021-02-21.jsonl");
-        //jsonSwePubParser.parse(fileHashDB);
-        //System.out.println("Records parsed and saved: " + fileHashDB.size() );
-        //long stop = System.currentTimeMillis();
-        //System.out.println("Parsed and saved to db in " + (stop - start) / 1000.0 + "seconds");
-        //fileHashDB.closeDatabase();
+        /*
+        FileHashDB fileHashDB = new FileHashDB();
+        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210408.db");
+        fileHashDB.create();
 
-
+        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\Desktop\\JSON_SWEPUB\\swepub-deduplicated-2021-04-08.jsonl");
+        jsonSwePubParser.parse(fileHashDB);
+        */
 
         /////////////////////////////////////////////////////////////
-        ////CREATE INDEX DEPENTENT ON CLASSIFYER LEVEL AND LANGUAGE//
+        ////CREATE INDEX DEPENDENT ON CLASSIFIER LEVEL AND LANGUAGE//
         ////////////////////////////////////////////////////////////
-
-        //level 3 and english
-
 
 
         Index index = new Index();
@@ -130,7 +123,7 @@ public class MultiLabelHSV {
 
             Record record = entry.getValue();
 
-            if( index.addRecord(record,5,"eng") ) total++;
+            if( index.addRecord(record,5,"eng") ) total++; // ony adds if it contains pair of language and level
 
 
         }
@@ -140,8 +133,6 @@ public class MultiLabelHSV {
         index.removeRareTerms(3);
         System.out.println("IDF ind 0: " + index.getIDF(0) + " " + index.reverseLookupSlow(0));
         index.save("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJsonIndexLevel5LangEng.ser");
-
-
 
 
         /*

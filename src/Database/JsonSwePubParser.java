@@ -83,10 +83,7 @@ public class JsonSwePubParser {
 
     }
 
-
-
     public JsonSwePubParser(String jsonfile) { this.pathToJson = jsonfile;};
-
 
     public void parse(FileHashDB db) throws IOException, InterruptedException {
         FileOutputStream f = new FileOutputStream("ErrorLog.txt");
@@ -111,11 +108,11 @@ public class JsonSwePubParser {
         String jline;
         int parsed = 0;
         int autoclassed = 0;
-        int noSubject = 0;
         int noUka = 0;
         int unsupportedLang = 0;
         int hasLevel2 = 0;
         int hasLevel3 = 0;
+        int noTextType = 0;
 
 
         while( (jline = reader.readLine()) != null ) {
@@ -140,7 +137,7 @@ public class JsonSwePubParser {
             JsonNode instance = master.get("instanceOf");
 
             //ignore non text types
-            if(!instance.get("@type").asText().equals("Text") ) { continue; }
+            if(!instance.get("@type").asText().equals("Text") ) { noTextType++; continue; }
 
 
 
@@ -152,6 +149,22 @@ public class JsonSwePubParser {
             if( !( "swe".equals(language)  || "eng".equals(language) || "und".equals(language)) )  {unsupportedLang++; continue; }
 
 
+            Record record = new Record();
+            record.setURI(ID);
+
+            //Innehållsmärkning: https://id.kb.se/term/swepub/svep/ref.
+            //Outputtyp: https://id.kb.se/term/swepub/publication/journal-article.
+
+            for(JsonNode node : instance.get("genreForm")) {
+
+                String id = node.get("@id").textValue();
+
+                if(id.startsWith("https://id.kb.se/term/swepub/svep/")) { record.addContentType( id ); } else if (!id.startsWith("https://id.kb.se/term/swepub/swedishlist")) { record.addPublicationType( id ); }
+
+            }
+
+
+            /*
 
             //now check if there are HSV/SCB classifications codes for the record.
             //make sure it is original classifications and not swepub autoclass.
@@ -180,84 +193,102 @@ public class JsonSwePubParser {
             }
 
 
-            //now we have non autoclassed records to deal with
+         */
 
             JsonSwePubSubjects swePubSubjects = new JsonSwePubSubjects();
+            JsonNode subject = instance.get("subject");
 
-            for(JsonNode node : subject) {
-
-
-                JsonNode code = node.get("code");
-
-                JsonNode inScheme = node.get("inScheme");
+            if(subject != null) {
+                for (JsonNode node : subject) {
 
 
-                if(code != null && inScheme != null) {
+                    JsonNode code = node.get("code");
+
+                    JsonNode inScheme = node.get("inScheme");
 
 
-                    String whichScheme = inScheme.get("code").asText();
+                    if (code != null && inScheme != null) {
 
-                    if(!"uka.se".equals(whichScheme)) continue;
+                        String whichScheme = inScheme.get("code").asText();
 
-
-
-                    Integer classificationCode = code.asInt();
-
-                    //temp fix for erroneous data in SwePub
-                    if(classificationCode.equals(20309)) classificationCode = 20399;
-
-                    //210 and 21001 Nanoteknik is the same..
-                    if(classificationCode.equals(210)) classificationCode = 21001;
+                        if (!"uka.se".equals(whichScheme)) continue;
 
 
-                    if(classificationCode > 999) {
+                        Integer classificationCode = code.asInt();
 
-                        //five digits
+                        //temp fix for erroneous data in SwePub
+                        if (classificationCode.equals(20309)) classificationCode = 20399;
 
-                        swePubSubjects.addUkaLevel3(classificationCode);
-                        Integer level2 = firstThreeDigitsOrNull(classificationCode);
-                        swePubSubjects.addUkaLevel2(level2);
+                        //210 and 21001 Nanoteknik is the same..
+                        if (classificationCode.equals(210)) classificationCode = 21001;
 
 
-                    } else if (classificationCode > 99) {
+                        if (classificationCode > 999) {
 
-                        //three digits
+                            //five digits
 
-                        swePubSubjects.addUkaLevel2(classificationCode);
+                            swePubSubjects.addUkaLevel3(classificationCode);
+                            Integer level2 = firstThreeDigitsOrNull(classificationCode);
+                            swePubSubjects.addUkaLevel2(level2);
+
+
+                        } else if (classificationCode > 99) {
+
+                            //three digits
+
+                            swePubSubjects.addUkaLevel2(classificationCode);
+
+
+                        }
+
+
+                        //check if it is autoclassed
+                        JsonNode isAutoclassed = node.get("hasNote");
+
+                        if(isAutoclassed != null) {
+
+                            String info = isAutoclassed.get(0).get("label").asText();
+
+                            if("Autoclassified by Swepub".equals(info)) {
+
+
+                                record.setAutoClassedBySwepub(true);
+
+                            }
+
+                        }
+
+
+
+                    } else {
+
+                        //uncontrolled, there might be language info here
+
+                        String keywords = node.get("prefLabel").asText(); // can be a single keyword or a ; seperated list
+
+                        String[] keywordsArray = keywords.split(";");
+
+                        for (String s : keywordsArray) {
+
+                            swePubSubjects.addKeywords(s.toLowerCase().trim());
+
+                        }
 
 
                     }
 
 
+                } //for each subject node
 
 
-                } else {
-
-                    //uncontrolled, there might be language info here
-
-                    String keywords = node.get("prefLabel").asText(); // can be a single keyword or a ; seperated list
-
-                    String[] keywordsArray = keywords.split(";");
-
-                    for(String s : keywordsArray) {
-
-                        swePubSubjects.addKeywords( s.toLowerCase().trim() );
-
-                    }
+            }
 
 
-                }
-
-
-
-
-            } //for each subject node
 
 
             //now check if it is useful
-
-
-            if( !(swePubSubjects.hasLevel3Codes() || swePubSubjects.hasLevel2Codes() ) ) {noUka++; continue; }
+            if( !(swePubSubjects.hasLevel3Codes() || swePubSubjects.hasLevel2Codes() ) ) noUka++;
+            if(record.isAutoClassedBySwepub()) autoclassed++;
 
             if(swePubSubjects.hasLevel2Codes()) hasLevel2++;
             if(swePubSubjects.hasLevel3Codes()) hasLevel3++;
@@ -268,8 +299,6 @@ public class JsonSwePubParser {
             //if here we start to extract other stuff for that goes in to the training record
 
 
-
-            Record record = new Record();
             ArrayList l = new ArrayList();
             l.add(language);
             record.setLanguage( l );
@@ -590,10 +619,10 @@ public class JsonSwePubParser {
 
 
 
-        System.out.println("Parsed: "  + parsed + " ignoring autoclassed: " + autoclassed + " no subject: " + noSubject + " no level2/3 uka: " + noUka + " unsupported lang: " + unsupportedLang  + " Total: " + (parsed+autoclassed+noSubject+noUka+unsupportedLang ) );
+        System.out.println("Parsed/saved: "  + parsed + " autoclassed: " + autoclassed + " no level2/3 uka: " + noUka + " unsupported lang: " + unsupportedLang  + " no text type: " + noTextType + " Total in Json: " + (parsed+unsupportedLang+noTextType ) );
 
-        System.out.println("Has level 3 : " + hasLevel3 + " " + "percent: " + (double)hasLevel3/(parsed+autoclassed+noSubject+noUka+unsupportedLang)  );
-        System.out.println("Has level 2 : " + hasLevel2 + " " + "percent: " + (double)hasLevel2/(parsed+autoclassed+noSubject+noUka+unsupportedLang)  );
+        System.out.println("Has level 3 of parsed/saved : " + hasLevel3 + " " + "percent: " + (double)hasLevel3/(parsed)  );
+        System.out.println("Has level 2 of parsed/saved: " + hasLevel2 + " " + "percent: " + (double)hasLevel2/(parsed)  );
 
 
 
@@ -603,6 +632,30 @@ public class JsonSwePubParser {
     }
 
 
+
+    public static void main(String[] arg) throws IOException, InterruptedException {
+
+        System.out.println("Parsing Json and saving to MapBD");
+
+        long start = System.currentTimeMillis();
+
+        FileHashDB fileHashDB = new FileHashDB();
+        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210408.db");
+        fileHashDB.create();
+
+        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\Desktop\\JSON_SWEPUB\\swepub-deduplicated-2021-04-08.jsonl");
+        jsonSwePubParser.parse(fileHashDB);
+
+        System.out.println("Records parsed and saved: " + fileHashDB.size() );
+
+        long stop = System.currentTimeMillis();
+
+        System.out.println("Parsed and saved to db in " + (stop - start) / 1000.0 + "seconds");
+        fileHashDB.closeDatabase();
+
+
+
+    }
 
 
 
