@@ -119,7 +119,7 @@ public class MultiLabelHSV {
         fileHashDB2.setPathToFile("/Users/cristian/Desktop/JSON_SWEPUB/SwePubJson.db");
         fileHashDB2.createOrOpenDatabase();
         int total = 0;
-        for (Map.Entry<Integer, Record> entry : fileHashDB2.database.entrySet()) {
+        for (Map.Entry<String, Record> entry : fileHashDB2.database.entrySet()) {
 
             Record record = entry.getValue();
 
@@ -170,7 +170,7 @@ public class MultiLabelHSV {
         List<SparseVector> sparseVectors = new ArrayList<>();
         List<Set<Integer>> classCodes = new ArrayList<>();
 
-        for (Map.Entry<Integer, Record> entry : fileHashDB2.database.entrySet()) {
+        for (Map.Entry<String, Record> entry : fileHashDB2.database.entrySet()) {
 
             Record record = entry.getValue();
 

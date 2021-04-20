@@ -22,6 +22,8 @@ public class Record implements Serializable {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append(this.URI).append(separator);
+        stringBuilder.append(this.affiliationUris).append(separator);
+        stringBuilder.append(this.affiliationUriToName).append(separator);
         stringBuilder.append(this.supplier).append(separator);
         stringBuilder.append(this.language).append(separator);
         stringBuilder.append(this.containsSupportedLanguageText).append(separator);
@@ -85,7 +87,8 @@ public class Record implements Serializable {
 
             //stringBuilder.append(this.affiliations.toString()).append(separator);
             stringBuilder.append(stringbuilder2.toString()).append(separator);
-            stringBuilder.append( getTermsFromAffiliation() );
+            stringBuilder.append( getTermsFromAffiliation() ).append(separator);
+            stringBuilder.append(this.rawAffiliationsStrings);
         }
 
 
@@ -107,6 +110,76 @@ public class Record implements Serializable {
     private int mapDBKey;
 
     private boolean autoClassedBySwepub;
+
+    //authorized affiliations from Json
+    private List<String> affiliationUris;
+    private List<String> affiliationUriToName;
+
+
+    //raw complete affiliations Strings for each author contributor
+    private List<String> rawAffiliationsStrings;
+
+    public void addRawAffiliationsStrings(List<String> listWithAffiliations) {
+
+        this.rawAffiliationsStrings = listWithAffiliations;
+
+    }
+
+    public List<String> getRawAffiliationsStrings() {
+
+        if(this.rawAffiliationsStrings == null) return Collections.emptyList();
+
+        return this.rawAffiliationsStrings;
+
+    }
+
+
+    public List<String> getAffiliationUris() {
+
+        if(this.affiliationUris == null) return Collections.emptyList();
+
+        return this.affiliationUris;
+    }
+
+
+    public List<String> getAffiliationUriToName() {
+
+        if(this.affiliationUriToName == null) return Collections.emptyList();
+
+        return this.affiliationUriToName;
+    }
+
+
+    public void addAffiliationUris(String uri) {
+
+
+        if(this.affiliationUris == null) {
+
+            this.affiliationUris = new ArrayList<>();
+            this.affiliationUris.add(uri);
+        } else {
+
+            this.affiliationUris.add(uri);
+        }
+
+    }
+
+
+    public void addAffiliationUrisToName(String name) {
+
+
+        if(this.affiliationUriToName == null) {
+
+            this.affiliationUriToName = new ArrayList<>();
+            this.affiliationUriToName.add(name);
+        } else {
+
+            this.affiliationUriToName.add(name);
+        }
+
+    }
+
+
 
     //classification target
     private HashSet<Integer> classificationCodes; //HSV

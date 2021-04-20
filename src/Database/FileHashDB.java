@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentMap;
 public class FileHashDB {
 
     private String pathToFile = "Records.db";
-    public ConcurrentMap<Integer, Record> database;
+    public ConcurrentMap<String, Record> database;
     private DB dbPersist;
     public void setPathToFile(String path) {
 
@@ -36,7 +36,7 @@ public class FileHashDB {
 
         this.database = dbPersist.hashMap("swepub")
                 .counterEnable()
-                .keySerializer(   Serializer.INTEGER  )
+                .keySerializer(   Serializer.STRING  )
                 .valueSerializer( Serializer.ELSA )
                 .layout(8,24,4)  //Maximal Hash Table Size is calculated as: segment * node size ^ level count: here: 2654208
                 .createOrOpen();
@@ -59,7 +59,7 @@ public class FileHashDB {
 
         this.database = dbPersist.hashMap("swepub")
                 .counterEnable()
-                .keySerializer(   Serializer.INTEGER  )
+                .keySerializer(   Serializer.STRING  )
                 .valueSerializer( Serializer.ELSA )
                 .layout(8,24,4)  //Maximal Hash Table Size is calculated as: segment * node size ^ level count: here: 2654208
                 .create();
@@ -69,15 +69,16 @@ public class FileHashDB {
 
         this.dbPersist.close();
     }
-    public void put(Integer i, Record r) {
+    public void put(String uri, Record r) {
 
-        this.database.put(i,r);
+        this.database.put(uri,r);
 
+        
     }
 
-    public Record get(Integer i) {
+    public Record get(String uri) {
 
-        return this.database.get(i);
+        return this.database.get(uri);
 
     }
     public int size() {

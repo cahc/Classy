@@ -28,7 +28,7 @@ public class TermExtractionFromMods {
         ModsDivaFileParser modsDivaFileParser = new ModsDivaFileParser();
         List<Record> recordList = modsDivaFileParser.parse(arg[0]);
 
-        for(Record r : recordList) fileHashDB.put(r.getMapDBKey(),r);
+        for(Record r : recordList) fileHashDB.put(r.getURI(),r);
 
         System.out.println("Records parsed and saved: " + fileHashDB.size() );
 
@@ -40,23 +40,13 @@ public class TermExtractionFromMods {
         int docs = 0;
 
         //OBS; NOT IN CREATION ORDER..
-        //for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
-
-        //    docs++;
-        //    writer.write( entry.getValue().toString() ); writer.newLine();  //regex fox new lines and other shit
-
-       // }
-
-
-        for(Integer i=1; i<=fileHashDB.size(); i++) {
+        for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
             docs++;
-            Record record = fileHashDB.get(i); // based on setDBkey in parse
-            writer.write( record.toString() ); writer.newLine();
-
-
+            writer.write( entry.getValue().toString() ); writer.newLine();  //regex fox new lines and other shit
 
         }
+
 
 
 

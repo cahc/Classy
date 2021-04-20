@@ -48,7 +48,7 @@ public class SetupClassifiers {
 
                         int counter = 0;
                         int total = 0;
-                        for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+                        for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
                             total++;
 

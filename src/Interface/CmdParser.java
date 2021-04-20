@@ -216,7 +216,7 @@ public class CmdParser {
                 long start = System.currentTimeMillis();
                 int docs = 0;
 
-                for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+                for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
                     docs++;
                     writer.write( entry.getValue().toString() ); writer.newLine();
@@ -277,7 +277,7 @@ public class CmdParser {
 
                 EntropyTermWeights entropyTermWeights = new EntropyTermWeights(lang,level);
 
-                for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+                for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
                     total++;
 
@@ -340,7 +340,7 @@ public class CmdParser {
 
             int counter = 0;
             int total = 0;
-            for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+            for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
                 total++;
 
@@ -406,7 +406,7 @@ public class CmdParser {
             ArrayList< ArrayList<FeatureNode> > featureVectors = new ArrayList<>( records.size() );
             ArrayList< HashSet<Integer> > labelInfo = new ArrayList<>( records.size()  );
 
-            for (Map.Entry<Integer, Record> entry : records.database.entrySet()) {
+            for (Map.Entry<String, Record> entry : records.database.entrySet()) {
 
                 Record record = entry.getValue();
 
@@ -659,10 +659,10 @@ public class CmdParser {
             int counterUsed = 0;
 
 
-            for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+            for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
                 Record r = entry.getValue();
-                int mapdbKey = r.getMapDBKey();
+                int mapdbKey = r.getMapDBKey(); //TODO changed key in db to string
 
                 VecHsvPair vecHsvPair = indexAndGlobalTermWeights.trainingDocToVecHsvPair(r);
 

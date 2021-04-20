@@ -58,7 +58,7 @@ public class ClassySwePub {
 
         BufferedWriter writer = new BufferedWriter( new FileWriter(new File("test.txt")));
 
-        for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+        for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
 
                 Record swepubRecord = entry.getValue();

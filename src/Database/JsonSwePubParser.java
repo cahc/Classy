@@ -18,6 +18,8 @@ import misc.Stemmers.SwedishStemmer;
 import misc.stopwordLists.EnglishStopWords60;
 import misc.stopwordLists.SwedishStopWords60;
 
+import static Database.JsonAuthorizedUriAffiliations.*;
+
 
 public class JsonSwePubParser {
 
@@ -501,9 +503,59 @@ public class JsonSwePubParser {
             }
 
 
-            //System.out.println(a);
-
             record.addAffiliations( new ArrayList<>(a) );
+
+
+
+            //////////////////////////////////////
+            //now get authorized affiliation uris for authors
+            //////////////////////////////////////
+
+            List<JsonNode> affilCollector = new ArrayList();
+            for (JsonNode contributionObject : contrib) {
+
+                JsonNode agent = contributionObject.get("agent");
+                //process only persons and their affiliations
+                if (!"Person".equals(agent.get("@type").textValue())) continue;
+                //todo process agent object w r t name and local id and OIRCID
+
+                //no affiliation information at all
+                if( !contributionObject.has("hasAffiliation") ) continue; //System.out.println("No affiliation information for a person: " + id ); //TODO missing KI here!
+
+                //now get affiliations controlled or "external" to swepub contributors
+                //array of objects, Note that hasAffiliations can be an object recursively!
+                collectAllHasAffiliationNodes(contributionObject,affilCollector);
+
+
+            } //for each contributor
+
+
+            Set<String> authorizedAffilUris = processAllHasAffiliationNodes(affilCollector);
+            Set<String> urisToNames = new HashSet<>();
+
+            for(String uri : authorizedAffilUris) {
+
+                String mappedName = mapAffiliationUriToName(uri);
+
+                if(mappedName != null) urisToNames.add(mappedName);
+            }
+
+            for(String uri : authorizedAffilUris) record.addAffiliationUris(uri);
+            for(String name : urisToNames) record.addAffiliationUrisToName(name);
+
+
+
+            //
+            //Get raw affiliation strings for each author contributor
+            //
+
+            List<String> rawAffiliations = getRawAffiliationsPerAuthor(contrib);
+
+            //    for(String s : rawAffiliations) {
+         //       System.out.println(s);
+         //   }
+
+            record.addRawAffiliationsStrings(rawAffiliations);
 
 
             //now do some language detection! only records that in the XML is tagged with swedish and english is considered
@@ -599,6 +651,11 @@ public class JsonSwePubParser {
             } //contain supported language if-construction ends otherwise we don't bother to parse ti/ab
 
 
+
+
+
+
+
             record.setFullEnglishText( eng_abstract & eng_title  );
             record.setFullSwedishText( swe_abstract & swe_title   );
             record.setContainsEnglish( eng_abstract || eng_title );
@@ -606,7 +663,7 @@ public class JsonSwePubParser {
 
 
             record.setMapDBKey(docs);
-            db.put( record.getMapDBKey(), record);
+            db.put( record.getURI(), record);
 
            //System.out.println(record.toString());
 
@@ -640,10 +697,10 @@ public class JsonSwePubParser {
         long start = System.currentTimeMillis();
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210408.db");
+        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210411.db");
         fileHashDB.create();
 
-        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\Desktop\\JSON_SWEPUB\\swepub-deduplicated-2021-04-08.jsonl");
+        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\Desktop\\JSON_SWEPUB\\swepub-deduplicated-2021-04-11.jsonl");
         jsonSwePubParser.parse(fileHashDB);
 
         System.out.println("Records parsed and saved: " + fileHashDB.size() );

@@ -711,7 +711,7 @@ public class SwePubParser {
 
 
                                 record.setMapDBKey(docs);
-                                db.put( record.getMapDBKey(), record);
+                                db.put( record.getURI(), record);
 
                                 break;
                             }

@@ -441,7 +441,7 @@ public class IndexAndGlobalTermWeights {
         if (!this.language.equals("swe") && !this.language.equals("eng")) throw new MyOwnException("language must be swe or eng");
         if (this.level != 3 && this.level != 5) throw new MyOwnException("level must be 3 or 5");
 
-        for(Map.Entry<Integer,Record> entry : DB.database.entrySet() ) {
+        for(Map.Entry<String,Record> entry : DB.database.entrySet() ) {
 
             Record r = entry.getValue();
 

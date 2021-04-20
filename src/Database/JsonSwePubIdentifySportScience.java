@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class JsonSwePubSportScience {
+public class JsonSwePubIdentifySportScience {
 
 
     /*
@@ -94,11 +94,11 @@ public class JsonSwePubSportScience {
     public static void main(String[] arg) throws IOException, MyOwnException, ClassNotFoundException, ParseException {
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210408.db");
+        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210411.db");
         fileHashDB.createOrOpenDatabase();
        Set<String> lackingYears = new HashSet<>();
 
-        BufferedWriter uriWriter = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\Desktop\\JSON_SWEPUB\\SportScienceUris.txt") ), StandardCharsets.UTF_8) );
+        BufferedWriter uriWriter = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\Desktop\\JSON_SWEPUB\\SportScienceUris_NEW.txt") ), StandardCharsets.UTF_8) );
 
         //manually classified
         Set<String> manual = new HashSet<>();
@@ -106,7 +106,7 @@ public class JsonSwePubSportScience {
 
         System.out.println("Finding records pre-classified with 30308");
         int manuallyHsv = 0;
-        for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+        for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
             Record record = entry.getValue();
 
@@ -145,7 +145,7 @@ public class JsonSwePubSportScience {
         Set<String> auto = new HashSet<>();
 
         System.out.println("Classifying everything and looking for 30308 matches");
-        for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+        for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
             Record record = entry.getValue();
             if(record.getPublishedYear() == null) { lackingYears.add(record.getURI()); continue;}
@@ -227,27 +227,27 @@ public class JsonSwePubSportScience {
         //INDEX SWEPUB
 
         StandardAnalyzer analyzer = new StandardAnalyzer(); //TODO customize
-        //IndexWriterConfig config = new IndexWriterConfig(analyzer);
-        //Directory luceneIndex = FSDirectory.open(Paths.get("E:\\Desktop\\JSON_SWEPUB\\lucene"));
-        //IndexWriter writer = new IndexWriter(luceneIndex,config);
+      IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        Directory luceneIndex = FSDirectory.open(Paths.get("E:\\Desktop\\JSON_SWEPUB\\lucene"));
+        IndexWriter writer = new IndexWriter(luceneIndex,config);
 
-        // for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+         for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
-         //   addTextFromSwePub(writer, entry.getValue() );
+            addTextFromSwePub(writer, entry.getValue() );
 
-       // }
+        }
 
 
-       //writer.flush();
-       // writer.commit();
-       // writer.close();
+         writer.flush();
+         writer.commit();
+         writer.close();
 
 
 
         //SEARCH SWEPUB
 
-        Directory luceneIndex = FSDirectory.open(Paths.get("E:\\Desktop\\JSON_SWEPUB\\lucene"));
-        IndexReader reader = DirectoryReader.open(luceneIndex);
+        Directory luceneIndex2 = FSDirectory.open(Paths.get("E:\\Desktop\\JSON_SWEPUB\\lucene"));
+        IndexReader reader = DirectoryReader.open(luceneIndex2);
         IndexSearcher searcher = new IndexSearcher(reader);
 
         System.out.println("Docs in index: " + reader.numDocs());
@@ -474,13 +474,13 @@ public class JsonSwePubSportScience {
         for(String s: textSearchHits) uniqueUris.add(s);
 
         System.out.println("Total number of pubs: " + uniqueUris.size());
-
-
-        reader.close();
-        luceneIndex.close();
-        fileHashDB.closeDatabase();
         uriWriter.flush();
         uriWriter.close();
+
+        reader.close();
+        luceneIndex2.close();
+        fileHashDB.closeDatabase();
+
 
 
     }

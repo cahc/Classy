@@ -44,7 +44,7 @@ public class ReduceDB {
         IntIntMap categoryToNmberOfDocs = HashIntIntMaps.getDefaultFactory().withDefaultValue(0).newMutableMap();
 
 
-        for (Map.Entry<Integer, Record> entry : fileHashDB.database.entrySet()) {
+        for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
             total++;
             Record record =  entry.getValue();
@@ -105,7 +105,7 @@ public class ReduceDB {
 
 
 
-            reducedDB.put(record.getMapDBKey(),record);
+            reducedDB.put(record.getURI(),record);
 
         }
 
