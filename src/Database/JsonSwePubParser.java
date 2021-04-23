@@ -697,10 +697,10 @@ public class JsonSwePubParser {
         long start = System.currentTimeMillis();
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210411.db");
+        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210421.db");
         fileHashDB.create();
 
-        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\Desktop\\JSON_SWEPUB\\swepub-deduplicated-2021-04-11.jsonl");
+        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\Desktop\\JSON_SWEPUB\\swepub-deduplicated-2021-04-21.jsonl");
         jsonSwePubParser.parse(fileHashDB);
 
         System.out.println("Records parsed and saved: " + fileHashDB.size() );

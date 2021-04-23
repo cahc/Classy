@@ -1,32 +1,40 @@
 package LibLinearMultiLabel;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Output;
-import LibLinearMultiLabel.cc.fork.FeatureNode;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.ArrayList;
+import com.koloboke.collect.map.ObjIntCursor;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class Play {
 
 
-    public static void main(String[] arg) throws FileNotFoundException {
+    public static void main(String[] arg) throws IOException {
 
-        List<TrainingPair> obj = new ArrayList<>();
-        TrainingPair trainingPair = new TrainingPair("APA");
 
-        trainingPair.setFeatureNodes( new FeatureNode[2] );
-        obj.add( trainingPair );
+      // List<TrainingPair> trainingPairList =  TrainingPair.load("E:\\Desktop\\JSON_SWEPUB\\multiLabelExperiment\\TrainingPairsEngLevel5.ser");
 
-        Kryo kryo = new Kryo();
 
-        Output output = new Output(new FileOutputStream("file3.bin"));
-        FeatureNode someObject = new FeatureNode(1,1);
-        kryo.writeObject(output, obj);
-        output.close();
+        //TermWeight termWeight = new TermWeight(false,true,0.05);
 
+        BufferedWriter bufferedWriter = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\Desktop\\JSON_SWEPUB\\multiLabelExperiment\\index.txt")), StandardCharsets.UTF_8) );
+
+        TermWeight termWeight = TermWeight.load("E:\\Desktop\\JSON_SWEPUB\\multiLabelExperiment\\TermWeightingEntroypEngLevel5.ser");
+
+        SimpleIndex simpleIndex = new SimpleIndex();
+
+        simpleIndex.load("E:\\Desktop\\JSON_SWEPUB\\multiLabelExperiment\\simpleIndexEngLevel5.ser");
+
+        for(ObjIntCursor<String> cur = simpleIndex.getMappingInIndex(); cur.moveNext(); ){
+
+           bufferedWriter.write( cur.key() +"\t" +cur.value() +"\t" + "termweight:\t" +  termWeight.getWeight(cur.value(),0D) +"\t" + "TermWightWithBias\t" + termWeight.getWeight(cur.value()) );
+           bufferedWriter.newLine();
+        }
+
+
+        bufferedWriter.flush();
+        bufferedWriter.close();
 
     }
 }

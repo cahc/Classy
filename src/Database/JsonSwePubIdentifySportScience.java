@@ -94,9 +94,9 @@ public class JsonSwePubIdentifySportScience {
     public static void main(String[] arg) throws IOException, MyOwnException, ClassNotFoundException, ParseException {
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210411.db");
+        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210421.db");
         fileHashDB.createOrOpenDatabase();
-       Set<String> lackingYears = new HashSet<>();
+         Set<String> lackingYears = new HashSet<>();
 
         BufferedWriter uriWriter = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\Desktop\\JSON_SWEPUB\\SportScienceUris_NEW.txt") ), StandardCharsets.UTF_8) );
 
@@ -227,7 +227,7 @@ public class JsonSwePubIdentifySportScience {
         //INDEX SWEPUB
 
         StandardAnalyzer analyzer = new StandardAnalyzer(); //TODO customize
-      IndexWriterConfig config = new IndexWriterConfig(analyzer);
+          IndexWriterConfig config = new IndexWriterConfig(analyzer);
         Directory luceneIndex = FSDirectory.open(Paths.get("E:\\Desktop\\JSON_SWEPUB\\lucene"));
         IndexWriter writer = new IndexWriter(luceneIndex,config);
 

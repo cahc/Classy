@@ -54,7 +54,17 @@ public class DocToCluster {
 
            // System.out.println(parts[1] +" " +  parts[4]);
 
-            docLabelToClusterNr.put( parts[1], Integer.valueOf(parts[4]) );
+            Integer lable = null;
+
+            try {
+            lable = Integer.valueOf(parts[4]);
+
+            } catch (NumberFormatException e) {
+
+                System.out.println("Warning! " + parts[1] + " not in any cluster!");
+            }
+
+            if(lable != null) docLabelToClusterNr.put( parts[1], Integer.valueOf(parts[4]) );
 
         }
 

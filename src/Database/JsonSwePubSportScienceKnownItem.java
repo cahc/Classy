@@ -16,7 +16,7 @@ public class JsonSwePubSportScienceKnownItem {
 
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210411.db");
+        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210421.db");
         fileHashDB.createOrOpenDatabase();
 
         String file;

@@ -296,6 +296,14 @@ public class SimpleIndex implements Serializable {
     }
 
 
+
+    public ObjIntCursor<String> getMappingInIndex() {
+
+        return this.index.cursor();
+
+
+    }
+
     public SparseVector getSparseVector(List<String> stringTokens, boolean L2normalize) {
 
         HashSet<String> tokens = new HashSet( stringTokens );
@@ -348,7 +356,7 @@ public class SimpleIndex implements Serializable {
 
             if(inx != -1) {
                 indexToOccurance.putIfAbsent(inx, 0);
-                indexToOccurance.put(inx, indexToOccurance.get(inx) + 1);
+                indexToOccurance.put(inx, indexToOccurance.get(inx) + 1); //obs indice start from 1 in FeatureNode but from 0 in simple Index
             }
 
         }

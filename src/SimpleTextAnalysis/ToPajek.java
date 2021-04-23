@@ -8,6 +8,7 @@ import com.koloboke.collect.map.hash.*;
 import jsat.linear.IndexValue;
 import jsat.linear.SparseVector;
 import jsat.text.wordweighting.OkapiBM25;
+import jsat.text.wordweighting.TfIdf;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -80,7 +81,7 @@ pajekFormat.net:
 
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210411.db");
+        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210421.db");
         fileHashDB.createOrOpenDatabase();
 
         String file = "E:\\Desktop\\JSON_SWEPUB\\SportScienceUris_NEW.txt";
@@ -124,13 +125,15 @@ pajekFormat.net:
 
            if(record == null) { System.out.println(uriKey + " not in database. Exiting.."); fileHashDB.closeDatabase(); System.exit(0);  }
 
+           if(!record.getLanguage().get(0).equals("swe")) continue;
+
            //if(!record.isContainsEnglish()) continue;
 
             if(!record.isContainsSwedish()) continue;
 
-           // List<String> terms = record.getLanguageSpecificTerms("eng");
+           List<String> terms = record.getLanguageSpecificTerms("swe");
 
-            List<String> terms = record.getLanguageSpecificTerms("swe");
+         //   List<String> terms = record.getLanguageSpecificTerms("swe");
 
             List<String> keywords = record.getUnkontrolledKkeywords();
             String host = record.getHostName();
@@ -200,10 +203,15 @@ pajekFormat.net:
         OkapiBM25 MB25 = new OkapiBM25();
         MB25.setWeight(sparseVectorList,Arrays.asList(docFreq));
 
+        TfIdf TFIDF = new TfIdf();
+        TFIDF.setWeight(sparseVectorList,Arrays.asList(docFreq));
+
+
 
         for(SparseVector v : sparseVectorList) {
 
             MB25.applyTo(v);
+            //TFIDF.applyTo(v);
             //v.normalize();
         }
 
@@ -224,7 +232,7 @@ pajekFormat.net:
        // 6 "whole"
 
 
-        BufferedWriter writer = new BufferedWriter( new FileWriter( new File("SimilaritySWESportSci.net")));
+        BufferedWriter writer = new BufferedWriter( new FileWriter( new File("E:\\Desktop\\JSON_SWEPUB\\SimilaritySWESportSci.net")));
 
         writer.write("*Vertices " + sparseVectorList.size());
         writer.newLine();
@@ -241,7 +249,7 @@ pajekFormat.net:
 
         for(int i=0; i< sparseVectorList.size(); i++) {
 
-            MinMaxPriorityQueue<VectorWithSimValue> boundedPriorityQue = MinMaxPriorityQueue.maximumSize(15).create();
+            MinMaxPriorityQueue<VectorWithSimValue> boundedPriorityQue = MinMaxPriorityQueue.maximumSize(25).create();
             SparseVector targetVector = sparseVectorList.get(i);
             //Integer target_id = docIDs.get(i);
             Integer target_id = (i+1);
@@ -256,7 +264,7 @@ pajekFormat.net:
 
                         double sim = targetVector.dot(compareVector);
 
-                      //  if(sim < 90) continue; //to small sim value, ad-hoc!
+                        if(sim < 0.1) continue; //to small sim value, ad-hoc!
 
                         boundedPriorityQue.add( new VectorWithSimValue(compareVector,sim, compareId, URIs.get(j) ) );
                     }

@@ -1,11 +1,5 @@
 package LibLinearMultiLabel;
-
 import LibLinearMultiLabel.cc.fork.FeatureNode;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-
-
 
 
 import java.io.*;
@@ -26,6 +20,21 @@ public class TrainingPair implements Serializable {
         this.uri = uri;
 
     }
+
+
+    public void L2normalize() {
+
+        double norm = 0;
+
+        for(FeatureNode featureNode : this.featureNodes) norm = norm +Math.pow(featureNode.value,2);
+
+        norm = Math.sqrt(norm);
+
+        for(FeatureNode featureNode : this.featureNodes) featureNode.setValue(   featureNode.value/norm  );
+
+    }
+
+
 
     public FeatureNode[] getFeatureNodes() {
         return featureNodes;
@@ -60,37 +69,67 @@ public class TrainingPair implements Serializable {
 
 
 
-    public static void save(List<TrainingPair> trainingPairs, String file) throws IOException {
+    public static void save(List<TrainingPair> trainingPairList, String file) {
+
+        try
+        {
+            FileOutputStream fos = new FileOutputStream(file);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
 
 
-        Kryo kryo = new Kryo();
-
-        Output output = new Output(new FileOutputStream(file));
-        kryo.writeObject(output, trainingPairs);
-        output.flush();
-        output.close();
-
-        System.out.println("Serialized " + trainingPairs.size() +" TrainingPairs (List) to " + file);
+            oos.writeObject(trainingPairList);
+            oos.close();
+            fos.close();
+            System.out.println("Serialized TrainingPair (List) to " + file);
+        }catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
 
 
     }
 
-    public static List<TrainingPair> load(String file) throws IOException, ClassNotFoundException {
+    public static List<TrainingPair> load(String file) {
 
-        // ### Restore from disk...
-        Kryo kryo = new Kryo();
-        Input input = new Input(new FileInputStream(file));
-        List<TrainingPair> someObject = kryo.readObject(input, ArrayList.class);
-        input.close();
+        List<TrainingPair> trainingPairList = null;
+        try
+        {
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
 
-       return someObject;
+            trainingPairList= (List<TrainingPair>)ois.readObject();
+
+
+            ois.close();
+            fis.close();
+        }catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+            return Collections.emptyList();
+        }catch(ClassNotFoundException c)
+        {
+            System.out.println("Class not found");
+            c.printStackTrace();
+            return Collections.emptyList();
+        }
+
+        System.out.println("Deserialized TrainingPair (List), size: " + trainingPairList.size() );
+
+        return trainingPairList;
 
     }
 
 
     public static void main(String[] arg) throws IOException, ClassNotFoundException {
 
-        TrainingPair.load("E:\\Desktop\\JSON_SWEPUB\\multiLabelExperiment\\TrainingPairsEngLevel5.ser");
+       List<TrainingPair> trainingPairList =  TrainingPair.load("E:\\Desktop\\JSON_SWEPUB\\multiLabelExperiment\\TrainingPairsEngLevel5.ser");
+
+       for(int i=0; i<10; i++) {
+
+
+
+           System.out.println(trainingPairList.get(i));
+       }
 
 
     }

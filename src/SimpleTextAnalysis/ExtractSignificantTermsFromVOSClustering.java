@@ -17,11 +17,11 @@ public class ExtractSignificantTermsFromVOSClustering {
         //DocToCluster docToCluster = new DocToCluster("E:\\Desktop\\JSON_SWEPUB\\SimilarityEngSportSci18clusters.map.txt");
         //String language = "eng";
 
-        DocToCluster docToCluster = new DocToCluster("E:\\Desktop\\JSON_SWEPUB\\SimilaritySWESportSci10clusters.map.txt");
+        DocToCluster docToCluster = new DocToCluster("E:\\Desktop\\JSON_SWEPUB\\SimilaritySWESportSci.map.txt");
         String language = "swe";
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210411.db");
+        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210421.db");
         fileHashDB.createOrOpenDatabase();
 
         System.out.println(fileHashDB.size() + " records in database");
@@ -54,14 +54,14 @@ public class ExtractSignificantTermsFromVOSClustering {
         for(Integer lable : docToCluster.getCluserIDs()) {
 
 
-          //  List<TermAndCorr> hello = docToCluster.rankTermsForGivenCluster(lable);
+         //List<TermAndCorr> hello = docToCluster.rankTermsForGivenCluster(lable);
 
-           List<TermAndCorr> hello = docToCluster.rankTermsForGovenClusterTFS(lable,0.5); //LOWER a MORE SPECIFICITY
+         List<TermAndCorr> hello = docToCluster.rankTermsForGovenClusterTFS(lable,0.5); //LOWER a MORE SPECIFICITY
 
             System.out.println("Best terms for cluster: " + lable + " cluster size: " + docToCluster.getNrDocsInCluster(lable));
 
 
-            for (int i = 0; i <= 20; i++) {
+            for (int i = 0; i <= 14; i++) {
                 System.out.println(hello.get(i));
             }
 
