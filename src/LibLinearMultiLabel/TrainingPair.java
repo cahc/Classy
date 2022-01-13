@@ -12,14 +12,28 @@ public class TrainingPair implements Serializable {
     private FeatureNode[] featureNodes; //vector
     private Set<Integer> classLabels; //multi-label
 
+    int dimensions; //feature space size
+
 
     public TrainingPair() {} //for cryo serializer
 
-    public TrainingPair(String uri) {
+    public TrainingPair(String uri, int dimensions) {
 
         this.uri = uri;
+        this.dimensions = dimensions;
 
     }
+
+
+    public String getUri() {
+        return uri;
+    }
+
+
+    public int getDimensions() {
+        return dimensions;
+    }
+
 
 
     public void L2normalize() {
@@ -135,4 +149,17 @@ public class TrainingPair implements Serializable {
     }
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrainingPair that = (TrainingPair) o;
+        return uri.equals(that.uri) &&
+                classLabels.equals(that.classLabels);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uri, classLabels);
+    }
 }

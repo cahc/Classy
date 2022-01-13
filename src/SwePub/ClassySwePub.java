@@ -11,7 +11,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,7 +70,7 @@ public class ClassySwePub {
                     CategoricalResults result = classifierlevel5eng.classify( new DataPoint(vec) );
                     Vec probabilities = result.getVecView();
 
-                    String uri = swepubRecord.getURI();
+                    String uri = swepubRecord.getMasterURI();
 
                     ArrayList<ClassProbPair> classProbPairArrayList = new ArrayList<>();
 

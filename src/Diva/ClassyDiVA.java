@@ -28,27 +28,17 @@ public class ClassyDiVA {
 
     public static void main(String[] arg) throws IOException, XMLStreamException, MyOwnException, ClassNotFoundException {
 
-        ModsDivaFileParser modsDivaFileParser = new ModsDivaFileParser();
-        List<Record> recordList = modsDivaFileParser.parse( "C:\\Users\\crco0001\\Desktop\\export_b.xml");
-        System.out.println("size: " + recordList.size());
-        System.out.println( recordList.get(1).getDiva2Id() );
-
-
-        System.exit(0);
-
-        /*
-
         //TODO include number in output
 
         if(arg.length != 1) {System.out.println("Supply mods input file.."); System.exit(0); }
 
-
-
         ModsDivaFileParser modsDivaFileParser = new ModsDivaFileParser();
-        List<Record> recordList = modsDivaFileParser.parse(arg[0]);
+        List<Record> recordList = modsDivaFileParser.parse( arg[0]);
+        System.out.println("size: " + recordList.size());
+
+
 
         BufferedWriter writer = new BufferedWriter( new FileWriter( new File("ClassificationResult.txt") ));
-
         System.out.println("Parsed: " + recordList.size());
 
 
@@ -242,13 +232,13 @@ public class ClassyDiVA {
 
 
                     //level 1, 2, 3
-                    writer.write(r.getURI() + "\t" + "eng_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel2.getEng_description() + "\t" + confidence2 +"\t"  +bestGuessLevel3.getEng_description() + "\t" + confidence3);
+                    writer.write(r.getDiva2Id()+"\t" + r.getMasterURI() + "\t" + "eng_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel2.getEng_description() + "\t" + confidence2 +"\t"  +bestGuessLevel3.getEng_description() + "\t" + confidence3);
 
 
                 } else {
 
                     //level 1,2,2!
-                    writer.write(r.getURI() + "\t" + "swe_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel2.getEng_description() + "\t" + confidence2 +"\t" +bestGuessLevel2.getEng_description() + "\t" + confidence2);
+                    writer.write(r.getDiva2Id()+"\t" + r.getMasterURI() + "\t" + "swe_based" +"\t" + bestGuessLevel1.getEng_description() + "\t" + confidence1 + "\t" + bestGuessLevel2.getEng_description() + "\t" + confidence2 +"\t" +bestGuessLevel2.getEng_description() + "\t" + confidence2);
                 }
                 writer.newLine();
 
@@ -257,7 +247,7 @@ public class ClassyDiVA {
 
 
 
-                writer.write(r.getURI()   + "\t" + "NOT CLASSIFIED" + "\t" + 0.0 + "\t" + "NOT CLASSIFIED" + "\t"  + 0.0  ); ;
+                writer.write(r.getDiva2Id()+ "\t" + r.getMasterURI()   + "\t" + "NOT CLASSIFIED" + "\t" + 0.0 + "\t" + "NOT CLASSIFIED" + "\t"  + 0.0  ); ;
                 writer.newLine();
                 notClassed++;
 
@@ -275,7 +265,7 @@ public class ClassyDiVA {
         writer.close();
         System.out.println(classed + " classified records and " + notClassed + " records not classified");
 
-         */
+
 
     }
 

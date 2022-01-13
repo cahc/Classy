@@ -105,7 +105,7 @@ public class ReduceDB {
 
 
 
-            reducedDB.put(record.getURI(),record);
+            reducedDB.put(record.getMasterURI(),record);
 
         }
 

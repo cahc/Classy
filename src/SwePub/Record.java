@@ -92,7 +92,7 @@ public class Record implements Serializable {
         }
 
 
-
+      if(this.localUmUClassificationCodes != null) {  stringBuilder.append(separator).append(this.localUmUClassificationCodes.toString()); } else {  stringBuilder.append(separator).append("no local codes" ); }
 
 
 
@@ -103,6 +103,10 @@ public class Record implements Serializable {
     ////////////////not used as features in classification///////////////////
    // private Integer internalID;
     private String URI; //link to source
+
+    private List<String> allUris = new ArrayList<>(); //not just the master URI/ID but all URIs in case of merged duplicates (or else just the master).
+
+
     private String diva2Id;
     private Integer publishedYear; // only available if the publication is formally published
     private ArrayList<String> supplier; //from which local repository
@@ -183,6 +187,8 @@ public class Record implements Serializable {
 
     //classification target
     private HashSet<Integer> classificationCodes; //HSV
+
+    private HashSet<Integer> localUmUClassificationCodes; // "Forskningsämne"
 
     /////////////////source for features in classification///////////////
 
@@ -312,6 +318,12 @@ public class Record implements Serializable {
         this.containsLevel5Classification = containsLevel5Classification;
     }
 
+    public boolean containsLocalUmUClassificationCodes() {
+
+        if(this.localUmUClassificationCodes != null) return true;
+        return false;
+
+    }
 
 
     public void setClassificationCodesAvaliability() {
@@ -605,12 +617,32 @@ public class Record implements Serializable {
 
     }
 
-    public String getURI() {
+    public String getMasterURI() {
         return URI;
     }
 
-    public void setURI(String URI) {
+    public void setMasterURI(String URI) {
         this.URI = URI;
+    }
+
+    public void addSecondaryURIs(String URI) {this.allUris.add(URI); }
+
+    public List<String> getSecondaryUris() {
+
+        return this.allUris;
+    }
+
+
+    public String getUmUUri() {
+
+        for(String s : this.allUris) {
+
+            if(s.contains("DiVA.org:umu-")) return s;
+
+        }
+
+        return "no umu uri";
+
     }
 
     public ArrayList<String> getSupplier() {
@@ -676,11 +708,27 @@ public class Record implements Serializable {
         if(this.classificationCodes == null) {
 
             this.classificationCodes = new HashSet<>();
-            this.classificationCodes.add(classificationCode);
-        } else {
-
-            this.classificationCodes.add(classificationCode);
         }
+        this.classificationCodes.add(classificationCode);
+
+    }
+
+
+    public HashSet<Integer> getLocalUmUClassificationCodes() {
+
+        if( localUmUClassificationCodes != null) return localUmUClassificationCodes;
+
+        return new HashSet<>();
+
+    }
+
+    public void addLocalUmUClassificationCodes(Integer classificationCode) {
+
+        if(this.localUmUClassificationCodes == null) {
+
+            this.localUmUClassificationCodes = new HashSet<>();
+        }
+        this.localUmUClassificationCodes.add(classificationCode);
 
     }
 

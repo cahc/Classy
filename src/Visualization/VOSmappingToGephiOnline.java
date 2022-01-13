@@ -47,7 +47,7 @@ public class VOSmappingToGephiOnline {
 
         String title = listOfRecords.get( (vosNode.id-1) ).getTitle().toString();
         String host = listOfRecords.get( (vosNode.id-1) ).getHostName();
-        String URI = listOfRecords.get( (vosNode.id-1) ).getURI();
+        String URI = listOfRecords.get( (vosNode.id-1) ).getMasterURI();
         if(host == null) host = "not available";
 
 

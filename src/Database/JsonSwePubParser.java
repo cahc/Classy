@@ -104,6 +104,9 @@ public class JsonSwePubParser {
         //BufferedReader reader = new BufferedReader(  new InputStreamReader( new FileInputStream("/Users/cristian/Desktop/JSON_SWEPUB/swepub-deduplicated-2021-02-14.jsonl"), StandardCharsets.UTF_8));
         BufferedReader reader = new BufferedReader(  new InputStreamReader( new FileInputStream(this.pathToJson), StandardCharsets.UTF_8));
 
+        //weite out local classification codes for analysis
+        //BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(  new FileOutputStream("localUmUSubjectCodes.txt"),StandardCharsets.UTF_8 ));
+
         ObjectMapper mapper = new ObjectMapper();
 
 
@@ -152,7 +155,7 @@ public class JsonSwePubParser {
 
 
             Record record = new Record();
-            record.setURI(ID);
+            record.setMasterURI(ID);
 
             //Innehållsmärkning: https://id.kb.se/term/swepub/svep/ref.
             //Outputtyp: https://id.kb.se/term/swepub/publication/journal-article.
@@ -209,10 +212,24 @@ public class JsonSwePubParser {
                     JsonNode inScheme = node.get("inScheme");
 
 
+
+
                     if (code != null && inScheme != null) {
 
                         String whichScheme = inScheme.get("code").asText();
 
+                        if ("umu".equals(whichScheme)) {
+
+                            Integer localSubjectCodeUmU = code.asInt();
+
+                            record.addLocalUmUClassificationCodes(localSubjectCodeUmU);
+
+                            //writer.write(ID +"\t" + "have a local UmU classification"  + "\t" +localSubjectCodeUmU);
+                            //writer.newLine();
+
+                        }
+
+                        //if it is something else than uka (after checking for umu-local stuff) ignore and proceed
                         if (!"uka.se".equals(whichScheme)) continue;
 
 
@@ -662,8 +679,29 @@ public class JsonSwePubParser {
             record.setContainsSwedish( swe_abstract || swe_title );
 
 
+            //add secondary URIs from non master records if available
+
+            JsonNode pcount = root.get("publication_count");
+
+            if(pcount.asInt() > 1) {
+
+              JsonNode originalRecords = root.get("publications"); //array of length pcount
+
+                for (JsonNode node : originalRecords) {
+
+                 record.addSecondaryURIs( node.get("@id").asText() );
+
+                }
+
+            } else {
+
+                //just add the one, that is not really secondary.. todo refactor
+                record.addSecondaryURIs(ID);
+            }
+
+
             record.setMapDBKey(docs);
-            db.put( record.getURI(), record);
+            db.put( record.getMasterURI(), record);
 
            //System.out.println(record.toString());
 
@@ -682,7 +720,8 @@ public class JsonSwePubParser {
         System.out.println("Has level 2 of parsed/saved: " + hasLevel2 + " " + "percent: " + (double)hasLevel2/(parsed)  );
 
 
-
+       // writer.flush();
+       // writer.close();
         reader.close();
 
 
@@ -692,15 +731,23 @@ public class JsonSwePubParser {
 
     public static void main(String[] arg) throws IOException, InterruptedException {
 
+        if(arg.length != 1) {
+
+            System.out.println("Supply path to jsonl");
+            System.exit(0);
+        }
+
         System.out.println("Parsing Json and saving to MapBD");
 
         long start = System.currentTimeMillis();
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210421.db");
+        //fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210421.db");
+        fileHashDB.setPathToFile("adHocSwePub.db");
         fileHashDB.create();
 
-        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\Desktop\\JSON_SWEPUB\\swepub-deduplicated-2021-04-21.jsonl");
+      //  JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\Desktop\\JSON_SWEPUB\\swepub-deduplicated-2021-04-21.jsonl");
+        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser(arg[0]);
         jsonSwePubParser.parse(fileHashDB);
 
         System.out.println("Records parsed and saved: " + fileHashDB.size() );

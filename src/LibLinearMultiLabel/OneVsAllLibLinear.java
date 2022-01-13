@@ -1,25 +1,22 @@
 package LibLinearMultiLabel;
-
 import LibLinearMultiLabel.cc.fork.*;
-import com.koloboke.collect.map.ObjIntCursor;
 import jsat.utils.concurrent.ParallelUtils;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 public class OneVsAllLibLinear implements Serializable {
 
     private static final long serialVersionUID = -1956047276742854034L;
 
-
     private Model[] models;
     private List<Integer> orderedClassLabels;
-    private List<TrainingPair> trainingPairList;
+    private transient List<TrainingPair> trainingPairList; //dont serialize the training data as a part of the model..
     private final int n;
     private final int m;
-    private int C=1; // cost of constraints violation, set with train()
+    private double C=1; // cost of constraints violation, set with train()
+    private double weightForMinorityClass = 2.0;
     //todo weight for rare class
 
     public OneVsAllLibLinear(List<TrainingPair> trainingPairList, List<Integer> orderedClassLabels, int n, int m) {
@@ -32,9 +29,12 @@ public class OneVsAllLibLinear implements Serializable {
         this.m = m; //nr of features
 
 
+
     }
 
-    public int getC() {
+    public double getWeightForMinorityClass() { return this.weightForMinorityClass; }
+
+    public double getC() {
         return C;
     }
 
@@ -50,13 +50,18 @@ public class OneVsAllLibLinear implements Serializable {
         return orderedClassLabels;
     }
 
+    /*
+    Wont serialize the training data as part of model
     public List<TrainingPair> getTrainingPairList() {
         return trainingPairList;
     }
 
-    public void train(int C) {
+     */
+    public void train(double C, double weightForMinorityClass) {
+
 
         this.C = C;
+        this.weightForMinorityClass = weightForMinorityClass;
 
         //set up basic problem for LibLinear
         FeatureNode[][] matrix = new FeatureNode[ n ][];
@@ -90,7 +95,7 @@ public class OneVsAllLibLinear implements Serializable {
 
         Parameter parameter = new Parameter(solver, this.C, eps);
         double[] classWeights = new double[2];
-        classWeights[0] = 10.0; //more weight to the rare class
+        classWeights[0] = this.weightForMinorityClass; //potentially more weight to the rare class
         classWeights[1] = 1.0;
         int[] weightLabels = new int[]{1,0};
         parameter.setWeights(classWeights,weightLabels);

@@ -442,7 +442,7 @@ public class SwePubParser {
                                 if("uri".equals(type.getValue() )) {
 
                                     String identifier = getURI(xmler);
-                                    record.setURI(identifier);
+                                    record.setMasterURI(identifier);
                                     //System.out.println("depth: " + depth + " " + identifier );
                                     continue;
                                 }
@@ -711,7 +711,7 @@ public class SwePubParser {
 
 
                                 record.setMapDBKey(docs);
-                                db.put( record.getURI(), record);
+                                db.put( record.getMasterURI(), record);
 
                                 break;
                             }

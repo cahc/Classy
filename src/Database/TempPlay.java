@@ -17,10 +17,10 @@ public class TempPlay {
 
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210408.db");
+        fileHashDB.setPathToFile("E:\\SWEPUB_JSON_20210805\\adHocSwePub.db");
         fileHashDB.createOrOpenDatabase();
 
-        BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\Desktop\\JSON_SWEPUB\\SwePub2012-2020.txt") ), StandardCharsets.UTF_8)) ;
+        BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\SWEPUB_JSON_20210805\\records_test.txt") ), StandardCharsets.UTF_8)) ;
 
         for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
@@ -35,13 +35,16 @@ public class TempPlay {
 
             List<String> uris = record.getAffiliationUris();
 
-            for(String uri : uris) {
+
+            writer.write(record.toString());
+            writer.newLine();
+           // for(String uri : uris) {
 
 
-                writer.write(record.getURI() + "\t" + year + "\t" + uri +"\t" + record.getPublicationTypes() + "\t" + record.getContentTypes() );
-                writer.newLine();
+            //    writer.write(record.getMasterURI() + "\t" + year + "\t" + uri +"\t" + record.getPublicationTypes() + "\t" + record.getContentTypes() );
+             //   writer.newLine();
 
-            }
+           // }
 
 
         }

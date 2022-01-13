@@ -1,6 +1,5 @@
 package Diva;
 
-import ClusterAnalysis.*;
 import Database.ModsDivaFileParser;
 import SwePub.Record;
 import SwePub.TextAndLang;
@@ -637,7 +636,7 @@ public class DivaRecordsToVectors {
                textAndLang.setText( text.replaceAll("[\\r\\n]+", "") );
             }
 
-            writer.write(counter +"\t" +r.getURI() +"\t"+ r.getTitle() + "\t" +r.getSummary() +"\t" +r.getHostName() );
+            writer.write(counter +"\t" +r.getMasterURI() +"\t"+ r.getTitle() + "\t" +r.getSummary() +"\t" +r.getHostName() );
             writer.newLine();
             counter++;
         }

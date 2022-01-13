@@ -19,7 +19,6 @@ import org.apache.lucene.queryparser.complexPhrase.ComplexPhraseQueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.QueryBuilder;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -64,7 +63,7 @@ public class JsonSwePubIdentifySportScience {
        if(host != null) doc.add( new TextField("host",  record.getHostName() , Field.Store.YES));
 
 
-        doc.add(new StringField("pid", record.getURI(), Field.Store.YES ));
+        doc.add(new StringField("pid", record.getMasterURI(), Field.Store.YES ));
 
         for(String key : record.getUnkontrolledKkeywords()) {
             doc.add(new TextField("keyword", key, Field.Store.YES));
@@ -110,13 +109,13 @@ public class JsonSwePubIdentifySportScience {
 
             Record record = entry.getValue();
 
-            if(record.getPublishedYear() == null) { lackingYears.add(record.getURI()); continue;}
+            if(record.getPublishedYear() == null) { lackingYears.add(record.getMasterURI()); continue;}
 
             if(record.getPublishedYear().compareTo(2015) < 0 || record.getPublishedYear().compareTo(2020) > 0 ) continue;
 
             if( record.containsLevel5Classification() ) {
 
-                if( record.getClassificationCodes().contains(30308) )  {manuallyHsv++; manual.add(record.getURI()); }
+                if( record.getClassificationCodes().contains(30308) )  {manuallyHsv++; manual.add(record.getMasterURI()); }
 
             }
 
@@ -148,7 +147,7 @@ public class JsonSwePubIdentifySportScience {
         for (Map.Entry<String, Record> entry : fileHashDB.database.entrySet()) {
 
             Record record = entry.getValue();
-            if(record.getPublishedYear() == null) { lackingYears.add(record.getURI()); continue;}
+            if(record.getPublishedYear() == null) { lackingYears.add(record.getMasterURI()); continue;}
 
             if(record.getPublishedYear().compareTo(2015) < 0 || record.getPublishedYear().compareTo(2020) > 0 ) continue;
 
@@ -167,7 +166,7 @@ public class JsonSwePubIdentifySportScience {
                      double prob = result.getProb(code);
 
                     ClassificationCategory true_hsv =  HsvCodeToName.getCategoryInfo( IndexAndGlobalTermWeights.level5ToCategoryCodes.inverse().get(code)    );
-                    if( prob > adHocProbThreshold && true_hsv.getCode() == 30308) { autoHsvEng++; auto.add(record.getURI()); } //System.out.println("eng: " + prob + "\t" +true_hsv.getSwe_description() + "\t" + record.getURI());
+                    if( prob > adHocProbThreshold && true_hsv.getCode() == 30308) { autoHsvEng++; auto.add(record.getMasterURI()); } //System.out.println("eng: " + prob + "\t" +true_hsv.getSwe_description() + "\t" + record.getURI());
 
                 }
 
@@ -190,7 +189,7 @@ public class JsonSwePubIdentifySportScience {
 
                     ClassificationCategory true_hsv =  HsvCodeToName.getCategoryInfo( IndexAndGlobalTermWeights.level5ToCategoryCodes.inverse().get(code)    );
 
-                    if( prob > adHocProbThreshold && true_hsv.getCode() == 30308) { autoHsvSwe++;  auto.add(record.getURI()); } //System.out.println("swe: " + prob + "\t" +true_hsv.getSwe_description() + "\t" + record.getURI());
+                    if( prob > adHocProbThreshold && true_hsv.getCode() == 30308) { autoHsvSwe++;  auto.add(record.getMasterURI()); } //System.out.println("swe: " + prob + "\t" +true_hsv.getSwe_description() + "\t" + record.getURI());
 
 
                 }

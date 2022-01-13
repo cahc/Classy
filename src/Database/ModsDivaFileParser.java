@@ -21,6 +21,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.XMLEvent;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -511,7 +512,7 @@ public class ModsDivaFileParser {
 
 
                             String identifier = getURI(xmler);
-                            record.setURI(identifier);
+                            record.setMasterURI(identifier);
                             //TODO remove this debugging
                             //System.out.println("now processing: " + record.getURI());
 
@@ -591,6 +592,15 @@ public class ModsDivaFileParser {
                             record.addClassificationCodes(Integer.valueOf(classsificationCode));
                             //System.out.println( attribute.getValue() );
                             continue;
+
+                        } else if( (attribute != null) && ("umu".equals(attribute.getValue())) )  {
+
+                            QName HREF = new QName("http://www.w3.org/1999/xlink", "href");
+                            attribute = xmle.asStartElement().getAttributeByName(HREF);
+                            Integer code = Integer.valueOf(attribute.getValue());
+                            record.addLocalUmUClassificationCodes(code);
+                            continue;
+
                         } else {
 
 
@@ -799,4 +809,12 @@ public class ModsDivaFileParser {
 
         return recordsList;
     }
+
+
+    public static void main(String[] arg)  {
+
+
+
+    }
+
 }

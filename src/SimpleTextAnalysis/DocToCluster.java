@@ -94,14 +94,14 @@ public class DocToCluster {
 
         //1. lable to -> doc ids
 
-        String docLabel = r.getURI();
+        String docLabel = r.getMasterURI();
         this.allDocIds.add(docLabel);
 
         Integer clusterNR = docLabelToClusterNr.get( docLabel );
 
         if( this.clusterLableToDocs.containsKey(clusterNR) ) {
 
-            this.clusterLableToDocs.get(clusterNR).add( r.getURI() );
+            this.clusterLableToDocs.get(clusterNR).add( r.getMasterURI() );
 
         } else {
 

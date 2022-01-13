@@ -2,7 +2,6 @@ package Diva;
 
 import Database.FileHashDB;
 import Database.ModsDivaFileParser;
-import Database.SwePubParser;
 import SwePub.Record;
 
 import javax.xml.stream.XMLStreamException;
@@ -28,7 +27,7 @@ public class TermExtractionFromMods {
         ModsDivaFileParser modsDivaFileParser = new ModsDivaFileParser();
         List<Record> recordList = modsDivaFileParser.parse(arg[0]);
 
-        for(Record r : recordList) fileHashDB.put(r.getURI(),r);
+        for(Record r : recordList) fileHashDB.put(r.getMasterURI(),r);
 
         System.out.println("Records parsed and saved: " + fileHashDB.size() );
 

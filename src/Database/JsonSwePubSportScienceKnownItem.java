@@ -6,8 +6,6 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class JsonSwePubSportScienceKnownItem {
 
@@ -70,13 +68,13 @@ public class JsonSwePubSportScienceKnownItem {
 
                     if(affiliationUris.size() == 0) {
 
-                        writer2.write( record.getURI() +"\t" + null  );
+                        writer2.write( record.getMasterURI() +"\t" + null  );
                         writer2.newLine();
                     } else {
 
                         for(String s : affiliationUris) {
 
-                            writer2.write(record.getURI() + "\t" + s);
+                            writer2.write(record.getMasterURI() + "\t" + s);
                             writer2.newLine();
                         }
 
@@ -90,14 +88,14 @@ public class JsonSwePubSportScienceKnownItem {
 
                 if(affiliationsRawStrings.size() == 0) {
 
-                    writer3.write( record.getURI() +"\t" + null  );
+                    writer3.write( record.getMasterURI() +"\t" + null  );
                     writer3.newLine();
 
                 } else {
 
                     for(String s : affiliationsRawStrings) {
 
-                        writer3.write(record.getURI() + "\t" + s);
+                        writer3.write(record.getMasterURI() + "\t" + s);
                         writer3.newLine();
                     }
 

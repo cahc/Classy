@@ -157,7 +157,7 @@ pajekFormat.net:
 
             sparseVectorList.add(docVector);
             docIDs.add(id);
-            URIs.add( record.getURI() );
+            URIs.add( record.getMasterURI() );
             id++;
         }
 
