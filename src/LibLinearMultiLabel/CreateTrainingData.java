@@ -1,6 +1,7 @@
 package LibLinearMultiLabel;
 
 import Database.FileHashDB;
+import Database.JsonSwePubParser;
 import SwePub.HsvCodeToName;
 import SwePub.Record;
 import java.io.IOException;
@@ -10,14 +11,32 @@ public class CreateTrainingData {
 
 
 
-    public static void main(String[] arg) throws IOException {
+    public static void main(String[] arg) throws IOException, InterruptedException {
+
+
+        //FIRST PARSE SWEPUB
+
+        /*
+        FileHashDB fileHashDBSwePub = new FileHashDB();
+        //fileHashDB.setPathToFile("E:\\Desktop\\JSON_SWEPUB\\SWEPUB20210421.db");
+        fileHashDBSwePub.setPathToFile("E:\\SWEPUB\\swepub20220105.db");
+        fileHashDBSwePub.create();
+
+        JsonSwePubParser jsonSwePubParser = new JsonSwePubParser("E:\\SWEPUB\\swepub-deduplicated.jsonl");
+        jsonSwePubParser.parse(fileHashDBSwePub);
+
+        fileHashDBSwePub.closeDatabase();
+        */
+
 
 
 
         //which model
-        String language = "swe";
-        int level = 3;
+        String language = "eng";
+        int level = 5;
+        boolean addAffilFeatures = false;
 
+        System.out.println("Setting up for a " + language + "  model on level " + language + " usingAffil=" + addAffilFeatures);
 
         /*
 
@@ -28,7 +47,7 @@ public class CreateTrainingData {
         SimpleIndex simpleIndex = new SimpleIndex();
 
         FileHashDB fileHashDB = new FileHashDB();
-        fileHashDB.setPathToFile("E:\\SWEPUB_JSON_20210805\\adHocSwePub.db");
+        fileHashDB.setPathToFile("E:\\SWEPUB\\swepub20220105.db");
         fileHashDB.createOrOpenDatabase();
 
 
@@ -36,7 +55,8 @@ public class CreateTrainingData {
 
             Record rec = r.getValue();
             if(rec.isAutoClassedBySwepub()) continue;
-            simpleIndex.addRecord(r.getValue(),level,language);
+
+            simpleIndex.addRecord(r.getValue(),level,language,addAffilFeatures);
 
         }
 
@@ -59,7 +79,7 @@ public class CreateTrainingData {
 
          */
         System.out.println("Serializing index.. # " + simpleIndex.size());
-        simpleIndex.save("E:\\SWEPUB_JSON_20210805\\simpleIndex_" +language+"_"+level+".ser");
+        simpleIndex.save("E:\\SWEPUB\\simpleIndex_" +language+"_"+level+".ser");
 
 
         /*
@@ -113,7 +133,7 @@ public class CreateTrainingData {
             if("eng".equals(language) ) terms = record.getLanguageSpecificTerms("eng");
             if("swe".equals(language) ) terms = record.getLanguageSpecificTerms("swe");
 
-            terms.addAll( record.getTermsFromAffiliation() );
+            if(addAffilFeatures) terms.addAll( record.getTermsFromAffiliation() );
             terms.addAll( record.getTermsFromHost()  );
             terms.addAll( record.getUnkontrolledKkeywords() );
             String ISBN = record.getISBN();
@@ -133,7 +153,7 @@ public class CreateTrainingData {
          */
 
         System.out.println("Serializing training pairs.. # " + trainingPairList.size());
-        TrainingPair.save(trainingPairList, "E:\\SWEPUB_JSON_20210805\\trainingPairs_"+language+"_"+level+".ser");
+        TrainingPair.save(trainingPairList, "E:\\SWEPUB\\trainingPairs_"+language+"_"+level+".ser");
 
 
         /*
@@ -146,7 +166,7 @@ public class CreateTrainingData {
 
         simpleIndex.addEntropyWeighting(trainingPairList);
         System.out.println("Serializing weighting...");
-        simpleIndex.saveWeightingSchemeOptional("E:\\SWEPUB_JSON_20210805\\termWeights_"+language+"_"+level+".ser");
+        simpleIndex.saveWeightingSchemeOptional("E:\\SWEPUB\\termWeights_"+language+"_"+level+".ser");
 
 
 

@@ -79,7 +79,7 @@ public class ModsIdentifyPedagogyCodes {
         List<Record> recordList = modsDivaFileParser.parse( "E:\\2022\\SWEPUB_JSON_20210805_UTBVET\\TAKETWO\\diva_2010-2020.xml" );
         System.out.println("size: " + recordList.size());
 
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter( new FileOutputStream( new File("E:\\2022\\SWEPUB_JSON_20210805_UTBVET\\TAKETWO\\testParse.txt") ), StandardCharsets.UTF_8));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter( new FileOutputStream( new File("E:\\2022\\SWEPUB_JSON_20210805_UTBVET\\TAKETWO\\CONTROLLED_VOCABULARY.txt") ), StandardCharsets.UTF_8));
 
         int count = 0;
         int count2 = 0;
@@ -102,11 +102,14 @@ public class ModsIdentifyPedagogyCodes {
          if(ukaCodesFound) count2++;
 
             boolean localCodesFound = containsLocalUmUPedagogyCodes( r.getLocalUmUClassificationCodes() );
-            if(!localCodesFound) continue;
+            if(localCodesFound) count++;
 
-            writer.write(r.getDiva2Id() + "\t" + r.toString());
-            writer.newLine();
-            count++;
+
+
+            if(ukaCodesFound || localCodesFound ) {
+                writer.write(r.getDiva2Id() + "\t" + r.toString() +"\t" + localCodesFound +"\t" + ukaCodesFound);
+                writer.newLine();
+            }
         }
 
         System.out.println("with local codes: " + count + " with uka: " + count2);

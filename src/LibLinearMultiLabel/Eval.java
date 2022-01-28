@@ -9,10 +9,10 @@ import java.util.List;
 
 public class Eval {
 
-    static class Prediction implements Comparable<Prediction> {
+    public static class Prediction implements Comparable<Prediction> {
 
-        Integer classNr;
-        double prob;
+        public Integer classNr;
+        public double prob;
 
         public Prediction(Integer classNr, double prob) {
 

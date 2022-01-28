@@ -13,26 +13,26 @@ public class TestModel {
 
     public static void main(String[] arg) {
 
-        String language = "swe";
-        int level = 3;
+        String language = "eng";
+        int level = 5;
         boolean useTermWeights = true;
 
         //load model
         System.out.println("Loading model..");
-        OneVsAllLibLinear classifier = OneVsAllLibLinear.load("E:\\SWEPUB_JSON_20210805\\multilabel_"+language+"_"+level+".ser");
+        OneVsAllLibLinear classifier = OneVsAllLibLinear.load("E:\\SWEPUB\\multilabel_"+language+"_"+level+".ser");
 
         //load training or test data
         System.out.println("Loading training data");
 
-        List<TrainingPair> trainingPairList =  TrainingPair.load("E:\\SWEPUB_JSON_20210805\\trainingPairs_"+language+"_"+level+".ser");
+        List<TrainingPair> trainingPairList =  TrainingPair.load("E:\\SWEPUB\\trainingPairs_"+language+"_"+level+".ser");
 
         SimpleIndex simpleIndex = new SimpleIndex();
         if(useTermWeights) {
 
             System.out.println("TermWeighting..");
 
-            simpleIndex.load("E:\\SWEPUB_JSON_20210805\\simpleIndex_" +language+"_"+level+".ser");
-            simpleIndex.loadTermWeightsOptional("E:\\SWEPUB_JSON_20210805\\termWeights_"+language+"_"+level+".ser");
+            simpleIndex.load("E:\\SWEPUB\\simpleIndex_" +language+"_"+level+".ser");
+            simpleIndex.loadTermWeightsOptional("E:\\SWEPUB\\termWeights_"+language+"_"+level+".ser");
 
             for(int i=0; i<trainingPairList.size(); i++) simpleIndex.applyTermWeights(trainingPairList.get(i));
 

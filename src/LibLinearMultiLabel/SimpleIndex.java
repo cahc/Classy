@@ -1,7 +1,4 @@
 package LibLinearMultiLabel;
-
-import Database.FileHashDB;
-import SwePub.HsvCodeToName;
 import SwePub.Record;
 
 import com.koloboke.collect.map.IntDoubleCursor;
@@ -11,7 +8,6 @@ import com.koloboke.collect.map.hash.*;
 import LibLinearMultiLabel.cc.fork.FeatureNode;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class SimpleIndex implements Serializable {
@@ -41,7 +37,7 @@ public class SimpleIndex implements Serializable {
 
 
 
-    public TrainingPair getVectorForUnSeenRecord(Record record,String language) {
+    public TrainingPair getVectorForUnSeenRecord(Record record,String language, boolean includeAffiliationTerms) {
 
 
         List<String> terms = null;
@@ -49,7 +45,7 @@ public class SimpleIndex implements Serializable {
         if("swe".equals(language)) {
 
             terms = record.getLanguageSpecificTerms("swe");
-            terms.addAll(record.getTermsFromAffiliation());
+            if(includeAffiliationTerms) terms.addAll(record.getTermsFromAffiliation());
             terms.addAll(record.getTermsFromHost());
             terms.addAll(record.getUnkontrolledKkeywords());
             String ISBN = record.getISBN();
@@ -61,7 +57,7 @@ public class SimpleIndex implements Serializable {
 
 
             terms = record.getLanguageSpecificTerms("eng");
-            terms.addAll(record.getTermsFromAffiliation());
+            if(includeAffiliationTerms) terms.addAll(record.getTermsFromAffiliation());
             terms.addAll(record.getTermsFromHost());
             terms.addAll(record.getUnkontrolledKkeywords());
             String ISBN = record.getISBN();
@@ -112,7 +108,7 @@ public class SimpleIndex implements Serializable {
     }
 
 
-    public boolean addRecord(Record record, int level, String language) {
+    public boolean addRecord(Record record, int level, String language, boolean addAffiliationFeatures) {
 
 
         if (level == 5 && language.equals("eng")) {
@@ -121,7 +117,7 @@ public class SimpleIndex implements Serializable {
 
 
             List<String> terms = record.getLanguageSpecificTerms("eng");
-            terms.addAll(record.getTermsFromAffiliation());
+            if(addAffiliationFeatures) terms.addAll(record.getTermsFromAffiliation());
             terms.addAll(record.getTermsFromHost());
             terms.addAll(record.getUnkontrolledKkeywords());
             String ISBN = record.getISBN();
@@ -137,7 +133,7 @@ public class SimpleIndex implements Serializable {
             if (!(record.containsLevel3Classification() && record.isFullEnglishText())) return false;
 
             List<String> terms = record.getLanguageSpecificTerms("eng");
-            terms.addAll(record.getTermsFromAffiliation());
+            if(addAffiliationFeatures) terms.addAll(record.getTermsFromAffiliation());
             terms.addAll(record.getTermsFromHost());
             terms.addAll(record.getUnkontrolledKkeywords());
             String ISBN = record.getISBN();
@@ -153,7 +149,7 @@ public class SimpleIndex implements Serializable {
             if (!(record.containsLevel5Classification() && record.isFullSwedishText())) return false;
 
             List<String> terms = record.getLanguageSpecificTerms("swe");
-            terms.addAll(record.getTermsFromAffiliation());
+            if(addAffiliationFeatures)   terms.addAll(record.getTermsFromAffiliation());
             terms.addAll(record.getTermsFromHost());
             terms.addAll(record.getUnkontrolledKkeywords());
             String ISBN = record.getISBN();
@@ -170,7 +166,7 @@ public class SimpleIndex implements Serializable {
 
 
             List<String> terms = record.getLanguageSpecificTerms("swe");
-            terms.addAll(record.getTermsFromAffiliation());
+            if(addAffiliationFeatures)  terms.addAll(record.getTermsFromAffiliation());
             terms.addAll(record.getTermsFromHost());
             terms.addAll(record.getUnkontrolledKkeywords());
             String ISBN = record.getISBN();

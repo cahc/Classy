@@ -128,15 +128,15 @@ public class ParameterSearchOnTest {
     public static void main(String[] arg) throws IOException {
 
         //model
-        String language = "swe";
-        int level = 3;
+        String language = "eng";
+        int level = 5;
         boolean useTermWeights = true;
 
 
-        BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\SWEPUB_JSON_20210805\\parameterSearch_"+language+"_"+level+".txt")), StandardCharsets.UTF_8));
+        BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\SWEPUB\\parameterSearch_"+language+"_"+level+".txt")), StandardCharsets.UTF_8));
 
         //load training data
-        List<TrainingPair> trainingPairList =  TrainingPair.load("E:\\SWEPUB_JSON_20210805\\trainingPairs_"+language+"_"+level+".ser");
+        List<TrainingPair> trainingPairList =  TrainingPair.load("E:\\SWEPUB\\trainingPairs_"+language+"_"+level+".ser");
 
         int dim = trainingPairList.get(0).dimensions;
 
@@ -146,8 +146,8 @@ public class ParameterSearchOnTest {
 
             System.out.println("Term weighting..");
 
-            simpleIndex.load("E:\\SWEPUB_JSON_20210805\\simpleIndex_" +language+"_"+level+".ser");
-            simpleIndex.loadTermWeightsOptional("E:\\SWEPUB_JSON_20210805\\termWeights_"+language+"_"+level+".ser");
+            simpleIndex.load("E:\\SWEPUB\\simpleIndex_" +language+"_"+level+".ser");
+            simpleIndex.loadTermWeightsOptional("E:\\SWEPUB\\termWeights_"+language+"_"+level+".ser");
 
 
             for(int i=0; i<trainingPairList.size(); i++) simpleIndex.applyTermWeights(trainingPairList.get(i));
@@ -172,9 +172,9 @@ public class ParameterSearchOnTest {
         System.out.println("Train set: " + trainAndTestSet.get(0).size() + " Test set: " + trainAndTestSet.get(1).size() );
 
         //search parameters C= 2^2,3,4,5,6,7..
-        double[] factors = new double[]{2,3,4,5,6,7};
+        double[] factors = new double[]{2,6};
         //minority weight 1,2,4,8..
-        double[] minorityWeights = new double[]{1,2,4,8};
+        double[] minorityWeights = new double[]{5,10,15,20};
 
 
         List<Ev> evList = new ArrayList<>();

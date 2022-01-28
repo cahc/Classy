@@ -811,9 +811,24 @@ public class ModsDivaFileParser {
     }
 
 
-    public static void main(String[] arg)  {
+    public static void main(String[] arg) throws IOException, XMLStreamException {
 
 
+
+        ModsDivaFileParser modsDivaFileParser = new ModsDivaFileParser();
+        List<Record> recordList = modsDivaFileParser.parse( "E:\\2022\\SWEPUB_JSON_20210805_UTBVET\\TAKETWO\\diva_2010-2020.xml" );
+        System.out.println("size: " + recordList.size());
+        BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\2022\\SWEPUB_JSON_20210805_UTBVET\\TAKETWO\\AllParsed.txt") ), StandardCharsets.UTF_8) );
+        for(Record r : recordList) {
+
+            writer.write(r.toString());
+            writer.newLine();
+            System.out.println( r.getUnkontrolledKkeywords() );
+        }
+
+
+        writer.flush();
+        writer.close();
 
     }
 

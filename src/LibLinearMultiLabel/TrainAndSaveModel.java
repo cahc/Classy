@@ -6,20 +6,20 @@ public class TrainAndSaveModel {
     public static void main(String[] arg) {
 
 
-        String language = "swe";
-        int level = 3;
+        String language = "eng";
+        int level = 5;
         boolean useTermWeights = true;
 
-        //SWE level 3
-        double C = 16;
-        double minorityWeight = 4;
+        //language and level specific level 3
+        double C = 4;
+        double minorityWeight = 10; //increase to 10 for english level 5, 4 for swedish
 
         //ENG level 3
-        //double C = 16;
-        //double minorityWeight = 2;
+        //double C = 4;
+        //double minorityWeight = 10;
 
         //load training data
-        List<TrainingPair> trainingPairList =  TrainingPair.load("E:\\SWEPUB_JSON_20210805\\trainingPairs_"+language+"_"+level+".ser");
+        List<TrainingPair> trainingPairList =  TrainingPair.load("E:\\SWEPUB\\trainingPairs_"+language+"_"+level+".ser");
         int dim = trainingPairList.get(0).dimensions;
 
         SimpleIndex simpleIndex = new SimpleIndex();
@@ -28,8 +28,8 @@ public class TrainAndSaveModel {
 
             System.out.println("Term weighting..");
 
-            simpleIndex.load("E:\\SWEPUB_JSON_20210805\\simpleIndex_" +language+"_"+level+".ser");
-            simpleIndex.loadTermWeightsOptional("E:\\SWEPUB_JSON_20210805\\termWeights_"+language+"_"+level+".ser");
+            simpleIndex.load("E:\\SWEPUB\\simpleIndex_" +language+"_"+level+".ser");
+            simpleIndex.loadTermWeightsOptional("E:\\SWEPUB\\termWeights_"+language+"_"+level+".ser");
 
 
             for(int i=0; i<trainingPairList.size(); i++) simpleIndex.applyTermWeights(trainingPairList.get(i));
@@ -53,7 +53,7 @@ public class TrainAndSaveModel {
         oneVsAllLibLinear.train(C,minorityWeight);
 
         System.out.println("Serializing models");
-        oneVsAllLibLinear.save("E:\\SWEPUB_JSON_20210805\\multilabel_"+language+"_"+level+".ser");
+        oneVsAllLibLinear.save("E:\\SWEPUB\\multilabel_"+language+"_"+level+".ser");
 
     }
 

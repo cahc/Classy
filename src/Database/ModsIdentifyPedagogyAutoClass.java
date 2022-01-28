@@ -1,22 +1,20 @@
-package LibLinearMultiLabel;
+package Database;
 
-
-import Database.FileHashDB;
-import Database.ModsDivaFileParser;
+import LibLinearMultiLabel.Eval;
+import LibLinearMultiLabel.OneVsAllLibLinear;
+import LibLinearMultiLabel.SimpleIndex;
+import LibLinearMultiLabel.TrainingPair;
 import SwePub.Record;
-import com.koloboke.collect.map.ObjIntCursor;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 
-public class Predictor {
+public class ModsIdentifyPedagogyAutoClass {
 
 
     public static void main(String[] arg) throws IOException, XMLStreamException {
-
 
         //load models, index and termweights
         System.out.println("Loading model..");
@@ -56,10 +54,10 @@ public class Predictor {
         int noAbstract = 0;
 
 
-        BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\SWEPUB\\AutoClassEducation2010-2020.txt")), StandardCharsets.UTF_8));
+        BufferedWriter writer = new BufferedWriter( new OutputStreamWriter( new FileOutputStream( new File("E:\\2022\\SWEPUB_JSON_20210805_UTBVET\\TAKETWO\\AUTOCLASSIFICATION_2010-2020.txt")), StandardCharsets.UTF_8));
 
         //for (Map.Entry<String, Record> r : fileHashDB.database.entrySet()) {
-          for(Record rec : recordList) {
+        for(Record rec : recordList) {
 
             //Record rec = r.getValue();
             //this should seldom (never?) be the case i guess
@@ -82,7 +80,7 @@ public class Predictor {
 
             if(baseClassificationOnEnglishModel) {
 
-               trainingPair = simpleIndexEng.getVectorForUnSeenRecord(rec,"eng",false);
+                trainingPair = simpleIndexEng.getVectorForUnSeenRecord(rec,"eng",false);
 
 
             } else if(rec.isContainsSwedish()) {
@@ -127,38 +125,43 @@ public class Predictor {
             int toCheck = Math.min(3,predictions.size());
             for(int i=0; i<toCheck; i++) {
 
-             if(baseClassificationOnEnglishModel) {
+                if(baseClassificationOnEnglishModel) {
 
-                 if( (predictions.get(i).classNr.equals(50301) || predictions.get(i).classNr.equals(50302) || predictions.get(i).classNr.equals(50303) || predictions.get(i).classNr.equals(50304) ) && predictions.get(i).prob >=0.51) {isEducation = true; break; }
+                    if( (predictions.get(i).classNr.equals(50301) || predictions.get(i).classNr.equals(50302) || predictions.get(i).classNr.equals(50303) || predictions.get(i).classNr.equals(50304) ) && predictions.get(i).prob >=0.51) {isEducation = true; break; }
 
-             } else {
+                } else {
 
-                 if(predictions.get(i).classNr.equals(503) && predictions.get(i).prob >=0.7) {isEducation = true; break; }
+                    if(predictions.get(i).classNr.equals(503) && predictions.get(i).prob >=0.51) {isEducation = true; break; }
 
-             }
+                }
 
             }
 
-           if(isEducation) {
-               writer.write(rec.getDiva2Id() +"\t" + rec.getMasterURI() + "\t" + predictions +"\t" + (baseClassificationOnEnglishModel ? "English" : "Swedish") +"\t" + rec.getAffiliationUris().contains("umu.se") +"\t" + rec.getSecondaryUris() +"\t" + rec.getUmUUri() +"\t" + rec.getTitle());
-               writer.newLine();
-               withSoughtTarget++;
-           }
+            if(isEducation) {
+                writer.write(rec.getDiva2Id() +"\t" + rec.getMasterURI() + "\t" + predictions +"\t" + (baseClassificationOnEnglishModel ? "English" : "Swedish") +"\t" + rec.getAffiliationUris().contains("umu.se") +"\t" + rec.getSecondaryUris() +"\t" + rec.getUmUUri() +"\t" + rec.getTitle());
+                writer.newLine();
+                withSoughtTarget++;
+            }
 
 
         } //for each record
 
 
 
-       // fileHashDB.closeDatabase();
+        // fileHashDB.closeDatabase();
         writer.flush();
         writer.close();
         System.out.println("Number non classifyed based on language: " + unsupported );
         System.out.println("Number ignored for lacking abstract " + noAbstract);
         System.out.println("Number of instances with no predictions: " + notClassified);
         System.out.println("With sought target (503) : " + withSoughtTarget);
+
+
+
+
+
     }
 
 
-}
 
+}
