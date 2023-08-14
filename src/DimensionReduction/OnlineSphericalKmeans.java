@@ -6,7 +6,7 @@ import jsat.linear.DenseVector;
 import jsat.linear.SparseVector;
 import jsat.linear.Vec;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -23,15 +23,14 @@ public class OnlineSphericalKmeans {
     private int[] partition;
     private List<SphericalCentroid> sphericalCentroidList;
 
-
     public static double learningRate(int t,int N, int M) {
 
         //Exponential decreasing learning rate schedule
         //#n_0 initial (say 1.0), n_f final (say 0.01)
         //# 0 <= t <= N*M  (M number of batch iterations)
 
-        double n_0 = 0.1D;
-        double n_f = 0.05D;
+        double n_0 = 0.025;
+        double n_f = 0.01;
 
 
         double n_t =  n_0 *  Math.pow(n_f/n_0,  ((double)t)/(N*M) );
@@ -41,6 +40,25 @@ public class OnlineSphericalKmeans {
 
 
     }
+
+    public static double learningRate(int t,int N, int M, double start, double stop) {
+
+        //Exponential decreasing learning rate schedule
+        //#n_0 initial (say 1.0), n_f final (say 0.01)
+        //# 0 <= t <= N*M  (M number of batch iterations)
+
+        double n_0 = start;
+        double n_f = stop;
+
+
+        double n_t =  n_0 *  Math.pow(n_f/n_0,  ((double)t)/(N*M) );
+
+        return(n_t);
+
+
+
+    }
+
 
     public int[] getPartition() {
 
@@ -110,7 +128,14 @@ public class OnlineSphericalKmeans {
 
     public void fit() {
 
-        //double lr = 0.01; //flat learning rate
+        double lr = 0.01; //flat learning rate
+
+        //exponential decreasing learning rate
+        int N = this.vecList.size();
+        int M = this.batches;
+        int t=0;
+        //double lr = -1;
+        int randomAssign = 0;
 
         for(int m=0; m<this.batches; m++) {
 
@@ -137,12 +162,12 @@ public class OnlineSphericalKmeans {
 
             //////////////////////////////////////////////
 
-            int randomAssign = 0;
 
             int clusterSize[] = new int[this.k]; //for each new batch?
 
             //one batch
             for(int l=0; l<this.vecList.size(); l++) {
+
 
                 int i=l;
 
@@ -168,7 +193,7 @@ public class OnlineSphericalKmeans {
 
                 //double lr = 0.01; // / (m+1) ; // flat learning rate per batch iterattion, lenear descreasing
 
-                //double lr = learningRate(t,N,M_batches);
+                //lr = learningRate(t,N,M);
 
                 if(this.partition[i] == -1) {
 
@@ -177,10 +202,13 @@ public class OnlineSphericalKmeans {
                     clusterSize[randomAssign]++;
 
                     // double lr = 1.0 / Math.sqrt( clusterSize[partition[i]]++ );
+                    //lr = learningRate(t,N,M);
+
 
                     int randomNum = ThreadLocalRandom.current().nextInt(0, k );
                     this.partition[i] = randomNum;
-                    this.sphericalCentroidList.get(randomNum).add( v ,0.001); //very low learning rate here as it is randomly assign
+                    this.sphericalCentroidList.get(randomNum).add( v ,lr); //or very low learning rate here as it is randomly assign?
+                    t++;
                     randomAssign++;
 
 
@@ -190,9 +218,10 @@ public class OnlineSphericalKmeans {
 
                     clusterSize[partition[i]]++;
 
-                    double lr = 1.0 / Math.sqrt( clusterSize[partition[i]]++ );
+                    //double lr = 1.0 / Math.sqrt( clusterSize[partition[i]]++ );
 
                     sphericalCentroidList.get(partition[i]).add( v, lr);
+                    t++;
                 }
 
 
@@ -226,7 +255,7 @@ public class OnlineSphericalKmeans {
             }
 
             System.out.println("Q: " + Q + " avg sim: " + (Q / vecList.size()) + " 1-cos(x,cent): " + (vecList.size() - Q) );
-
+            System.out.println("last learning rate: " + lr);
 
         } // for each batch
 
@@ -239,18 +268,14 @@ public class OnlineSphericalKmeans {
 
         ClassificationDataSet classificationDataSet = HelperFunctions.readJSATdata("myDataSet.jsat");
         List<SparseVector> vecList = (List<SparseVector>)(Object)classificationDataSet.getDataVectors();
-        OnlineSphericalKmeans onlineSphericalKmeans = new OnlineSphericalKmeans(vecList,100,3);
-        onlineSphericalKmeans.fit();
 
+        //use online k-means with  flat  learning  rate to get a rough approximation of the centroids
+        //OnlineSphericalKmeans onlineSphericalKmeans = new OnlineSphericalKmeans(vecList,100,2);
+        //onlineSphericalKmeans.fit();
 
-
-
-
-
-
-
-
-
+        //run batch k-means
+        BatchSphericalKmeans batchSphericalKmeans = new BatchSphericalKmeans(vecList, 100, 10,false);
+        batchSphericalKmeans.fit();
 
 
     }

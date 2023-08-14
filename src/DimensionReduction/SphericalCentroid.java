@@ -70,8 +70,7 @@ public class SphericalCentroid {
 
         this.S = this.S - removeFromS;
 
-        //step 2 todo with a learning step, here implicit flat 1.0
-        //1-s2.0-S0893608005X01228
+        //step 2
 
 
        if(this.l2norm != 0)   { this.vector.mutableAdd(this.l2norm * learningRate,sparseVector); } else { this.vector.mutableAdd(sparseVector); }

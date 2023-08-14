@@ -18,6 +18,7 @@ public class BatchSphericalKmeans {
     private final int k;
     private final boolean startFromExisting;
     private final int maxIter;
+    protected final Random rng = new Random();
 
     //find closest centroid, the partition at the end of iterations
     int[] closestCentroid;
@@ -26,6 +27,18 @@ public class BatchSphericalKmeans {
     private List<DenseVector> compositeVectors = null;
     private List<SparseVector> vecList = null;
 
+    private void makeRandomCentroid(double[] ds) {
+        double sumsq = 0;
+        for (int i = 0; i < ds.length; i++) {
+            ds[i] = rng.nextGaussian();
+            sumsq += (ds[i] * ds[i]);
+        }
+
+        sumsq = 1 / Math.sqrt(sumsq);
+        for (int i = 0; i < ds.length; i++) {
+            ds[i] *= sumsq;
+        }
+    }
 
     public static List<SparseVector> readSparseFromCluto(String fileName) throws IOException {
 
@@ -246,6 +259,8 @@ public class BatchSphericalKmeans {
 
             for (int i = 0; i < this.k; i++) {
 
+                //double [] randomCentroid = new double[dim];
+                //makeRandomCentroid(randomCentroid);
                 this.compositeVectors.add(new DenseVector(dim));
 
             }
@@ -376,7 +391,6 @@ public class BatchSphericalKmeans {
 
             System.out.println("Q: " + Q + " avg sim: " + (Q / closestCentroid.length) + " 1-cos(x,cent): " + (vecList.size() - Q) );
             System.out.println("cluster size: " + Arrays.toString(clusterSize));
-            //todo sparsifying
 
 
 
