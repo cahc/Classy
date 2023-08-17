@@ -47,7 +47,7 @@ public class PingPong {
         int[] partition = onlineSphericalKmeans.getPartition();
 
 
-        BatchSphericalKmeans batchSphericalKmeans = new BatchSphericalKmeans(vecList,partition,1000,10,false);
+        BatchSphericalKmeans batchSphericalKmeans = new BatchSphericalKmeans(vecList,partition,10,false);
         batchSphericalKmeans.fit();
 
         List<DenseVector> axis = batchSphericalKmeans.getCentroids();

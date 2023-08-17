@@ -156,19 +156,29 @@ public class BatchSphericalKmeans {
     }
 
 
-    public BatchSphericalKmeans(List<SparseVector> vecList, int[] partition, int k, int maxIter, boolean l2normalize) throws IOException {
+    public BatchSphericalKmeans(List<SparseVector> vecList, int[] partition, int maxIter, boolean l2normalize) throws IOException {
+
+
+        Set<Integer> unique_clusters = new HashSet<>();
+        for(int i=0; i<partition.length; i++) {
+
+            int c = partition[i];
+            if(c == -1) continue;
+            unique_clusters.add(c);
+        }
+
 
         this.startFromExisting = true;
 
         if(vecList.size() != partition.length) {System.out.println("Wrong initial partition length"); System.exit(0); }
 
-        this.k = k;
+        this.k = unique_clusters.size();
         this.maxIter = maxIter;
         this.closestCentroid = new int[vecList.size()];
         this.previousCentroid = new int[vecList.size()];
         this.vecList = vecList;
 
-        for (int i = 0; i < previousCentroid.length; i++) previousCentroid[i] = -1; //dummy init
+        for (int i = 0; i < previousCentroid.length; i++) previousCentroid[i] = partition[i]; //init with given partition
 
 
         if (l2normalize) {
@@ -184,6 +194,7 @@ public class BatchSphericalKmeans {
 
 
         System.out.println("Using external partition as seed");
+        System.out.println("k=" + unique_clusters.size());
 
 
         compositeVectors = new ArrayList<>();
@@ -203,6 +214,8 @@ public class BatchSphericalKmeans {
 
 
             int clusterIndice = partition[i];
+
+            if(clusterIndice == -1) continue;
 
             compositeVectors.get(clusterIndice).mutableAdd( v );
 
@@ -391,12 +404,6 @@ public class BatchSphericalKmeans {
 
             System.out.println("Q: " + Q + " avg sim: " + (Q / closestCentroid.length) + " 1-cos(x,cent): " + (vecList.size() - Q) );
             System.out.println("cluster size: " + Arrays.toString(clusterSize));
-
-
-
-
-
-
             System.out.println("##");
 
             iter++;
