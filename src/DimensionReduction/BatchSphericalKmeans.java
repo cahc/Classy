@@ -407,6 +407,8 @@ public class BatchSphericalKmeans {
             System.out.println("##");
 
             iter++;
+
+            if(changes == 0) {System.out.println("No changes so no further iterations are made!");break; } //early termination
         }
 
 
