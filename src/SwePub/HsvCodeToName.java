@@ -1148,7 +1148,13 @@ public class HsvCodeToName {
 
     public static void main(String[] arg) {
 
+
+
         HsvCodeToName hsvCodeToName = new HsvCodeToName();
+        System.out.println( hsvCodeToName.suggestNewCategoriesOnSameThreeDigitLevelOrNull(30116) );
+        System.exit(0);
+
+
         SSIF2025ADAPTER ssif2025ADAPTER = new SSIF2025ADAPTER();
 
         HashMap<Integer,ClassificationCategory> HSV2011  = hsvCodeToName.getAll2011Categories();
