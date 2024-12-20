@@ -1108,7 +1108,7 @@ public class HsvCodeToName {
     public String suggestNewCategoriesOnSameThreeDigitLevelOrNull(Integer code) {
 
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("Nya koder i SSIF2025 i samma forskningsämnesgrupp: ");
+            stringBuilder.append("Nya ämnen i SSIF2025 i samma forskningsämnesgrupp: ");
             boolean anyNew = false;
             boolean first = true;
 
