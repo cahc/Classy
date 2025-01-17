@@ -1151,10 +1151,6 @@ public class HsvCodeToName {
 
 
         HsvCodeToName hsvCodeToName = new HsvCodeToName();
-        System.out.println( hsvCodeToName.suggestNewCategoriesOnSameThreeDigitLevelOrNull(30116) );
-        System.exit(0);
-
-
         SSIF2025ADAPTER ssif2025ADAPTER = new SSIF2025ADAPTER();
 
         HashMap<Integer,ClassificationCategory> HSV2011  = hsvCodeToName.getAll2011Categories();
@@ -1162,11 +1158,12 @@ public class HsvCodeToName {
 
 
         System.out.println("categories in 2011: " + HSV2011.size() + " and categories in 2025: " + HSV2025.size());
-
+        Set<Integer> hsv2025 = HSV2025.keySet();
+        Set<Integer> hsv2011 = HSV2011.keySet();
 
         //CHECK MAPPING
 
-
+        HashSet<Integer> mapped = new HashSet<>();
         for(Map.Entry<Integer,ClassificationCategory> entry20211 : HSV2011.entrySet()) {
 
             Integer cat2011 = entry20211.getKey();
@@ -1207,13 +1204,15 @@ public class HsvCodeToName {
 
             }
 
-            System.out.println(cat2011 + " " + hsvCodeToName.getCategoryInfo(cat2011).getSwe_description()  + "\t" + finalCodes + " " + cat2025Names);
+            //System.out.println(cat2011 + " " + hsvCodeToName.getCategoryInfo(cat2011).getSwe_description()  + "\t" + finalCodes + " " + cat2025Names);
 
 
 
             //SUGGEST MAPPINGS:
 
             String suggestions = hsvCodeToName.suggestNewCategoriesOnSameThreeDigitLevelOrNull(cat2011);
+
+            /*
             if(suggestions == null) {
 
                 System.out.println("No suggestion on new categories!");
@@ -1224,16 +1223,32 @@ public class HsvCodeToName {
 
             }
 
-
-            System.out.println(infoRegardingMappings);
-
+       */
 
 
-            System.out.println();
+            boolean newCode = !hsv2011.containsAll(finalCodes);
+
+
+
+            System.out.println(cat2011 +"\t" + hsvCodeToName.getCategoryInfo(cat2011).getSwe_description() + "\t" + finalCodes + "\t" + cat2025Names + "\t" + suggestions + "\t" + infoRegardingMappings + "\t" + newCode);
+
+            mapped.addAll(finalCodes);
         }
 
 
 
+        Set<Integer> newCodes = new HashSet<>();
+
+        for(Integer i : hsv2025) {
+
+            if(!mapped.contains(i)) newCodes.add(i);
+
+        }
+
+
+        for(Integer i : newCodes) {
+            System.out.println("-" + "\t" + "ny kategori ssif2025 som saknar mappning" + "\t" + i +"\t" + hsvCodeToName.getCategoryInfo_SSIF2025(i).getSwe_description() +"\t" + "- " + "\t" + "-");
+        }
 
 
     }
